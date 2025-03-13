@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <link rel="icon" href="../images/logo.png" type="image/x-icon" />
+    <link rel="stylesheet" href="../css/dashboard.css" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="logo">
+        <img src="../images/logo.png" alt="Logo" />
+        <span>DENR PORTAL</span>
+      </div>
+      <ul>
+        <li class="active">Dashboard</li>
+        <li>Tree Cutting Permit</li>
+        <li>Chainsaw registration</li>
+        <li>Transport Permit</li>
+        <li>My Reports</li>
+      </ul>
+      <div class="logout" id="logout">
+        <i class="fas fa-sign-out-alt"></i>
+        <span>Logout</span>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="topbar">
+        <div class="search">
+          <input type="text" placeholder="Search..." />
+        </div>
+        <div class="topbar-icons">
+          <i class="fas fa-bell"></i>
+          <img src="https://i.pravatar.cc/40" alt="User Avatar" />
+        </div>
+      </div>
+
+      <h2>Dashboard</h2>
+
+      <div class="cards">
+        <div class="card">
+          <i class="fas fa-user icon1"></i>
+          <div class="card-info">
+            <h3>8,267</h3>
+            <p>No. of Tree Cutting Permits</p>
+          </div>
+        </div>
+        <div class="card">
+          <i class="fas fa-shopping-cart icon2"></i>
+          <div class="card-info">
+            <h3>200,521</h3>
+            <p>No. of Chainsaw Registrations</p>
+          </div>
+        </div>
+        <div class="card">
+          <i class="fas fa-box icon3"></i>
+          <div class="card-info">
+            <h3>215,542</h3>
+            <p>No. of Transport Permits</p>
+          </div>
+        </div>
+        <div class="card">
+          <i class="fas fa-dollar-sign icon4"></i>
+          <div class="card-info">
+            <h3>$677.89</h3>
+            <p>Permits for approval</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>CLIENT</th>
+              <th>PERMIT TYPE</th>
+              <th>STATUS</th>
+              <th>CURRENT LOCATION</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>John Doe <br /><small>john@example.com</small></td>
+              <td>
+                <strong>Software Engineer</strong><br /><small>Web dev</small>
+              </td>
+              <td><span class="status">Active</span></td>
+              <td>Owner</td>
+              <td><span class="view-link">view</span></td>
+            </tr>
+            <tr>
+              <td>Oscar Rhys <br /><small>john@example.com</small></td>
+              <td>
+                <strong>Software Engineer</strong><br /><small>Web dev</small>
+              </td>
+              <td><span class="status">Active</span></td>
+              <td>Owner</td>
+              <td><span class="view-link">view</span></td>
+            </tr>
+            <tr>
+              <td>George Reece <br /><small>john@example.com</small></td>
+              <td>
+                <strong>Software Engineer</strong><br /><small>Web dev</small>
+              </td>
+              <td><span class="status">Active</span></td>
+              <td>Owner</td>
+              <td><span class="view-link">view</span></td>
+            </tr>
+            <tr>
+              <td>Thomas Joe <br /><small>john@example.com</small></td>
+              <td>
+                <strong>Software Engineer</strong><br /><small>Web dev</small>
+              </td>
+              <td><span class="status">Active</span></td>
+              <td>Owner</td>
+              <td><span class="view-link">view</span></td>
+            </tr>
+            <tr>
+              <td>Charlie Kyle <br /><small>john@example.com</small></td>
+              <td>
+                <strong>Software Engineer</strong><br /><small>Web dev</small>
+              </td>
+              <td><span class="status">Active</span></td>
+              <td>Owner</td>
+              <td><span class="view-link">view</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <script type="module" src="../scripts/dashboard.js"></script>
+  </body>
+</html>
