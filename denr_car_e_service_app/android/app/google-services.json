@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "18324395869",
+    "project_id": "denr-car-e-services-project",
+    "storage_bucket": "denr-car-e-services-project.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18324395869:android:700de6d0a6944882377ab4",
+        "android_client_info": {
+          "package_name": "com.example.denr_car_e_service_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBdtH0w08H6WY9tFM78k85j7HmxbIb4V14"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
