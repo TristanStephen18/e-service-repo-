@@ -1,6 +1,6 @@
 import 'package:denr_car_e_service_app/firebase_options.dart';
-import 'package:denr_car_e_service_app/screens/homepage.dart';
-import 'package:denr_car_e_service_app/screens/onboarding.dart';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
+import 'package:denr_car_e_service_app/screens/Home/onboarding.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';

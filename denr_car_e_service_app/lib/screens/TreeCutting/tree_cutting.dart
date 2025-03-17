@@ -70,32 +70,7 @@ class TreeCuttingChoices extends StatelessWidget {
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
-              const Gap(20),
-              // Transport Permit Service
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: const ListTile(
-                  leading: Icon(Icons.forest, color: Colors.green),
-                  title: Text(
-                    "Special Private Land Timber Permit",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: Text(
-                    "For naturally grown/premium trees within private lands.",
-                  ),
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
+
               const Gap(20),
               // Transport Permit Service
               Container(

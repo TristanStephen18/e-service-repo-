@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
@@ -17,13 +18,20 @@ class _DisplayState extends State<Display> {
   @override
   void initState() {
     super.initState();
-    _files = FirebaseFirestore.instance.collection('files').snapshots();
+    _files =
+        FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('applications')
+            .doc('TP-2025-03-17-0001')
+            .collection('requirements')
+            .snapshots();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Plant PDFs & Images')),
+      appBar: AppBar(title: Text('Requirements')),
       body: SafeArea(
         child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
           stream: _files,
@@ -43,7 +51,7 @@ class _DisplayState extends State<Display> {
                 snapshot.data!.docs;
 
             if (documents.isEmpty) {
-              return Center(child: Text('No plants found'));
+              return Center(child: Text('No Files found'));
             }
 
             return ListView.builder(
@@ -56,62 +64,38 @@ class _DisplayState extends State<Display> {
                 final base64EncodedPdf =
                     data['file']; // Assuming 'file' field contains base64 PDF string
 
-                return Dismissible(
-                  key: Key(document.id),
-                  direction: DismissDirection.startToEnd,
-                  confirmDismiss: (direction) async {
-                    return await showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return AlertDialog();
-                      },
-                    );
-                  },
-                  onDismissed: (direction) async {
-                    await FirebaseFirestore.instance
-                        .collection('plants')
-                        .doc(document.id)
-                        .delete();
-                  },
-                  background: Container(
-                    color: Colors.green,
-                    alignment: Alignment.centerLeft,
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Icon(Icons.delete, color: Colors.white),
-                  ),
-                  child: Card(
-                    child: ListTile(
-                      onTap: () {
-                        if (ext == "pdf") {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => PdfViewerScreen(
-                                    base64EncodedPdf: base64EncodedPdf,
-                                  ),
-                            ),
-                          );
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (context) => ImagePreviewScreen(
-                                    base64EncodedPdf: base64EncodedPdf,
-                                  ),
-                            ),
-                          );
-                        }
-                      },
+                return Card(
+                  child: ListTile(
+                    onTap: () {
+                      if (ext == ".pdf") {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => PdfViewerScreen(
+                                  base64EncodedPdf: base64EncodedPdf,
+                                ),
+                          ),
+                        );
+                      } else {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (context) => ImagePreviewScreen(
+                                  base64EncodedPdf: base64EncodedPdf,
+                                ),
+                          ),
+                        );
+                      }
+                    },
 
-                      title: Text(
-                        data['fileName'],
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Colors.green,
-                          fontWeight: FontWeight.bold,
-                        ),
+                    title: Text(
+                      data['fileName'],
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.green,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),

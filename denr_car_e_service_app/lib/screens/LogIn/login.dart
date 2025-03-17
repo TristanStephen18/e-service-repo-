@@ -1,7 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:denr_car_e_service_app/screens/homepage.dart';
-import 'package:denr_car_e_service_app/screens/register.dart';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
+import 'package:denr_car_e_service_app/screens/LogIn/register.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
