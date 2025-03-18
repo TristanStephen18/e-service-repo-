@@ -10,116 +10,113 @@ class Services extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: const CircleAvatar(
-                      radius: 25,
-                      backgroundImage: ExactAssetImage('lib/images/logo.png'),
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      decoration: const BoxDecoration(shape: BoxShape.circle),
+                      child: const CircleAvatar(
+                        radius: 25,
+                        backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 13),
-                  const Text(
-                    'DENR-CAR',
+                    const SizedBox(width: 13),
+                    const Text(
+                      'DENR-CAR',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+                const Gap(25),
+                const Center(
+                  child: Text(
+                    'Services',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: Colors.blue,
                     ),
-                  ),
-                ],
-              ),
-              const Gap(25),
-              const Center(
-                child: Text(
-                  'Services',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue,
                   ),
                 ),
-              ),
-              const Gap(20),
+                const Gap(20),
 
-              // Chainsaw Service
-              _buildServiceTile(
-                context,
-                icon: Icons.file_copy_sharp,
-                title: "Chainsaw",
-                subtitle: "Apply Now!",
-                onTap:
-                    () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => ChainsawRegistrationScreen(),
+                _buildServiceTile(
+                  context,
+                  icon: Icons.carpenter,
+                  title: "Chainsaw",
+                  subtitle: "Apply Now!",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => ChainsawRegistrationScreen(),
+                        ),
                       ),
-                    ),
-              ),
+                ),
 
-              // Tree Cutting Permit
-              _buildServiceTile(
-                context,
-                icon: Icons.forest,
-                title: "Tree Cutting Permit",
-                subtitle: "Apply Now!",
-                onTap:
-                    () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => TreeCuttingChoices(),
+                _buildServiceTile(
+                  context,
+                  icon: Icons.forest,
+                  title: "Tree Cutting Permit",
+                  subtitle: "Apply Now!",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => TreeCuttingChoices(),
+                        ),
                       ),
-                    ),
-              ),
+                ),
 
-              // Transport Permit
-              _buildServiceTile(
-                context,
-                icon: Icons.car_crash,
-                title: "Transport Permit",
-                subtitle: "Apply Now!",
-                onTap:
-                    () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => ForestRequirementsForm(),
+                _buildServiceTile(
+                  context,
+                  icon: Icons.car_crash,
+                  title: "Transport Permit",
+                  subtitle: "Apply Now!",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => ForestRequirementsForm(),
+                        ),
                       ),
-                    ),
-              ),
+                ),
 
-              // Plantation & Wood Processing
-              _buildServiceTile(
-                context,
-                icon: Icons.food_bank,
-                title: "Plantation and Wood Processing Registration",
-                subtitle: "Apply Now!",
-                onTap:
-                    () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => TreeCuttingChoices(),
+                _buildServiceTile(
+                  context,
+                  icon: Icons.grass,
+                  title: "Plantation and Wood Processing Registration",
+                  subtitle: "Apply Now!",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => TreeCuttingChoices(),
+                        ),
                       ),
-                    ),
-              ),
+                ),
 
-              // Wildlife Registration
-              _buildServiceTile(
-                context,
-                icon: Icons.pets,
-                title: "Wildlife Registration",
-                subtitle: "Apply Now!",
-                onTap:
-                    () => Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => TreeCuttingChoices(),
+                _buildServiceTile(
+                  context,
+                  icon: Icons.pets,
+                  title: "Wildlife Registration",
+                  subtitle: "Apply Now!",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => TreeCuttingChoices(),
+                        ),
                       ),
-                    ),
-              ),
-            ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

@@ -2,8 +2,10 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
@@ -82,6 +84,21 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
   // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Uploading files...'),
+            ],
+          ),
+        );
+      },
+    );
     try {
       String documentId = await _generateDocumentId();
 
@@ -91,8 +108,11 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-            'type': 'permitTopurchase',
+            'type': 'Permit To Purchase',
             'userID': FirebaseAuth.instance.currentUser!.uid,
+            'client': 'Tristan Tukmol',
+            'status': 'Pending',
+            'current_location': 'RPU - For Evaluation',
           });
 
       // Upload each file
@@ -127,7 +147,9 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'permitTopurchase',
+            'type': 'Permit To Purchase',
+
+            'status': 'Pending',
           });
 
       // Upload each file
@@ -152,8 +174,38 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
             });
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All files submitted successfully!')),
+      Navigator.of(context).pop();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -182,8 +234,22 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
       await _uploadFiles(filesToUpload);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please attach required files.')),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Files'),
+            content: const Text('Please attach required files.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Closes the dialog
+                },
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -246,7 +312,10 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Requirements'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Permit to Purchase'),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -262,11 +331,14 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
                 const SizedBox(height: 16),
                 _buildFilePicker(
                   '1. Duly Accomplish Application Form, together with the following details:\n'
-                  'a. Number of chainsaws to be purchased/imported with specifications\n'
-                  'b. Purpose for purchasing/importing\n'
-                  'c. Name and address of sellers/supliers\n'
-                  'd. Expected time of arrival at port of entry or release from the Bureau of Customs, if imported\n'
-                  'e. Import Entry Declaration from the Bangko Sentral ng Pilipinas',
+                  '\t\t\t\ta. Number of chainsaws to be purchased/imported\n'
+                  '\t\t\t\t\t\t\t\twith specifications\n'
+                  '\t\t\t\tb. Purpose for purchasing/importing\n'
+                  '\t\t\t\tc. Name and address of sellers/supliers\n'
+                  '\t\t\t\td. Expected time of arrival at port of entry or release\n'
+                  '\t\t\t\t\t\t\t\tfrom the Bureau of Customs, if imported\n'
+                  '\t\t\t\te. Import Entry Declaration from the Bangko Sentral\n'
+                  '\t\t\t\t\t\t\t\tng Pilipinas',
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),

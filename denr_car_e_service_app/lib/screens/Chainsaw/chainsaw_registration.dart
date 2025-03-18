@@ -39,7 +39,7 @@ class _ChainsawRegistrationScreenState
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.public, color: Colors.green),
+                  leading: Icon(Icons.carpenter, color: Colors.green),
                   title: Text(
                     "Chainsaw Registration",
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -68,7 +68,7 @@ class _ChainsawRegistrationScreenState
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.landscape, color: Colors.green),
+                  leading: Icon(Icons.sell, color: Colors.green),
                   title: Text(
                     "Permit to Sell",
                     style: TextStyle(fontWeight: FontWeight.bold),
@@ -99,7 +99,7 @@ class _ChainsawRegistrationScreenState
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.forest, color: Colors.green),
+                  leading: Icon(Icons.shop, color: Colors.green),
                   title: Text(
                     "Permit to Purchase",
                     style: TextStyle(fontWeight: FontWeight.bold),

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -17,16 +19,19 @@ class _ChainsawRegState extends State<ChainsawReg> {
   final _formKey = GlobalKey<FormState>();
 
   File? dulyAccomplishForm;
-  File? _orCrFile;
-  File? _treeCuttingPermitFile;
-  File? _transportAgreementFile;
-  File? _spaFile;
+  File? chainsawReciept;
+  File? spa;
+  File? chainsawSpec;
+  File? deedofSale;
+  File? regChainsaw;
 
-  final double certificationFee = 50.00;
-  final double oathFee = 36.00;
-  final double inventoryFee = 360.00;
-
-  double get totalFee => certificationFee + oathFee + inventoryFee;
+  File? forestTenure;
+  File? businessPermit;
+  File? certRegistration;
+  File? permitAffidavit;
+  File? plantPermit;
+  File? headOffice;
+  File? certChainsawReg;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
@@ -85,6 +90,21 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Uploading files...'),
+            ],
+          ),
+        );
+      },
+    );
     try {
       String documentId = await _generateDocumentId();
 
@@ -94,9 +114,11 @@ class _ChainsawRegState extends State<ChainsawReg> {
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-
+            'client': 'Tristan Tukmol',
+            'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'chainsaw_registration',
+            'type': 'Chainsaw Registration',
+            'current_location': 'RPU - For Evaluation',
           });
 
       // Upload each file
@@ -131,7 +153,9 @@ class _ChainsawRegState extends State<ChainsawReg> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'chainsaw_registration',
+            'type': 'Chainsaw Registration',
+
+            'status': 'Pending',
           });
 
       // Upload each file
@@ -156,8 +180,38 @@ class _ChainsawRegState extends State<ChainsawReg> {
             });
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All files submitted successfully!')),
+      Navigator.of(context).pop();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -168,26 +222,64 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && _orCrFile != null) {
+    if (dulyAccomplishForm != null && chainsawReciept != null) {
       Map<String, File> filesToUpload = {
-        'certification': dulyAccomplishForm!,
-        'or_cr': _orCrFile!,
+        'accomplishForm': dulyAccomplishForm!,
+        'chainsawReciept': chainsawReciept!,
       };
 
-      if (_treeCuttingPermitFile != null) {
-        filesToUpload['tree_cutting_permit'] = _treeCuttingPermitFile!;
+      if (spa != null) {
+        filesToUpload['spa'] = spa!;
       }
-      if (_transportAgreementFile != null) {
-        filesToUpload['transport_agreement'] = _transportAgreementFile!;
+      if (chainsawSpec != null) {
+        filesToUpload['chainsawSpec'] = chainsawSpec!;
       }
-      if (_spaFile != null) {
-        filesToUpload['spa'] = _spaFile!;
+      if (deedofSale != null) {
+        filesToUpload['deedofSale'] = deedofSale!;
+      }
+      if (regChainsaw != null) {
+        filesToUpload['regChainsaw'] = regChainsaw!;
+      }
+      if (forestTenure != null) {
+        filesToUpload['forestTenure'] = forestTenure!;
+      }
+      if (businessPermit != null) {
+        filesToUpload['businessPermit'] = businessPermit!;
+      }
+      if (certRegistration != null) {
+        filesToUpload['certRegistration'] = certRegistration!;
+      }
+      if (permitAffidavit != null) {
+        filesToUpload['permitAffidavit'] = permitAffidavit!;
+      }
+      if (plantPermit != null) {
+        filesToUpload['plantPermit'] = plantPermit!;
+      }
+      if (headOffice != null) {
+        filesToUpload['headOffice'] = headOffice!;
+      }
+      if (certChainsawReg != null) {
+        filesToUpload['certChainsawReg'] = certChainsawReg!;
       }
 
       await _uploadFiles(filesToUpload);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please attach required files.')),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Files'),
+            content: const Text('Please attach required files.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Closes the dialog
+                },
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -220,37 +312,13 @@ class _ChainsawRegState extends State<ChainsawReg> {
     );
   }
 
-  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-          Text(
-            value.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Requirements'), centerTitle: true),
+      appBar: AppBar(
+        title: const Text('Chainsaw Registration'),
+        centerTitle: true,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -265,18 +333,39 @@ class _ChainsawRegState extends State<ChainsawReg> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  'Certification (for non-timber)',
+                  '1. Duly Accomplish Application Form',
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
                 _buildFilePicker(
-                  'OR/CR and Driver’s License',
-                  _orCrFile,
-                  (file) => setState(() => _orCrFile = file),
+                  '2. Official Receipt of Chainsaw Purchase (1 certified copy and 1 original for verification) '
+                  'or Affidavit of ownership in case the original copy is lost;',
+                  chainsawReciept,
+                  (file) => setState(() => chainsawReciept = file),
                 ),
-                const SizedBox(height: 24),
+                _buildFilePicker(
+                  '3. SPA if the applicant is not the owner of the chainsaw;',
+                  spa,
+                  (file) => setState(() => spa = file),
+                ),
+                _buildFilePicker(
+                  '4. Detailed Specification of Chainsaw (e.g. brand, model, engine capacity, etc.);',
+                  chainsawSpec,
+                  (file) => setState(() => chainsawSpec = file),
+                ),
+                _buildFilePicker(
+                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
+                  deedofSale,
+                  (file) => setState(() => deedofSale = file),
+                ),
+                _buildFilePicker(
+                  '6. Chainsaw to be registered',
+                  regChainsaw,
+                  (file) => setState(() => regChainsaw = file),
+                ),
+                const SizedBox(height: 20),
                 const Text(
-                  'If Necessary',
+                  'Additional Requirements',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -285,32 +374,44 @@ class _ChainsawRegState extends State<ChainsawReg> {
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
-                  'Approved Tree Cutting Permit',
-                  _treeCuttingPermitFile,
-                  (file) => setState(() => _treeCuttingPermitFile = file),
+                  '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
+                  forestTenure,
+                  (file) => setState(() => forestTenure = file),
                 ),
                 _buildFilePicker(
-                  'Certificate of Transport Agreement',
-                  _transportAgreementFile,
-                  (file) => setState(() => _transportAgreementFile = file),
+                  '8. Business Permit (1 photocopy), if business owner;',
+                  businessPermit,
+                  (file) => setState(() => businessPermit = file),
                 ),
                 _buildFilePicker(
-                  'Special Power of Attorney (SPA)',
-                  _spaFile,
-                  (file) => setState(() => _spaFile = file),
+                  '9. Certificate of Registration, if registered as PTPR;',
+                  deedofSale,
+                  (file) => setState(() => deedofSale = file),
+                ),
+                _buildFilePicker(
+                  '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
+                  ' and will be used for legal purpose (1 photocopy);',
+                  permitAffidavit,
+                  (file) => setState(() => permitAffidavit = file),
+                ),
+                _buildFilePicker(
+                  '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
+                  plantPermit,
+                  (file) => setState(() => plantPermit = file),
+                ),
+                _buildFilePicker(
+                  '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
+                  ' by the office and use for legal purposes (specify), if government and GOCC;',
+                  headOffice,
+                  (file) => setState(() => headOffice = file),
+                ),
+                _buildFilePicker(
+                  '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
+                  certChainsawReg,
+                  (file) => setState(() => certChainsawReg = file),
                 ),
                 const SizedBox(height: 32),
-                const Text(
-                  'Fees to be Paid',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildFeeRow('Certification Fee', certificationFee),
-                _buildFeeRow('Oath Fee', oathFee),
-                _buildFeeRow('Inventory Fee', inventoryFee),
-                const Divider(thickness: 1.2),
-                _buildFeeRow('TOTAL', totalFee, isTotal: true),
-                const SizedBox(height: 32),
+
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(

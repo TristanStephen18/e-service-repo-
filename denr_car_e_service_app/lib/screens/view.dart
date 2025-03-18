@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 class Display extends StatefulWidget {
-  const Display({super.key});
+  final String applicationId;
+
+  const Display({super.key, required this.applicationId});
 
   @override
   State<Display> createState() => _DisplayState();
@@ -23,7 +25,7 @@ class _DisplayState extends State<Display> {
             .collection('mobile_users')
             .doc(FirebaseAuth.instance.currentUser!.uid)
             .collection('applications')
-            .doc('TP-2025-03-17-0001')
+            .doc(widget.applicationId)
             .collection('requirements')
             .snapshots();
   }
@@ -33,76 +35,71 @@ class _DisplayState extends State<Display> {
     return Scaffold(
       appBar: AppBar(title: Text('Requirements')),
       body: SafeArea(
-        child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
-          stream: _files,
-          builder: (
-            BuildContext context,
-            AsyncSnapshot<QuerySnapshot<Map<String, dynamic>>> snapshot,
-          ) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return Center(child: CircularProgressIndicator());
-            }
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+            stream: _files,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-            if (snapshot.hasError) {
-              return Center(child: Text('Error: ${snapshot.error}'));
-            }
+              if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              }
 
-            final List<QueryDocumentSnapshot<Map<String, dynamic>>> documents =
-                snapshot.data!.docs;
+              final documents = snapshot.data!.docs;
 
-            if (documents.isEmpty) {
-              return Center(child: Text('No Files found'));
-            }
+              if (documents.isEmpty) {
+                return const Center(child: Text('No Files found'));
+              }
 
-            return ListView.builder(
-              itemCount: documents.length,
-              itemBuilder: (BuildContext context, int index) {
-                final DocumentSnapshot<Map<String, dynamic>> document =
-                    documents[index];
-                final data = document.data()!;
-                final ext = data['fileExtension'];
-                final base64EncodedPdf =
-                    data['file']; // Assuming 'file' field contains base64 PDF string
+              return ListView.builder(
+                itemCount: documents.length,
+                itemBuilder: (context, index) {
+                  final data = documents[index].data();
+                  final ext = data['fileExtension'];
+                  final base64EncodedFile = data['file'];
 
-                return Card(
-                  child: ListTile(
-                    onTap: () {
-                      if (ext == ".pdf") {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => PdfViewerScreen(
-                                  base64EncodedPdf: base64EncodedPdf,
-                                ),
-                          ),
-                        );
-                      } else {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => ImagePreviewScreen(
-                                  base64EncodedPdf: base64EncodedPdf,
-                                ),
-                          ),
-                        );
-                      }
-                    },
-
-                    title: Text(
-                      data['fileName'],
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.green,
-                        fontWeight: FontWeight.bold,
+                  return Card(
+                    child: ListTile(
+                      onTap: () {
+                        if (ext == ".pdf") {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => PdfViewerScreen(
+                                    base64EncodedPdf: base64EncodedFile,
+                                  ),
+                            ),
+                          );
+                        } else {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder:
+                                  (context) => ImagePreviewScreen(
+                                    base64EncodedFile: base64EncodedFile,
+                                  ),
+                            ),
+                          );
+                        }
+                      },
+                      title: Text(
+                        data['fileName'],
+                        style: const TextStyle(
+                          fontSize: 18,
+                          color: Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-            );
-          },
+                  );
+                },
+              );
+            },
+          ),
         ),
       ),
     );
@@ -112,37 +109,30 @@ class _DisplayState extends State<Display> {
 class PdfViewerScreen extends StatelessWidget {
   final String base64EncodedPdf;
 
-  PdfViewerScreen({required this.base64EncodedPdf});
+  const PdfViewerScreen({super.key, required this.base64EncodedPdf});
 
   @override
   Widget build(BuildContext context) {
-    // Decode the base64 PDF string to get the PDF data
     Uint8List pdfBytes = base64Decode(base64EncodedPdf);
 
-    // Display the PDF using PDFView
     return Scaffold(
-      appBar: AppBar(title: Text('PDF Viewer')),
-      body: PDFView(
-        // Display the PDF from the decoded byte array
-        pdfData: pdfBytes,
-      ),
+      appBar: AppBar(title: const Text('PDF Viewer')),
+      body: PDFView(pdfData: pdfBytes),
     );
   }
 }
 
 class ImagePreviewScreen extends StatelessWidget {
-  final String base64EncodedPdf;
+  final String base64EncodedFile;
 
-  ImagePreviewScreen({required this.base64EncodedPdf});
+  const ImagePreviewScreen({super.key, required this.base64EncodedFile});
 
   @override
   Widget build(BuildContext context) {
-    Uint8List images = base64Decode(base64EncodedPdf);
+    Uint8List imageBytes = base64Decode(base64EncodedFile);
     return Scaffold(
-      appBar: AppBar(title: Text('Image Preview')),
-      body: Center(
-        child: Image.memory(images), // Display image as full screen
-      ),
+      appBar: AppBar(title: const Text('Image Preview')),
+      body: Center(child: Image.memory(imageBytes)),
     );
   }
 }

@@ -39,6 +39,7 @@ dependencies:
   flutter_pdfview: ^1.4.0
   gap: ^3.0.1
   page_transition: ^2.2.1
+  path: ^1.9.1
   path_provider: ^2.1.5
 
 dev_dependencies:

@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -80,25 +82,51 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
 
   // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Uploading files...'),
+            ],
+          ),
+        );
+      },
+    );
+
     try {
       String documentId = await _generateDocumentId();
 
-      // Set root metadata
+      // Define descriptive labels for fileName field
+      final Map<String, String> fileLabelMap = {
+        'accomplish_form': 'Duly Accomplish Application Form',
+        'proof_ownership': 'Proof of Ownership of Chainsaws',
+        'business_registration': 'Business Registration',
+        'business_permit': 'Business Permit from LGU',
+      };
+
+      // Save root metadata
       await FirebaseFirestore.instance
           .collection('chainsaw')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-            'type': 'permitTosell',
+            'type': 'Permit To Sell',
             'userID': FirebaseAuth.instance.currentUser!.uid,
+            'client': 'Tristan Tukmol',
+            'status': 'Pending',
+            'current_location': 'RPU - For Evaluation',
           });
 
-      // Upload each file
+      // Upload to mobile_users > applications > requirements
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -110,13 +138,14 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
       }
 
+      // Set application info in mobile_users
       await FirebaseFirestore.instance
           .collection('mobile_users')
           .doc(FirebaseAuth.instance.currentUser!.uid)
@@ -125,15 +154,15 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'permitTosell',
+            'type': 'Permit To Sell',
+            'status': 'Pending',
           });
 
-      // Upload each file
+      // Upload to chainsaw > requirements
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -143,17 +172,48 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
       }
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All files submitted successfully!')),
+      Navigator.of(context).pop();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } catch (e) {
+      Navigator.of(context).pop(); // close loading dialog
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error during file upload.')),
       );
@@ -165,7 +225,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
     if (dulyAccomplishForm != null && _proofOfOwnership != null) {
       Map<String, File> filesToUpload = {
         'accomplish_form': dulyAccomplishForm!,
-        'proof_owneship': _proofOfOwnership!,
+        'proof_ownership': _proofOfOwnership!,
       };
 
       if (bussinesReg != null) {
@@ -177,8 +237,22 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
 
       await _uploadFiles(filesToUpload);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please attach required files.')),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Files'),
+            content: const Text('Please attach required files.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Closes the dialog
+                },
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -241,7 +315,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Requirements'), centerTitle: true),
+      appBar: AppBar(title: const Text('Permit to Sell'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(

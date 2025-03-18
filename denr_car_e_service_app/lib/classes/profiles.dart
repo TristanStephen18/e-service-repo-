@@ -13,157 +13,168 @@ class Profiles extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     User? user = FirebaseAuth.instance.currentUser;
-    return SingleChildScrollView(
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const Gap(25),
-              const Text(
-                'Profile',
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+    return SafeArea(
+      child: SingleChildScrollView(
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          child: Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const Gap(25),
+                const Text(
+                  'Profile',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
-              ),
-              const Gap(20),
-              Container(
-                width: 150,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.grey, width: 1.0),
+                const Gap(20),
+                Container(
+                  width: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.grey, width: 1.0),
+                  ),
+                  child: CircleAvatar(
+                    radius: 60,
+                    backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                  ),
                 ),
-                child: CircleAvatar(
-                  radius: 60,
-                  backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                Gap(10),
+                FutureBuilder<DocumentSnapshot>(
+                  future:
+                      FirebaseFirestore.instance
+                          .collection('mobile_users')
+                          .doc(user?.uid)
+                          .get(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    }
+                    if (snapshot.hasError) {
+                      return Text('Error: ${snapshot.error}');
+                    }
+                    if (!snapshot.hasData || snapshot.data == null) {
+                      return Text('User not found');
+                    }
+
+                    var userData = snapshot.data!;
+
+                    return Column(
+                      children: [
+                        Text(
+                          '${userData['name'][0].toUpperCase()}${userData['name'].substring(1)}',
+
+                          style: TextStyle(color: Colors.black, fontSize: 20),
+                        ),
+                        Text(
+                          userData['email'] ?? '',
+                          style: TextStyle(color: Colors.black.withOpacity(.3)),
+                        ),
+                      ],
+                    );
+                  },
                 ),
-              ),
-              Gap(10),
-              FutureBuilder<DocumentSnapshot>(
-                future:
-                    FirebaseFirestore.instance
-                        .collection('mobile_users')
-                        .doc(user?.uid)
-                        .get(),
-                builder: (context, snapshot) {
-                  if (snapshot.connectionState == ConnectionState.waiting) {
-                    return CircularProgressIndicator();
-                  }
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  }
-                  if (!snapshot.hasData || snapshot.data == null) {
-                    return Text('User not found');
-                  }
-
-                  var userData = snapshot.data!;
-
-                  return Column(
-                    children: [
-                      Text(
-                        '${userData['name'][0].toUpperCase()}${userData['name'].substring(1)}',
-
-                        style: TextStyle(color: Colors.black, fontSize: 20),
-                      ),
-                      Text(
-                        userData['email'] ?? '',
-                        style: TextStyle(color: Colors.black.withOpacity(.3)),
+                Gap(30),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 5,
+                        spreadRadius: 1,
                       ),
                     ],
-                  );
-                },
-              ),
-              Gap(30),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.person, color: Colors.green),
-                  title: Text(
-                    "Account Settings",
-                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  onTap: () {},
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-              Gap(15),
-
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
+                  child: ListTile(
+                    leading: Icon(Icons.person, color: Colors.green),
+                    title: Text(
+                      "Account Settings",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.help, color: Colors.green),
-                  title: Text(
-                    "Help",
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  onTap: () {
-                    // Navigator.of(
-                    //   context,
-                    // ).push(CupertinoPageRoute(builder: (ctx) => D()));
-                  },
-
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-              Gap(15),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
+                    onTap: () {},
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
                     ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.logout_rounded, color: Colors.green),
-                  title: Text(
-                    "Logout",
-                    style: TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  onTap: () async {
-                    // Show confirmation dialog
-                    bool shouldLogout = await _showLogoutConfirmationDialog(
-                      context,
-                    );
-
-                    if (shouldLogout) {
-                      // Sign out and show logout confirmation dialog
-                      await FirebaseAuth.instance.signOut();
-                      _showLogoutSuccessDialog(context);
-                    }
-                  },
-
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
-              ),
-            ],
+                Gap(15),
+
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.help, color: Colors.green),
+                    title: Text(
+                      "Help",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    onTap: () {
+                      // Navigator.of(
+                      //   context,
+                      // ).push(CupertinoPageRoute(builder: (ctx) => D()));
+                    },
+
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+                Gap(15),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.logout_rounded, color: Colors.green),
+                    title: Text(
+                      "Logout",
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    onTap: () async {
+                      // Show confirmation dialog
+                      bool shouldLogout = await _showLogoutConfirmationDialog(
+                        context,
+                      );
+
+                      if (shouldLogout) {
+                        // Sign out and show logout confirmation dialog
+                        await FirebaseAuth.instance.signOut();
+                        _showLogoutSuccessDialog(context);
+                      }
+                    },
+
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

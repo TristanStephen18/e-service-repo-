@@ -8,11 +8,11 @@ import 'package:firebase_core/firebase_core.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(eservices());
+  runApp(Eservices());
 }
 
-class eservices extends StatelessWidget {
-  const eservices({super.key});
+class Eservices extends StatelessWidget {
+  const Eservices({super.key});
 
   @override
   Widget build(BuildContext context) {

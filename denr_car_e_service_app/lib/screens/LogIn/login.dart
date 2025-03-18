@@ -123,11 +123,8 @@ class _LoginState extends State<Login> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.all(0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.white),
-                      borderRadius: BorderRadius.circular(16),
-                    ),
+                    padding: EdgeInsets.all(15),
+
                     child: Image.asset("lib/images/logo.png", height: 130),
                   ),
                   Text("DENR-CAR E-SERVICES", style: TextStyle(fontSize: 25)),

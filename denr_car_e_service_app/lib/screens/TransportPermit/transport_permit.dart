@@ -1,6 +1,10 @@
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
@@ -20,6 +24,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
   File? _treeCuttingPermitFile;
   File? _transportAgreementFile;
   File? _spaFile;
+  File? requestLetter;
 
   final double certificationFee = 50.00;
   final double oathFee = 36.00;
@@ -84,8 +89,32 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
 
   // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(width: 16),
+              Text('Uploading files...'),
+            ],
+          ),
+        );
+      },
+    );
     try {
       String documentId = await _generateDocumentId();
+
+      final Map<String, String> fileLabelMap = {
+        'requestLetter': 'Request Letter',
+        'certification': 'Certification',
+        'tree_cutting_permit': 'Tree Cutting Permit',
+        'or_cr': 'OR/CR',
+        'transport_agreement': 'Transport Agreement',
+        'spa': 'SPA',
+      };
 
       // Set root metadata
       await FirebaseFirestore.instance
@@ -93,8 +122,10 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-
             'userID': FirebaseAuth.instance.currentUser!.uid,
+            'status': 'Pending',
+            'client': 'Tristan Kupal',
+            'current_location': 'RPU - For Evaluation',
           });
 
       // Upload each file
@@ -102,7 +133,6 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -114,7 +144,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -129,6 +159,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
+            'status': 'Pending',
           });
 
       // Upload each file
@@ -136,7 +167,6 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -146,15 +176,44 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
       }
+      Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All files submitted successfully!')),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check, color: Colors.green),
+                SizedBox(width: 8),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -180,11 +239,28 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
       if (_spaFile != null) {
         filesToUpload['spa'] = _spaFile!;
       }
+      if (requestLetter != null) {
+        filesToUpload['requestLetter'] = requestLetter!;
+      }
 
       await _uploadFiles(filesToUpload);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please attach required files.')),
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Files'),
+            content: const Text('Please attach required files.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop(); // Closes the dialog
+                },
+              ),
+            ],
+          );
+        },
       );
     }
   }
@@ -247,10 +323,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Forest Product Requirements'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Transport Permit'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -265,18 +338,35 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  'Certification (for non-timber)',
+                  '1. Request letter indicating the following: (1 original, 1 photocopy)\n'
+                  '\t\t\t\ta. Type of forest product\n'
+                  '\t\t\t\tb. Species\n'
+                  '\t\t\t\tc. Estimated volume/quantity\n'
+                  '\t\t\t\td. Type of conveyance and plate number\n'
+                  '\t\t\t\te. Name and address of the consignee/destination\n'
+                  '\t\t\t\tf. Date of Transport',
+                  requestLetter,
+                  (file) => setState(() => requestLetter = file),
+                ),
+                _buildFilePicker(
+                  '2. Certification that the forest products are harvested within the area of the owner (for non-timber) (1 original)',
                   _certificationFile,
                   (file) => setState(() => _certificationFile = file),
                 ),
                 _buildFilePicker(
-                  'OR/CR and Driver’s License',
+                  '3. Approved Tree Cutting Permit for Timber (1 photocopy)',
+                  _treeCuttingPermitFile,
+                  (file) => setState(() => _treeCuttingPermitFile = file),
+                ),
+
+                _buildFilePicker(
+                  '4. OR/CR of conveyance and Driver’s License (1 photocopy)',
                   _orCrFile,
                   (file) => setState(() => _orCrFile = file),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 15),
                 const Text(
-                  'If Necessary',
+                  'Additional Requirement',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
@@ -284,22 +374,18 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
                 _buildFilePicker(
-                  'Approved Tree Cutting Permit',
-                  _treeCuttingPermitFile,
-                  (file) => setState(() => _treeCuttingPermitFile = file),
-                ),
-                _buildFilePicker(
-                  'Certificate of Transport Agreement',
+                  '5. Certificate of Transport Agreement (1 photocopy), if the owner of the forest product is not the owner of the conveyance',
                   _transportAgreementFile,
                   (file) => setState(() => _transportAgreementFile = file),
                 ),
                 _buildFilePicker(
-                  'Special Power of Attorney (SPA)',
+                  '6. Special Power of Attorney (SPA) (1 original), if applicant is not the land owner',
                   _spaFile,
                   (file) => setState(() => _spaFile = file),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: 25),
                 const Text(
                   'Fees to be Paid',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),

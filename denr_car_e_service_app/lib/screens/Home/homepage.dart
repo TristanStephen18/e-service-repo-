@@ -14,8 +14,13 @@ class Homepage extends StatefulWidget {
 class _HomepageState extends State<Homepage> {
   int _selectedIndex = 0;
 
-  // List of Screens for each button in the bottom navigation
-  List<Widget> _screens = [Services(), Applications(), Profiles()];
+  late final List<Widget> _screens;
+
+  @override
+  void initState() {
+    super.initState();
+    _screens = [const Services(), const Applications(), const Profiles()];
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -26,11 +31,7 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [_screens[_selectedIndex]],
-        ), // Display selected screen
-      ),
+      body: SafeArea(child: _screens[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
