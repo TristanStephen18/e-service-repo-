@@ -105,6 +105,15 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
       },
     );
     try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot =
+          await FirebaseFirestore.instance
+              .collection('mobile_users')
+              .doc(userId)
+              .get();
+
+      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
+      String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
@@ -124,8 +133,9 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'status': 'Pending',
-            'client': 'Tristan Kupal',
+            'client': clientName,
             'current_location': 'RPU - For Evaluation',
+            'address': clientAddress,
           });
 
       // Upload each file

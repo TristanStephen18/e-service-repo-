@@ -100,6 +100,15 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
       },
     );
     try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot =
+          await FirebaseFirestore.instance
+              .collection('mobile_users')
+              .doc(userId)
+              .get();
+
+      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
+      String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
       // Set root metadata
@@ -110,7 +119,8 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
             'uploadedAt': Timestamp.now(),
             'type': 'Permit To Purchase',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'client': 'Tristan Tukmol',
+            'client': clientName,
+            'address': clientAddress,
             'status': 'Pending',
             'current_location': 'RPU - For Evaluation',
           });

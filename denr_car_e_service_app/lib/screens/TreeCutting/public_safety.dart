@@ -8,14 +8,14 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class ChainsawReg extends StatefulWidget {
-  const ChainsawReg({super.key});
+class PublicSafetyScreen extends StatefulWidget {
+  const PublicSafetyScreen({super.key});
 
   @override
-  State<ChainsawReg> createState() => _ChainsawRegState();
+  State<PublicSafetyScreen> createState() => _PublicSafetyScreenState();
 }
 
-class _ChainsawRegState extends State<ChainsawReg> {
+class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
   final _formKey = GlobalKey<FormState>();
 
   File? dulyAccomplishForm;
@@ -31,7 +31,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
   File? permitAffidavit;
   File? plantPermit;
   File? headOffice;
-  File? certChainsawReg;
+  File? certPublicSafetyScreen;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
@@ -268,8 +268,8 @@ class _ChainsawRegState extends State<ChainsawReg> {
       if (headOffice != null) {
         filesToUpload['headOffice'] = headOffice!;
       }
-      if (certChainsawReg != null) {
-        filesToUpload['certChainsawReg'] = certChainsawReg!;
+      if (certPublicSafetyScreen != null) {
+        filesToUpload['certPublicSafetyScreen'] = certPublicSafetyScreen!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -325,10 +325,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chainsaw Registration'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Public Safety'), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
@@ -417,8 +414,8 @@ class _ChainsawRegState extends State<ChainsawReg> {
                 ),
                 _buildFilePicker(
                   '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
-                  certChainsawReg,
-                  (file) => setState(() => certChainsawReg = file),
+                  certPublicSafetyScreen,
+                  (file) => setState(() => certPublicSafetyScreen = file),
                 ),
                 const SizedBox(height: 32),
 

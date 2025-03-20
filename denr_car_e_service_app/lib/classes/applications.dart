@@ -18,6 +18,7 @@ class _ApplicationsState extends State<Applications> {
   final Map<String, String> applicationTypeMap = {
     'CH': 'Chainsaw',
     'TP': 'Transport Permit',
+    'WR': 'Certificate of Wildlife',
   };
 
   Future<List<QueryDocumentSnapshot>> fetchUserApplications() async {
@@ -131,6 +132,8 @@ class _ApplicationsState extends State<Applications> {
                       String title;
                       if (prefix == 'CH') {
                         title = 'Chainsaw - ${data['type'] ?? 'Chainsaw'}';
+                      } else if (prefix == 'WR') {
+                        title = 'Certificate of Wildlife';
                       } else {
                         title = applicationTypeMap[prefix] ?? 'Unknown Permit';
                       }
@@ -145,6 +148,9 @@ class _ApplicationsState extends State<Applications> {
                         iconColor = Colors.green;
                       } else if (prefix == 'TP') {
                         leadingIcon = Icons.car_crash;
+                        iconColor = Colors.green;
+                      } else if (prefix == 'WR') {
+                        leadingIcon = Icons.pets;
                         iconColor = Colors.green;
                       } else {
                         leadingIcon = Icons.description;

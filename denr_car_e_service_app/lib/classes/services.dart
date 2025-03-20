@@ -1,3 +1,5 @@
+import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_registration.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_registration.dart';
 import 'package:denr_car_e_service_app/screens/chainsaw/chainsaw_registration.dart';
 import 'package:denr_car_e_service_app/screens/transportPermit/transport_permit.dart';
 import 'package:denr_car_e_service_app/screens/treeCutting/tree_cutting.dart';
@@ -93,12 +95,12 @@ class Services extends StatelessWidget {
                 _buildServiceTile(
                   context,
                   icon: Icons.grass,
-                  title: "Plantation and Wood Processing Registration",
+                  title: "Private Tree Plantation Registration",
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(
                         CupertinoPageRoute(
-                          builder: (ctx) => TreeCuttingChoices(),
+                          builder: (ctx) => PlantationRegistrationScreen(),
                         ),
                       ),
                 ),
@@ -111,7 +113,7 @@ class Services extends StatelessWidget {
                   onTap:
                       () => Navigator.of(context).push(
                         CupertinoPageRoute(
-                          builder: (ctx) => TreeCuttingChoices(),
+                          builder: (ctx) => WildlifeRegistrationScreen(),
                         ),
                       ),
                 ),
