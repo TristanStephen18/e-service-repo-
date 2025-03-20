@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
@@ -117,6 +119,22 @@ class _ChainsawRegState extends State<ChainsawReg> {
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
+      final Map<String, String> fileLabelMap = {
+        'accomplishForm': 'Duly Accomplish Application Form',
+        'chainsawReciept': 'Reciept of Chainsaw Purchase',
+        'spa': 'SPA',
+        'chainsawSpec': 'Specification of Chainsaw',
+        'deedofSale': 'Deed of Sale',
+        'regChainsaw': 'Chainsaw',
+        'forestTenure': 'Forest Tenure Agreement',
+        'businessPermit': 'Business Permit',
+        'certRegistration': 'Certificate of Registration',
+        'permitAffidavit': 'Affidavit/Permit from LGU',
+        'plantPermit': 'Plant Permit',
+        'headOffice': 'Certification of Head Office',
+        'certChainsawReg': 'Certificate of Chainsaw Registration',
+      };
+
       // Set root metadata
       await FirebaseFirestore.instance
           .collection('chainsaw')
@@ -136,7 +154,6 @@ class _ChainsawRegState extends State<ChainsawReg> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -148,7 +165,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -173,7 +190,6 @@ class _ChainsawRegState extends State<ChainsawReg> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -183,7 +199,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),

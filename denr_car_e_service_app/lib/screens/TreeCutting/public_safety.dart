@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
@@ -18,25 +20,20 @@ class PublicSafetyScreen extends StatefulWidget {
 class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  File? dulyAccomplishForm;
-  File? chainsawReciept;
-  File? spa;
-  File? chainsawSpec;
-  File? deedofSale;
-  File? regChainsaw;
+  File? applicationLetter;
+  File? lguEndorsement;
+  File? resolution;
+  File? ptaResolution;
+  File? landTitle;
+  File? pambClearance;
 
-  File? forestTenure;
-  File? businessPermit;
-  File? certRegistration;
-  File? permitAffidavit;
-  File? plantPermit;
-  File? headOffice;
-  File? certPublicSafetyScreen;
+  File? spa;
+  File? photo;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
+      allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
     );
@@ -62,7 +59,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('tree_cutting')
             .where(
               'uploadedAt',
               isGreaterThan: Timestamp.fromDate(
@@ -74,7 +71,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
     int latestNumber = 0;
     for (var doc in querySnapshot.docs) {
       String docId = doc.id;
-      RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(docId);
       if (match != null) {
         int currentNumber = int.parse(match.group(1)!);
@@ -85,7 +82,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
     }
 
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
-    return 'CH-$today-$newNumber';
+    return 'TC-$today-$newNumber';
   }
 
   // Upload all files to Firestore
@@ -117,9 +114,20 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
+      final Map<String, String> fileLabelMap = {
+        'applicationLetter': 'Duly Accomplish Application Form',
+        'lguEndorsement': 'LGU Endorsement/Certification',
+        'resolution': 'Homeowners Resolution',
+        'ptaResolution': 'PTA Resolution',
+        'landTitle': 'Land Title',
+        'pambClearance': 'PAMB Clearance',
+        'spa': 'SPA',
+        'photo': 'Photos of Trees',
+      };
+
       // Set root metadata
       await FirebaseFirestore.instance
-          .collection('chainsaw')
+          .collection('tree_cutting')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -127,7 +135,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
             'address': clientAddress,
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
+            'type': 'Public Safety Permit',
             'current_location': 'RPU - For Evaluation',
           });
 
@@ -136,7 +144,6 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -148,7 +155,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -163,8 +170,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
-
+            'type': 'Public Safety Permit',
             'status': 'Pending',
           });
 
@@ -173,17 +179,16 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -232,44 +237,29 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && chainsawReciept != null) {
+    if (applicationLetter != null && lguEndorsement != null) {
       Map<String, File> filesToUpload = {
-        'accomplishForm': dulyAccomplishForm!,
-        'chainsawReciept': chainsawReciept!,
+        'applicationLetter': applicationLetter!,
+        'lguEndorsement': lguEndorsement!,
       };
 
+      if (resolution != null) {
+        filesToUpload['resolution'] = resolution!;
+      }
+      if (ptaResolution != null) {
+        filesToUpload['ptaResolution'] = ptaResolution!;
+      }
+      if (landTitle != null) {
+        filesToUpload['landTitle'] = landTitle!;
+      }
+      if (pambClearance != null) {
+        filesToUpload['pambClearance'] = pambClearance!;
+      }
       if (spa != null) {
         filesToUpload['spa'] = spa!;
       }
-      if (chainsawSpec != null) {
-        filesToUpload['chainsawSpec'] = chainsawSpec!;
-      }
-      if (deedofSale != null) {
-        filesToUpload['deedofSale'] = deedofSale!;
-      }
-      if (regChainsaw != null) {
-        filesToUpload['regChainsaw'] = regChainsaw!;
-      }
-      if (forestTenure != null) {
-        filesToUpload['forestTenure'] = forestTenure!;
-      }
-      if (businessPermit != null) {
-        filesToUpload['businessPermit'] = businessPermit!;
-      }
-      if (certRegistration != null) {
-        filesToUpload['certRegistration'] = certRegistration!;
-      }
-      if (permitAffidavit != null) {
-        filesToUpload['permitAffidavit'] = permitAffidavit!;
-      }
-      if (plantPermit != null) {
-        filesToUpload['plantPermit'] = plantPermit!;
-      }
-      if (headOffice != null) {
-        filesToUpload['headOffice'] = headOffice!;
-      }
-      if (certPublicSafetyScreen != null) {
-        filesToUpload['certPublicSafetyScreen'] = certPublicSafetyScreen!;
+      if (photo != null) {
+        filesToUpload['photo'] = photo!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -340,36 +330,19 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Duly Accomplish Application Form',
-                  dulyAccomplishForm,
-                  (file) => setState(() => dulyAccomplishForm = file),
+                  '1. Application Letter (1 original Copy)\n'
+                  '\t\t\t Address: Engr. Leandro L. De Jesus\n'
+                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
+                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
+                  applicationLetter,
+                  (file) => setState(() => applicationLetter = file),
                 ),
                 _buildFilePicker(
-                  '2. Official Receipt of Chainsaw Purchase (1 certified copy and 1 original for verification) '
-                  'or Affidavit of ownership in case the original copy is lost;',
-                  chainsawReciept,
-                  (file) => setState(() => chainsawReciept = file),
+                  '2. LGU Endorsement / Certification of No Objection / Resolution (1 original) - interposing no objection to the cutting of trees',
+                  lguEndorsement,
+                  (file) => setState(() => lguEndorsement = file),
                 ),
-                _buildFilePicker(
-                  '3. SPA if the applicant is not the owner of the chainsaw;',
-                  spa,
-                  (file) => setState(() => spa = file),
-                ),
-                _buildFilePicker(
-                  '4. Detailed Specification of Chainsaw (e.g. brand, model, engine capacity, etc.);',
-                  chainsawSpec,
-                  (file) => setState(() => chainsawSpec = file),
-                ),
-                _buildFilePicker(
-                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
-                ),
-                _buildFilePicker(
-                  '6. Chainsaw to be registered',
-                  regChainsaw,
-                  (file) => setState(() => regChainsaw = file),
-                ),
+
                 const SizedBox(height: 20),
                 const Text(
                   'Additional Requirements',
@@ -381,42 +354,36 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
+                  '3. resolution if the applicant is not the owner of the tree_cutting;',
+                  resolution,
+                  (file) => setState(() => resolution = file),
+                ),
+                _buildFilePicker(
+                  '4. Detailed Specification of tree_cutting (e.g. brand, model, engine capacity, etc.);',
+                  ptaResolution,
+                  (file) => setState(() => ptaResolution = file),
+                ),
+                _buildFilePicker(
+                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
+                  landTitle,
+                  (file) => setState(() => landTitle = file),
+                ),
+                _buildFilePicker(
+                  '6. tree_cutting to be registered',
+                  pambClearance,
+                  (file) => setState(() => pambClearance = file),
+                ),
+                _buildFilePicker(
                   '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
-                  forestTenure,
-                  (file) => setState(() => forestTenure = file),
+                  spa,
+                  (file) => setState(() => spa = file),
                 ),
                 _buildFilePicker(
                   '8. Business Permit (1 photocopy), if business owner;',
-                  businessPermit,
-                  (file) => setState(() => businessPermit = file),
+                  photo,
+                  (file) => setState(() => photo = file),
                 ),
-                _buildFilePicker(
-                  '9. Certificate of Registration, if registered as PTPR;',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
-                ),
-                _buildFilePicker(
-                  '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
-                  ' and will be used for legal purpose (1 photocopy);',
-                  permitAffidavit,
-                  (file) => setState(() => permitAffidavit = file),
-                ),
-                _buildFilePicker(
-                  '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
-                  plantPermit,
-                  (file) => setState(() => plantPermit = file),
-                ),
-                _buildFilePicker(
-                  '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
-                  ' by the office and use for legal purposes (specify), if government and GOCC;',
-                  headOffice,
-                  (file) => setState(() => headOffice = file),
-                ),
-                _buildFilePicker(
-                  '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
-                  certPublicSafetyScreen,
-                  (file) => setState(() => certPublicSafetyScreen = file),
-                ),
+
                 const SizedBox(height: 32),
 
                 Center(

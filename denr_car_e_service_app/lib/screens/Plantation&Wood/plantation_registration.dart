@@ -56,7 +56,7 @@ class _PlantationRegistrationScreenState
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('plantation')
             .where(
               'uploadedAt',
               isGreaterThan: Timestamp.fromDate(
