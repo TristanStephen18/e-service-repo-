@@ -20,6 +20,7 @@ class _ApplicationsState extends State<Applications> {
     'TP': 'Transport Permit',
     'WR': 'Certificate of Wildlife',
     'PTP': 'Private Tree Plantation',
+    'TC': 'Tree Cutting',
   };
 
   Future<List<QueryDocumentSnapshot>> fetchUserApplications() async {
@@ -137,6 +138,8 @@ class _ApplicationsState extends State<Applications> {
                         title = 'Certificate of Wildlife';
                       } else if (prefix == 'PTP') {
                         title = 'Private Tree Plantation';
+                      } else if (prefix == 'TC') {
+                        title = 'Tree Cutting - ${data['type']}';
                       } else {
                         title = applicationTypeMap[prefix] ?? 'Unknown Permit';
                       }
@@ -157,6 +160,9 @@ class _ApplicationsState extends State<Applications> {
                         iconColor = Colors.green;
                       } else if (prefix == 'PTP') {
                         leadingIcon = Icons.grass;
+                        iconColor = Colors.green;
+                      } else if (prefix == 'TC') {
+                        leadingIcon = Icons.forest;
                         iconColor = Colors.green;
                       } else {
                         leadingIcon = Icons.description;

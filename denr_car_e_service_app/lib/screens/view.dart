@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/add_chainsaw_reg.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/add_transport.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -141,6 +143,43 @@ class _DisplayState extends State<Display> {
           ),
         ),
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          if (widget.applicationId.startsWith("CH-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddChainsawReg(applicationId: widget.applicationId),
+              ),
+            );
+          }
+          if (widget.applicationId.startsWith("TP-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddForestRequirementsForm(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Unknown application type")),
+            );
+          }
+        },
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.upload_file),
+            SizedBox(height: 4),
+            Text('Add', style: TextStyle(fontSize: 12)),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -158,7 +197,6 @@ class PdfViewerScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Uint8List pdfBytes = base64Decode(base64EncodedPdf);
-
     return Scaffold(
       appBar: AppBar(title: Text(fileName)),
       body: PDFView(pdfData: pdfBytes),

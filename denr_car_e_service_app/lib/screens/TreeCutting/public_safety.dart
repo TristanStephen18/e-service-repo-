@@ -35,7 +35,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
 
     if (result != null) {
@@ -203,8 +203,8 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
           return AlertDialog(
             title: Row(
               children: const [
-                Icon(Icons.check, color: Colors.green),
-                SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
                 Text('Success'),
               ],
             ),
@@ -354,32 +354,36 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
-                  '3. resolution if the applicant is not the owner of the tree_cutting;',
+                  '3. Homeowners Resolution (1 original / 1 Certified True Copy), if within Subdivisions;',
                   resolution,
                   (file) => setState(() => resolution = file),
                 ),
                 _buildFilePicker(
-                  '4. Detailed Specification of tree_cutting (e.g. brand, model, engine capacity, etc.);',
+                  '4. PTA Resolution or Resolution from any organized group of No Objection and reason for Cutting (1 original), if School/Organization;',
                   ptaResolution,
                   (file) => setState(() => ptaResolution = file),
                 ),
                 _buildFilePicker(
-                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
+                  '5. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable, if within private land;',
                   landTitle,
                   (file) => setState(() => landTitle = file),
                 ),
                 _buildFilePicker(
-                  '6. tree_cutting to be registered',
+                  '6. Protected Area Management Board (PAMB) Clearance/Certification\n'
+                  '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
+                  '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
+                  '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
+                  '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
                   pambClearance,
                   (file) => setState(() => pambClearance = file),
                 ),
                 _buildFilePicker(
-                  '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
+                  '7. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
                   spa,
                   (file) => setState(() => spa = file),
                 ),
                 _buildFilePicker(
-                  '8. Business Permit (1 photocopy), if business owner;',
+                  '8. Photos of the trees to be cut',
                   photo,
                   (file) => setState(() => photo = file),
                 ),
@@ -390,7 +394,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
+                        horizontal: 80,
                         vertical: 12,
                       ),
                     ),

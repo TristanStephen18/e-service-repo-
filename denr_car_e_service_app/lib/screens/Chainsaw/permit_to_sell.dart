@@ -197,8 +197,8 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
           return AlertDialog(
             title: Row(
               children: const [
-                Icon(Icons.check, color: Colors.green),
-                SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
                 Text('Success'),
               ],
             ),
@@ -375,7 +375,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
+                        horizontal: 80,
                         vertical: 12,
                       ),
                     ),

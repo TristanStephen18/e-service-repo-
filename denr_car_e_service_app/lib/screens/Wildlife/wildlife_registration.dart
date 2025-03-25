@@ -28,7 +28,7 @@ class _WildlifeRegistrationScreenState
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
+      allowMultiple: true,
       type: FileType.custom,
       allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
@@ -192,8 +192,8 @@ class _WildlifeRegistrationScreenState
           return AlertDialog(
             title: Row(
               children: const [
-                Icon(Icons.check, color: Colors.green),
-                SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
                 Text('Success'),
               ],
             ),
@@ -306,7 +306,7 @@ class _WildlifeRegistrationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Checklist of Requirements',
+                  'Checklist of Requirements ',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),

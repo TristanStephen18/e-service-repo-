@@ -1,4 +1,5 @@
 import 'package:denr_car_e_service_app/classes/applications.dart';
+import 'package:denr_car_e_service_app/classes/chat.dart';
 import 'package:denr_car_e_service_app/classes/profiles.dart';
 import 'package:denr_car_e_service_app/classes/services.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,12 @@ class _HomepageState extends State<Homepage> {
   @override
   void initState() {
     super.initState();
-    _screens = [const Services(), const Applications(), const Profiles()];
+    _screens = [
+      const Services(),
+      const Applications(),
+      const ChatScreen(),
+      const Profiles(),
+    ];
   }
 
   void _onItemTapped(int index) {
@@ -52,6 +58,7 @@ class _HomepageState extends State<Homepage> {
             icon: Icon(Icons.file_copy),
             label: 'Applications',
           ),
+          BottomNavigationBarItem(icon: Icon(Icons.message), label: 'Chat'),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: 'Profile',

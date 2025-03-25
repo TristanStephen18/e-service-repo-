@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:convert';
 import 'dart:io';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
@@ -18,27 +20,24 @@ class PrivateLandScreen extends StatefulWidget {
 class _PrivateLandScreenState extends State<PrivateLandScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  File? dulyAccomplishForm;
-  File? chainsawReciept;
-  File? spa;
-  File? chainsawSpec;
-  File? deedofSale;
-  File? regChainsaw;
+  File? applicationLetter;
+  File? lguEndorsement;
+  File? ecc;
+  File? landTitle;
 
-  File? forestTenure;
-  File? businessPermit;
-  File? certRegistration;
-  File? permitAffidavit;
-  File? plantPermit;
-  File? headOffice;
-  File? certPrivateLandScreen;
+  File? utiPlan;
+  File? pambClearance;
+  File? larEndorsement;
+  File? ptaRes;
+  File? spa;
+  File? photo;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
-      allowMultiple: false,
+      allowMultiple: true,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
 
     if (result != null) {
@@ -62,7 +61,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('tree_cutting')
             .where(
               'uploadedAt',
               isGreaterThan: Timestamp.fromDate(
@@ -74,7 +73,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     int latestNumber = 0;
     for (var doc in querySnapshot.docs) {
       String docId = doc.id;
-      RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(docId);
       if (match != null) {
         int currentNumber = int.parse(match.group(1)!);
@@ -85,7 +84,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     }
 
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
-    return 'CH-$today-$newNumber';
+    return 'TC-$today-$newNumber';
   }
 
   // Upload all files to Firestore
@@ -117,9 +116,22 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
+      final Map<String, String> fileLabelMap = {
+        'applicationLetter': 'Duly Accomplish Application Form',
+        'lguEndorsement': 'LGU Endorsement/Certification',
+        'utiPlan': 'Utilization Plan',
+        'ecc': 'ECC',
+        'landTitle': 'Land Title',
+        'pambClearance': 'PAMB Clearance',
+        'spa': 'SPA',
+        'photo': 'Photos of Trees',
+        'larEndorsement': 'Local Agrarian Endorsement',
+        'ptaRes': 'PTA Resolution',
+      };
+
       // Set root metadata
       await FirebaseFirestore.instance
-          .collection('chainsaw')
+          .collection('tree_cutting')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -127,7 +139,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
             'address': clientAddress,
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
+            'type': 'Private Land Timber Permit',
             'current_location': 'RPU - For Evaluation',
           });
 
@@ -136,7 +148,6 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -148,7 +159,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -163,8 +174,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
-
+            'type': 'Private Land Timber Permit',
             'status': 'Pending',
           });
 
@@ -173,17 +183,16 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -198,8 +207,8 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
           return AlertDialog(
             title: Row(
               children: const [
-                Icon(Icons.check, color: Colors.green),
-                SizedBox(width: 8),
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
                 Text('Success'),
               ],
             ),
@@ -232,44 +241,36 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && chainsawReciept != null) {
+    if (applicationLetter != null && lguEndorsement != null) {
       Map<String, File> filesToUpload = {
-        'accomplishForm': dulyAccomplishForm!,
-        'chainsawReciept': chainsawReciept!,
+        'applicationLetter': applicationLetter!,
+        'lguEndorsement': lguEndorsement!,
       };
 
+      if (utiPlan != null) {
+        filesToUpload['utiPlan'] = utiPlan!;
+      }
+      if (ecc != null) {
+        filesToUpload['ecc'] = ecc!;
+      }
+      if (landTitle != null) {
+        filesToUpload['landTitle'] = landTitle!;
+      }
+      if (pambClearance != null) {
+        filesToUpload['pambClearance'] = pambClearance!;
+      }
       if (spa != null) {
         filesToUpload['spa'] = spa!;
       }
-      if (chainsawSpec != null) {
-        filesToUpload['chainsawSpec'] = chainsawSpec!;
+      if (photo != null) {
+        filesToUpload['photo'] = photo!;
       }
-      if (deedofSale != null) {
-        filesToUpload['deedofSale'] = deedofSale!;
+
+      if (ptaRes != null) {
+        filesToUpload['ptaRes'] = ptaRes!;
       }
-      if (regChainsaw != null) {
-        filesToUpload['regChainsaw'] = regChainsaw!;
-      }
-      if (forestTenure != null) {
-        filesToUpload['forestTenure'] = forestTenure!;
-      }
-      if (businessPermit != null) {
-        filesToUpload['businessPermit'] = businessPermit!;
-      }
-      if (certRegistration != null) {
-        filesToUpload['certRegistration'] = certRegistration!;
-      }
-      if (permitAffidavit != null) {
-        filesToUpload['permitAffidavit'] = permitAffidavit!;
-      }
-      if (plantPermit != null) {
-        filesToUpload['plantPermit'] = plantPermit!;
-      }
-      if (headOffice != null) {
-        filesToUpload['headOffice'] = headOffice!;
-      }
-      if (certPrivateLandScreen != null) {
-        filesToUpload['certPrivateLandScreen'] = certPrivateLandScreen!;
+      if (pambClearance != null) {
+        filesToUpload['pambClearance'] = pambClearance!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -343,36 +344,44 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Duly Accomplish Application Form',
-                  dulyAccomplishForm,
-                  (file) => setState(() => dulyAccomplishForm = file),
+                  '1. Application Letter (1 original Copy)\n'
+                  '\t\t\t Address: Engr. Leandro L. De Jesus\n'
+                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
+                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
+                  applicationLetter,
+                  (file) => setState(() => applicationLetter = file),
                 ),
                 _buildFilePicker(
-                  '2. Official Receipt of Chainsaw Purchase (1 certified copy and 1 original for verification) '
-                  'or Affidavit of ownership in case the original copy is lost;',
-                  chainsawReciept,
-                  (file) => setState(() => chainsawReciept = file),
+                  '2. LGU Endorsement / Certification of No Objection / utiPlan (1 original) - interposing no objection to the cutting of trees under the following conditions: (1 original)\n'
+                  '\t\t\ta. If the trees to be cut falls within one barangay, an\n'
+                  '\t\t\t  endorsement from Barangay Captain shall be\n'
+                  '\t\t\t  secured\n'
+                  '\t\t\tb. If the trees to be cut falls within more than one\n'
+                  '\t\t\t  barangay, endorsement shall be secured either from\n'
+                  '\t\t\t  the Municipal/City Mayor or all the Barangay\n'
+                  '\t\t\t  Captains concerned\n'
+                  '\t\t\tc. If the trees to be cut falls within more than one\n'
+                  '\t\t\t  municipality/city, endorsement shall be secured\n'
+                  '\t\t\t  either from the Provincial Governor or all the\n'
+                  '\t\t\t  Municipal/City Mayors concerned\n'
+                  '\t\t\td. If within Baguio City, Clearance from the City\n'
+                  '\t\t\t  Environment and Parks Management Office\n'
+                  '\t\t\t  (CEPMO)',
+
+                  lguEndorsement,
+                  (file) => setState(() => lguEndorsement = file),
                 ),
                 _buildFilePicker(
-                  '3. SPA if the applicant is not the owner of the chainsaw;',
-                  spa,
-                  (file) => setState(() => spa = file),
+                  '3. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable',
+                  landTitle,
+                  (file) => setState(() => landTitle = file),
                 ),
                 _buildFilePicker(
-                  '4. Detailed Specification of Chainsaw (e.g. brand, model, engine capacity, etc.);',
-                  chainsawSpec,
-                  (file) => setState(() => chainsawSpec = file),
+                  '4. Environmental Compliance Certificate (ECC) / Certificate of Non-Coverage (CNC), whichever is applicable, issued by EMB (1certified true copy);',
+                  ecc,
+                  (file) => setState(() => ecc = file),
                 ),
-                _buildFilePicker(
-                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
-                ),
-                _buildFilePicker(
-                  '6. Chainsaw to be registered',
-                  regChainsaw,
-                  (file) => setState(() => regChainsaw = file),
-                ),
+
                 const SizedBox(height: 20),
                 const Text(
                   'Additional Requirements',
@@ -383,50 +392,49 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
                   ),
                 ),
                 const SizedBox(height: 12),
+
                 _buildFilePicker(
-                  '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
-                  forestTenure,
-                  (file) => setState(() => forestTenure = file),
+                  '5. Protected Area Management Board (PAMB) Clearance/Certification\n'
+                  '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
+                  '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
+                  '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
+                  '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
+                  pambClearance,
+                  (file) => setState(() => pambClearance = file),
                 ),
                 _buildFilePicker(
-                  '8. Business Permit (1 photocopy), if business owner;',
-                  businessPermit,
-                  (file) => setState(() => businessPermit = file),
+                  '6. Utilization Plan with at least 50% of the area covered with forest trees(1 original), if the applicaton covers 10 hectares or larger;',
+                  utiPlan,
+                  (file) => setState(() => utiPlan = file),
                 ),
                 _buildFilePicker(
-                  '9. Certificate of Registration, if registered as PTPR;',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
+                  '7. Endorsement by local agrarian reform officer interposing No Objection (1 original), if covered by CLOA, Municipal/City Agrarian Reform Office;',
+                  larEndorsement,
+                  (file) => setState(() => larEndorsement = file),
                 ),
                 _buildFilePicker(
-                  '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
-                  ' and will be used for legal purpose (1 photocopy);',
-                  permitAffidavit,
-                  (file) => setState(() => permitAffidavit = file),
+                  '8. PTA Resolution or Resolution from any organized group of No Objection and reason for cutting (1 original), if School/Organization;',
+                  spa,
+                  (file) => setState(() => spa = file),
                 ),
                 _buildFilePicker(
-                  '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
-                  plantPermit,
-                  (file) => setState(() => plantPermit = file),
+                  '9. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
+                  spa,
+                  (file) => setState(() => spa = file),
                 ),
                 _buildFilePicker(
-                  '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
-                  ' by the office and use for legal purposes (specify), if government and GOCC;',
-                  headOffice,
-                  (file) => setState(() => headOffice = file),
+                  '10. Photos of the trees to be cut',
+                  photo,
+                  (file) => setState(() => photo = file),
                 ),
-                _buildFilePicker(
-                  '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
-                  certPrivateLandScreen,
-                  (file) => setState(() => certPrivateLandScreen = file),
-                ),
+
                 const SizedBox(height: 32),
 
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
+                        horizontal: 80,
                         vertical: 12,
                       ),
                     ),

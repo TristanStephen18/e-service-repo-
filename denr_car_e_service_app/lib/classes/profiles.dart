@@ -1,9 +1,6 @@
-import 'dart:ui';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -39,7 +36,7 @@ class Profiles extends StatelessWidget {
                   ),
                   child: CircleAvatar(
                     radius: 60,
-                    backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                    backgroundImage: ExactAssetImage('lib/images/user.png'),
                   ),
                 ),
                 Gap(10),

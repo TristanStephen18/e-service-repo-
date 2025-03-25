@@ -10,16 +10,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class PlantationRegistrationScreen extends StatefulWidget {
-  const PlantationRegistrationScreen({super.key});
+class AddPlantationRegistrationScreen extends StatefulWidget {
+  const AddPlantationRegistrationScreen({super.key});
 
   @override
-  State<PlantationRegistrationScreen> createState() =>
-      _PlantationRegistrationScreenState();
+  State<AddPlantationRegistrationScreen> createState() =>
+      _AddPlantationRegistrationScreenState();
 }
 
-class _PlantationRegistrationScreenState
-    extends State<PlantationRegistrationScreen> {
+class _AddPlantationRegistrationScreenState
+    extends State<AddPlantationRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
   File? letterApplication;
