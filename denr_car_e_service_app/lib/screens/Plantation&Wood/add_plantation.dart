@@ -11,7 +11,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class AddPlantationRegistrationScreen extends StatefulWidget {
-  const AddPlantationRegistrationScreen({super.key});
+  final String applicationId; // ID of existing application
+
+  const AddPlantationRegistrationScreen({
+    super.key,
+    required this.applicationId,
+  });
 
   @override
   State<AddPlantationRegistrationScreen> createState() =>
@@ -22,17 +27,14 @@ class _AddPlantationRegistrationScreenState
     extends State<AddPlantationRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  File? letterApplication;
-  File? oct;
   File? spa;
-  File? numberSeed;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
 
     if (result != null) {
@@ -51,38 +53,6 @@ class _AddPlantationRegistrationScreenState
     }
   }
 
-  // Generate Document ID
-  Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance
-            .collection('plantation')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
-            .get();
-
-    int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
-      RegExp regExp = RegExp(r'PTP-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
-      if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
-      }
-    }
-
-    String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
-    return 'PTP-$today-$newNumber';
-  }
-
-  // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
@@ -99,72 +69,48 @@ class _AddPlantationRegistrationScreenState
         );
       },
     );
+
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance
-              .collection('mobile_users')
-              .doc(userId)
-              .get();
+      String documentId = widget.applicationId; // Use provided application ID
 
-      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
-      String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
-      String documentId = await _generateDocumentId();
+      DocumentReference applicationRef = FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(userId)
+          .collection('applications')
+          .doc(documentId);
 
-      // Set root metadata
-      await FirebaseFirestore.instance
-          .collection('plantation')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'client': clientName,
-            'address': clientAddress,
-            'status': 'Pending',
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'current_location': 'RPU - For Evaluation',
-          });
+      DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
-      // Upload each file
+      final Map<String, String> fileLabelMap = {'spa': 'SPA'};
+
+      if (!applicationSnapshot.exists) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Application not found!')));
+        return;
+      }
+
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
-        await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
-            .doc(documentId)
-            .collection('requirements')
-            .doc(label)
-            .set({
-              'fileName': fileName,
-              'fileExtension': fileExtension,
-              'file': base64File,
-              'uploadedAt': Timestamp.now(),
-            });
+        await applicationRef.collection('requirements').doc(label).set({
+          'fileName': fileLabelMap[label] ?? label,
+          'fileExtension': fileExtension,
+          'file': base64File,
+          'uploadedAt': Timestamp.now(),
+        });
       }
 
-      await FirebaseFirestore.instance
-          .collection('mobile_users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('applications')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'status': 'Pending',
-          });
-
-      // Upload each file
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -174,7 +120,7 @@ class _AddPlantationRegistrationScreenState
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -194,17 +140,14 @@ class _AddPlantationRegistrationScreenState
                 Text('Success'),
               ],
             ),
-            content: const Text('Application Submitted Successfully!'),
+            content: const Text('Files uploaded successfully!'),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                   Navigator.of(context).push(
                     CupertinoPageRoute(
-                      builder:
-                          (ctx) => Homepage(
-                            userid: FirebaseAuth.instance.currentUser!.uid,
-                          ),
+                      builder: (ctx) => Homepage(userid: userId),
                     ),
                   );
                 },
@@ -215,26 +158,17 @@ class _AddPlantationRegistrationScreenState
         },
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error during file upload.')),
-      );
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error during file upload: $e')));
     }
   }
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (letterApplication != null && oct != null) {
-      Map<String, File> filesToUpload = {
-        'accomplishForm': letterApplication!,
-        'oct': oct!,
-      };
-
-      if (spa != null) {
-        filesToUpload['spa'] = spa!;
-      }
-      if (numberSeed != null) {
-        filesToUpload['numberSeed'] = numberSeed!;
-      }
+    if (spa != null) {
+      Map<String, File> filesToUpload = {'spa': spa!};
 
       await _uploadFiles(filesToUpload);
     } else {
@@ -302,29 +236,6 @@ class _AddPlantationRegistrationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Checklist of Requirements',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildFilePicker(
-                  '1. Letter of Application (1 original, 1 photocopy)',
-                  letterApplication,
-                  (file) => setState(() => letterApplication = file),
-                ),
-                _buildFilePicker(
-                  '2. OCT, TCT, Judicial Title, CLOA, Tac Declared Alienable and Disposable Lands (1 certified true copy) ',
-                  oct,
-                  (file) => setState(() => oct = file),
-                ),
-
-                _buildFilePicker(
-                  '3. Data on the number of seedlings planted, species and area planted',
-                  numberSeed,
-                  (file) => setState(() => numberSeed = file),
-                ),
-
-                const SizedBox(height: 20),
-                const Text(
                   'Additional Requirements',
                   style: TextStyle(
                     fontSize: 18,
@@ -334,7 +245,7 @@ class _AddPlantationRegistrationScreenState
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
-                  '4. Special Power of Attorney (SPA) (1 original)',
+                  '1. Special Power of Attorney (SPA) (1 original)',
                   spa,
                   (file) => setState(() => spa = file),
                 ),

@@ -2,7 +2,11 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_chainsaw_reg.dart';
+import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_plantation.dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_transport.dart';
+import 'package:denr_car_e_service_app/screens/TreeCutting/add_governmet.dart';
+import 'package:denr_car_e_service_app/screens/TreeCutting/add_pltp.dart';
+import 'package:denr_car_e_service_app/screens/TreeCutting/add_public.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -18,10 +22,14 @@ class Display extends StatefulWidget {
 
 class _DisplayState extends State<Display> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _files;
+  String? applicationType; // Stores the application type
+  bool isLoading = true; // Track loading state
 
   @override
   void initState() {
     super.initState();
+    _fetchApplicationType();
+
     _files =
         FirebaseFirestore.instance
             .collection('mobile_users')
@@ -32,8 +40,37 @@ class _DisplayState extends State<Display> {
             .snapshots();
   }
 
+  /// Fetch application type from Firestore
+  Future<void> _fetchApplicationType() async {
+    try {
+      DocumentSnapshot<Map<String, dynamic>> snapshot =
+          await FirebaseFirestore.instance
+              .collection('mobile_users')
+              .doc(FirebaseAuth.instance.currentUser!.uid)
+              .collection('applications')
+              .doc(widget.applicationId)
+              .get();
+
+      if (snapshot.exists) {
+        setState(() {
+          applicationType = snapshot.data()?['type'];
+        });
+      }
+    } catch (e) {
+      print("Error fetching application type: $e");
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
       appBar: AppBar(title: const Text('Requirements')),
       body: SafeArea(
@@ -145,7 +182,8 @@ class _DisplayState extends State<Display> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          if (widget.applicationId.startsWith("CH-")) {
+          if (widget.applicationId.startsWith("CH-") &&
+              applicationType == 'Chainsaw Registration') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -154,8 +192,7 @@ class _DisplayState extends State<Display> {
                         AddChainsawReg(applicationId: widget.applicationId),
               ),
             );
-          }
-          if (widget.applicationId.startsWith("TP-")) {
+          } else if (widget.applicationId.startsWith("TP-")) {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -165,18 +202,60 @@ class _DisplayState extends State<Display> {
                     ),
               ),
             );
+          } else if (widget.applicationId.startsWith("TC-") &&
+              applicationType == 'Private Land Timber Permit') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddPrivateLandScreen(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TC-") &&
+              applicationType == 'Public Safety Permit') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddPublicSafetyScreen(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TC-") &&
+              applicationType == 'National Government Agencies') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddGovermentScreen(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("PTP-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddPlantationRegistrationScreen(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
           } else {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text("Unknown application type")),
+              const SnackBar(content: Text("No Additional Files Needed!")),
             );
           }
         },
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.upload_file),
-            SizedBox(height: 4),
-            Text('Add', style: TextStyle(fontSize: 12)),
+            const Icon(Icons.upload_file),
+            const SizedBox(height: 4),
+            const Text('Add', style: TextStyle(fontSize: 12)),
           ],
         ),
       ),

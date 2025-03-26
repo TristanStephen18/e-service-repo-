@@ -10,29 +10,30 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class PlantationRegistrationScreen extends StatefulWidget {
-  const PlantationRegistrationScreen({super.key});
+class AddPrivateLandScreen extends StatefulWidget {
+  final String applicationId; // ID of existing application
+
+  const AddPrivateLandScreen({super.key, required this.applicationId});
 
   @override
-  State<PlantationRegistrationScreen> createState() =>
-      _PlantationRegistrationScreenState();
+  State<AddPrivateLandScreen> createState() => _AddPrivateLandScreenState();
 }
 
-class _PlantationRegistrationScreenState
-    extends State<PlantationRegistrationScreen> {
+class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
   final _formKey = GlobalKey<FormState>();
 
-  File? letterApplication;
-  File? oct;
+  File? utiPlan;
+  File? pambClearance;
+  File? larEndorsement;
+  File? ptaRes;
   File? spa;
-  File? numberSeed;
+  File? photo;
 
-  // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
 
     if (result != null) {
@@ -51,38 +52,6 @@ class _PlantationRegistrationScreenState
     }
   }
 
-  // Generate Document ID
-  Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance
-            .collection('plantation')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
-            .get();
-
-    int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
-      RegExp regExp = RegExp(r'PTP-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
-      if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
-      }
-    }
-
-    String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
-    return 'PTP-$today-$newNumber';
-  }
-
-  // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
@@ -99,74 +68,51 @@ class _PlantationRegistrationScreenState
         );
       },
     );
+
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance
-              .collection('mobile_users')
-              .doc(userId)
-              .get();
+      String documentId = widget.applicationId; // Use provided application ID
 
-      // Define descriptive labels for fileName field
+      DocumentReference applicationRef = FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(userId)
+          .collection('applications')
+          .doc(documentId);
+
+      DocumentSnapshot applicationSnapshot = await applicationRef.get();
+
       final Map<String, String> fileLabelMap = {
-        'letterApplication': 'Letter of Application',
-        'oct': 'OCT/TCT',
+        'utiPlan': 'Utilization Plan',
+
+        'pambClearance': 'PAMB Clearance',
         'spa': 'SPA',
-        'numberSeed': 'Number of Seed',
+        'photo': 'Photos of Trees',
+        'larEndorsement': 'Local Agrarian Endorsement',
+        'ptaRes': 'PTA Resolution',
       };
-
-      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
-      String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
-      String documentId = await _generateDocumentId();
-
-      // Set root metadata
-      await FirebaseFirestore.instance
-          .collection('plantation')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'client': clientName,
-            'address': clientAddress,
-            'status': 'Pending',
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'current_location': 'RPU - For Evaluation',
-          });
-
-      // Upload each file
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
-
-        await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
-            .doc(documentId)
-            .collection('requirements')
-            .doc(label)
-            .set({
-              'fileName': fileLabelMap[label] ?? label,
-              'fileExtension': fileExtension,
-              'file': base64File,
-              'uploadedAt': Timestamp.now(),
-            });
+      if (!applicationSnapshot.exists) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Application not found!')));
+        return;
       }
 
-      await FirebaseFirestore.instance
-          .collection('mobile_users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('applications')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'status': 'Pending',
-          });
+      for (var entry in files.entries) {
+        String label = entry.key;
+        File file = entry.value;
 
-      // Upload each file
+        String fileExtension = path.extension(file.path).toLowerCase();
+        String base64File = await _convertFileToBase64(file);
+
+        await applicationRef.collection('requirements').doc(label).set({
+          'fileName': fileLabelMap[label] ?? label,
+          'fileExtension': fileExtension,
+          'file': base64File,
+          'uploadedAt': Timestamp.now(),
+        });
+      }
+
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
@@ -175,7 +121,7 @@ class _PlantationRegistrationScreenState
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('plantation')
+            .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -200,17 +146,14 @@ class _PlantationRegistrationScreenState
                 Text('Success'),
               ],
             ),
-            content: const Text('Application Submitted Successfully!'),
+            content: const Text('Files uploaded successfully!'),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                   Navigator.of(context).push(
                     CupertinoPageRoute(
-                      builder:
-                          (ctx) => Homepage(
-                            userid: FirebaseAuth.instance.currentUser!.uid,
-                          ),
+                      builder: (ctx) => Homepage(userid: userId),
                     ),
                   );
                 },
@@ -221,25 +164,33 @@ class _PlantationRegistrationScreenState
         },
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error during file upload.')),
-      );
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error during file upload: $e')));
     }
   }
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (letterApplication != null && oct != null) {
+    if (pambClearance != null && utiPlan != null) {
       Map<String, File> filesToUpload = {
-        'letterApplication': letterApplication!,
-        'oct': oct!,
+        'pambClearance': pambClearance!,
+        'utiPlan': utiPlan!,
       };
 
+      if (larEndorsement != null) {
+        filesToUpload['larEndorsement'] = larEndorsement!;
+      }
       if (spa != null) {
         filesToUpload['spa'] = spa!;
       }
-      if (numberSeed != null) {
-        filesToUpload['numberSeed'] = numberSeed!;
+      if (photo != null) {
+        filesToUpload['photo'] = photo!;
+      }
+
+      if (ptaRes != null) {
+        filesToUpload['ptaRes'] = ptaRes!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -264,7 +215,6 @@ class _PlantationRegistrationScreenState
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -296,7 +246,7 @@ class _PlantationRegistrationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Private Tree Plantation'),
+        title: const Text('Private Land Timber'),
         centerTitle: true,
       ),
       body: Padding(
@@ -308,29 +258,6 @@ class _PlantationRegistrationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Checklist of Requirements',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildFilePicker(
-                  '1. Letter of Application (1 original, 1 photocopy)',
-                  letterApplication,
-                  (file) => setState(() => letterApplication = file),
-                ),
-                _buildFilePicker(
-                  '2. OCT, TCT, Judicial Title, CLOA, Tac Declared Alienable and Disposable Lands (1 certified true copy) ',
-                  oct,
-                  (file) => setState(() => oct = file),
-                ),
-
-                _buildFilePicker(
-                  '3. Data on the number of seedlings planted, species and area planted',
-                  numberSeed,
-                  (file) => setState(() => numberSeed = file),
-                ),
-
-                const SizedBox(height: 20),
-                const Text(
                   'Additional Requirements',
                   style: TextStyle(
                     fontSize: 18,
@@ -338,11 +265,41 @@ class _PlantationRegistrationScreenState
                     color: Colors.blue,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 15),
+
                 _buildFilePicker(
-                  '4. Special Power of Attorney (SPA) (1 original)',
+                  '1. Protected Area Management Board (PAMB) Clearance/Certification\n'
+                  '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
+                  '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
+                  '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
+                  '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
+                  pambClearance,
+                  (file) => setState(() => pambClearance = file),
+                ),
+                _buildFilePicker(
+                  '2. Utilization Plan with at least 50% of the area covered with forest trees(1 original), if the applicaton covers 10 hectares or larger;',
+                  utiPlan,
+                  (file) => setState(() => utiPlan = file),
+                ),
+                _buildFilePicker(
+                  '3. Endorsement by local agrarian reform officer interposing No Objection (1 original), if covered by CLOA, Municipal/City Agrarian Reform Office;',
+                  larEndorsement,
+                  (file) => setState(() => larEndorsement = file),
+                ),
+                _buildFilePicker(
+                  '4. PTA Resolution or Resolution from any organized group of No Objection and reason for cutting (1 original), if School/Organization;',
                   spa,
                   (file) => setState(() => spa = file),
+                ),
+                _buildFilePicker(
+                  '5. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
+                  spa,
+                  (file) => setState(() => spa = file),
+                ),
+                _buildFilePicker(
+                  '6. Photos of the trees to be cut',
+                  photo,
+                  (file) => setState(() => photo = file),
                 ),
 
                 const SizedBox(height: 32),

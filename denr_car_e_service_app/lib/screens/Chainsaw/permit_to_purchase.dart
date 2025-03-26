@@ -32,7 +32,7 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       type: FileType.custom,
-      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf', 'docx', 'txt'],
+      allowedExtensions: ['jpg', 'jpeg', 'png', 'pdf'],
     );
 
     if (result != null) {
@@ -107,6 +107,14 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
               .doc(userId)
               .get();
 
+      final Map<String, String> fileLabelMap = {
+        'dulyAccomplishForm': 'Duly Accomplish Application Form',
+        'businessNameReg': 'Business Name',
+        'affidavit': 'Affidavit',
+        'business_permit': 'Business Permit from LGU',
+        'purchaseOrder': 'Purchase Order',
+      };
+
       String clientName = userSnapshot.get('name') ?? 'Unknown Client';
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
@@ -130,7 +138,6 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -142,7 +149,7 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -167,7 +174,6 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
         String label = entry.key;
         File file = entry.value;
 
-        String fileName = path.basename(file.path);
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
@@ -177,7 +183,7 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileName,
+              'fileName': fileLabelMap[label] ?? label,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -228,18 +234,18 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
   Future<void> _submitFiles() async {
     if (dulyAccomplishForm != null && businessNameReg != null) {
       Map<String, File> filesToUpload = {
-        'accomplish_form': dulyAccomplishForm!,
-        'proof_owneship': businessNameReg!,
+        'dulyAccomplishForm': dulyAccomplishForm!,
+        'businessNameReg': businessNameReg!,
       };
 
       if (affidavit != null) {
-        filesToUpload['business_registration'] = affidavit!;
+        filesToUpload['affidavit'] = affidavit!;
       }
       if (bussinessPermit != null) {
         filesToUpload['business_permit'] = bussinessPermit!;
       }
       if (purchaseOrder != null) {
-        filesToUpload['purchase_order'] = purchaseOrder!;
+        filesToUpload['purchaseOrder'] = purchaseOrder!;
       }
 
       await _uploadFiles(filesToUpload);
