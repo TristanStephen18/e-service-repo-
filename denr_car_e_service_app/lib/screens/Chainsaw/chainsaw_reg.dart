@@ -61,32 +61,27 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('chainsaw')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'CH-$today-$newNumber';
   }
 
@@ -120,19 +115,20 @@ class _ChainsawRegState extends State<ChainsawReg> {
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'accomplishForm': 'Duly Accomplish Application Form',
-        'chainsawReciept': 'Reciept of Chainsaw Purchase',
-        'spa': 'SPA',
-        'chainsawSpec': 'Specification of Chainsaw',
-        'deedofSale': 'Deed of Sale',
-        'regChainsaw': 'Chainsaw',
-        'forestTenure': 'Forest Tenure Agreement',
-        'businessPermit': 'Business Permit',
-        'certRegistration': 'Certificate of Registration',
-        'permitAffidavit': 'Affidavit/Permit from LGU',
-        'plantPermit': 'Plant Permit',
-        'headOffice': 'Certification of Head Office',
-        'certChainsawReg': 'Certificate of Chainsaw Registration',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'Reciept of Chainsaw Purchase': 'Reciept of Chainsaw Purchase',
+        'SPA': 'SPA',
+        'Specification of Chainsaw': 'Specification of Chainsaw',
+        'Deed of Sale': 'Deed of Sale',
+        'Chainsaw': 'Chainsaw',
+        'Forest Tenure Agreement': 'Forest Tenure Agreement',
+        'Business Permit': 'Business Permit',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Affidavit/Permit from LGU': 'Affidavit/Permit from LGU',
+        'Plant Permit': 'Plant Permit',
+        'Certification of Head Office': 'Certification of Head Office',
+        'Certificate of Chainsaw Registration':
+            'Certificate of Chainsaw Registration',
       };
 
       // Set root metadata
@@ -250,42 +246,43 @@ class _ChainsawRegState extends State<ChainsawReg> {
   Future<void> _submitFiles() async {
     if (dulyAccomplishForm != null && chainsawReciept != null) {
       Map<String, File> filesToUpload = {
-        'accomplishForm': dulyAccomplishForm!,
-        'chainsawReciept': chainsawReciept!,
+        'Duly Accomplish Application Form': dulyAccomplishForm!,
+        'Reciept of Chainsaw Purchase': chainsawReciept!,
       };
 
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (chainsawSpec != null) {
-        filesToUpload['chainsawSpec'] = chainsawSpec!;
+        filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
       }
       if (deedofSale != null) {
-        filesToUpload['deedofSale'] = deedofSale!;
+        filesToUpload['Deed of Sale'] = deedofSale!;
       }
       if (regChainsaw != null) {
-        filesToUpload['regChainsaw'] = regChainsaw!;
+        filesToUpload['Chainsaw Registration'] = regChainsaw!;
       }
       if (forestTenure != null) {
-        filesToUpload['forestTenure'] = forestTenure!;
+        filesToUpload['Forest Tenure Agreement'] = forestTenure!;
       }
       if (businessPermit != null) {
-        filesToUpload['businessPermit'] = businessPermit!;
+        filesToUpload['Business Permit'] = businessPermit!;
       }
       if (certRegistration != null) {
-        filesToUpload['certRegistration'] = certRegistration!;
+        filesToUpload['Certificate of Registration'] = certRegistration!;
       }
       if (permitAffidavit != null) {
-        filesToUpload['permitAffidavit'] = permitAffidavit!;
+        filesToUpload['Affidavit/Permit from LGU'] = permitAffidavit!;
       }
       if (plantPermit != null) {
-        filesToUpload['plantPermit'] = plantPermit!;
+        filesToUpload['Plant Permit'] = plantPermit!;
       }
       if (headOffice != null) {
-        filesToUpload['headOffice'] = headOffice!;
+        filesToUpload['Certification of Head Office'] = headOffice!;
       }
       if (certChainsawReg != null) {
-        filesToUpload['certChainsawReg'] = certChainsawReg!;
+        filesToUpload['Certificate of Chainsaw Registration'] =
+            certChainsawReg!;
       }
 
       await _uploadFiles(filesToUpload);

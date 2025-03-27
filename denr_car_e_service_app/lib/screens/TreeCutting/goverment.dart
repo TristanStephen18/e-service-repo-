@@ -57,32 +57,27 @@ class _GovermentScreenState extends State<GovermentScreen> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('tree_cutting')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'TC-$today-$newNumber';
   }
 
@@ -116,15 +111,15 @@ class _GovermentScreenState extends State<GovermentScreen> {
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'applicationLetter': 'Duly Accomplish Application Form',
-        'lguEndorsement': 'LGU Endorsement/Certification',
-        'waiver': 'Waiver',
-        'ecc': 'ECC',
-        'siteDevelopment': 'Site Development Plan',
-        'pambClearance': 'PAMB Clearance',
-        'ncip': 'NCIP Clearance',
-        'photo': 'Photos of Trees',
-        'others': 'Others',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'LGU Endorsement or Certification': 'LGU Endorsement or Certification',
+        'Waiver': 'Waiver',
+        'ECC': 'ECC',
+        'Site Development Plan': 'Site Development Plan',
+        'PAMB Clearance': 'PAMB Clearance',
+        'NCIP Clearance': 'NCIP Clearance',
+        'Photos of Trees': 'Photos of Trees',
+        'Others': 'Others',
       };
 
       // Set root metadata
@@ -241,31 +236,31 @@ class _GovermentScreenState extends State<GovermentScreen> {
   Future<void> _submitFiles() async {
     if (applicationLetter != null && lguEndorsement != null) {
       Map<String, File> filesToUpload = {
-        'applicationLetter': applicationLetter!,
-        'lguEndorsement': lguEndorsement!,
+        'Duly Accomplish Application Form': applicationLetter!,
+        'LGU Endorsement or Certification': lguEndorsement!,
       };
 
       if (waiver != null) {
-        filesToUpload['waiver'] = waiver!;
+        filesToUpload['Waiver'] = waiver!;
       }
       if (ecc != null) {
-        filesToUpload['ecc'] = ecc!;
+        filesToUpload['ECC'] = ecc!;
       }
       if (siteDevelopment != null) {
-        filesToUpload['siteDevelopment'] = siteDevelopment!;
+        filesToUpload['Site Development Plan'] = siteDevelopment!;
       }
       if (pambClearance != null) {
-        filesToUpload['pambClearance'] = pambClearance!;
+        filesToUpload['PAMB Clearance'] = pambClearance!;
       }
       if (ncip != null) {
-        filesToUpload['ncip'] = ncip!;
+        filesToUpload['NCIP Clearance'] = ncip!;
       }
       if (photo != null) {
-        filesToUpload['photo'] = photo!;
+        filesToUpload['Photos of Trees'] = photo!;
       }
 
       if (others != null) {
-        filesToUpload['others'] = others!;
+        filesToUpload['Others'] = others!;
       }
 
       await _uploadFiles(filesToUpload);

@@ -88,14 +88,15 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'deedofSale': 'Deed of Sale',
-        'forestTenure': 'Forest Tenure Agreement',
-        'businessPermit': 'Business Permit',
-        'certRegistration': 'Certificate of Registration',
-        'permitAffidavit': 'Affidavit/Permit from LGU',
-        'plantPermit': 'Plant Permit',
-        'headOffice': 'Certification of Head Office',
-        'certAddChainsawReg': 'Certificate of Chainsaw Registration',
+        'Deed of Sale': 'Deed of Sale',
+        'Forest Tenure Agreement': 'Forest Tenure Agreement',
+        'Business Permit': 'Business Permit',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Affidavit/Permit from LGU': 'Affidavit/Permit from LGU',
+        'Plant Permit': 'Plant Permit',
+        'Certification of Head Office': 'Certification of Head Office',
+        'Certificate of Chainsaw Registration':
+            'Certificate of Chainsaw Registration',
       };
 
       if (!applicationSnapshot.exists) {
@@ -182,36 +183,36 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
   // Submit selected files
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-
-    if (forestTenure != null) filesToUpload['forestTenure'] = forestTenure!;
-    if (businessPermit != null)
-      filesToUpload['businessPermit'] = businessPermit!;
-    if (deedofSale != null) {
-      filesToUpload['deedofSale'] = deedofSale!;
-    }
-    if (regChainsaw != null) {
-      filesToUpload['regChainsaw'] = regChainsaw!;
-    }
     if (forestTenure != null) {
-      filesToUpload['forestTenure'] = forestTenure!;
+      filesToUpload['Forest Tenure Agreement'] = forestTenure!;
     }
     if (businessPermit != null) {
       filesToUpload['businessPermit'] = businessPermit!;
     }
+    if (deedofSale != null) {
+      filesToUpload['Deed of Sale'] = deedofSale!;
+    }
+    if (regChainsaw != null) {
+      filesToUpload['Certificate of Chainsaw Registration'] = regChainsaw!;
+    }
+
+    if (businessPermit != null) {
+      filesToUpload['Business Permit'] = businessPermit!;
+    }
     if (certRegistration != null) {
-      filesToUpload['certRegistration'] = certRegistration!;
+      filesToUpload['Certificate of Registration'] = certRegistration!;
     }
     if (permitAffidavit != null) {
-      filesToUpload['permitAffidavit'] = permitAffidavit!;
+      filesToUpload['Affidavit/Permit from LGU'] = permitAffidavit!;
     }
     if (plantPermit != null) {
-      filesToUpload['plantPermit'] = plantPermit!;
+      filesToUpload['Plant Permit'] = plantPermit!;
     }
     if (headOffice != null) {
-      filesToUpload['headOffice'] = headOffice!;
+      filesToUpload['Certification of Head Office'] = headOffice!;
     }
     if (certChainsawReg != null) {
-      filesToUpload['certChainsawReg'] = certChainsawReg!;
+      filesToUpload['Certificate of Registration'] = certChainsawReg!;
     }
     if (filesToUpload.isNotEmpty) {
       await _uploadFiles(filesToUpload);

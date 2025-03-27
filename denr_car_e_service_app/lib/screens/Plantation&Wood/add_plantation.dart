@@ -82,7 +82,7 @@ class _AddPlantationRegistrationScreenState
 
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
-      final Map<String, String> fileLabelMap = {'spa': 'SPA'};
+      final Map<String, String> fileLabelMap = {'SPA': 'SPA'};
 
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
@@ -168,7 +168,7 @@ class _AddPlantationRegistrationScreenState
   // Submit all files
   Future<void> _submitFiles() async {
     if (spa != null) {
-      Map<String, File> filesToUpload = {'spa': spa!};
+      Map<String, File> filesToUpload = {'SPA': spa!};
 
       await _uploadFiles(filesToUpload);
     } else {

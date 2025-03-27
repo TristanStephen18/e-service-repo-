@@ -80,8 +80,8 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        '_transportAgreementFile': 'Transport Agreement',
-        '_spaFile': 'SPA',
+        'Transport Agreement': 'Transport Agreement',
+        'SPA': 'SPA',
       };
 
       if (!applicationSnapshot.exists) {
@@ -169,8 +169,8 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
   Future<void> _submitFiles() async {
     if (_transportAgreementFile != null && _spaFile != null) {
       Map<String, File> filesToUpload = {
-        'TransportAgreementFile': _transportAgreementFile!,
-        'SpaFile': _spaFile!,
+        'Transport Agreement': _transportAgreementFile!,
+        'SPA': _spaFile!,
       };
 
       await _uploadFiles(filesToUpload);

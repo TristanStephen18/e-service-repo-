@@ -82,13 +82,13 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'utiPlan': 'Utilization Plan',
+        'Utilization Plan': 'Utilization Plan',
 
-        'pambClearance': 'PAMB Clearance',
-        'spa': 'SPA',
-        'photo': 'Photos of Trees',
-        'larEndorsement': 'Local Agrarian Endorsement',
-        'ptaRes': 'PTA Resolution',
+        'PAMB Clearance': 'PAMB Clearance',
+        'SPA': 'SPA',
+        'Photos of Trees': 'Photos of Trees',
+        'Local Agrarian Endorsement': 'Local Agrarian Endorsement',
+        'PTA Resolution': 'PTA Resolution',
       };
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
@@ -175,22 +175,22 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
   Future<void> _submitFiles() async {
     if (pambClearance != null && utiPlan != null) {
       Map<String, File> filesToUpload = {
-        'pambClearance': pambClearance!,
-        'utiPlan': utiPlan!,
+        'PAMB Clearance': pambClearance!,
+        'Utilization Plan': utiPlan!,
       };
 
       if (larEndorsement != null) {
-        filesToUpload['larEndorsement'] = larEndorsement!;
+        filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
       }
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (photo != null) {
-        filesToUpload['photo'] = photo!;
+        filesToUpload['Photos of Trees'] = photo!;
       }
 
       if (ptaRes != null) {
-        filesToUpload['ptaRes'] = ptaRes!;
+        filesToUpload['PTA Resolution'] = ptaRes!;
       }
 
       await _uploadFiles(filesToUpload);

@@ -82,12 +82,12 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'resolution': 'Homeowners Resolution',
-        'ptaResolution': 'PTA Resolution',
-        'landTitle': 'Land Title',
-        'pambClearance': 'PAMB Clearance',
-        'spa': 'SPA',
-        'photo': 'Photos of Trees',
+        'Homeowners Resolution': 'Homeowners Resolution',
+        'PTA Resolution': 'PTA Resolution',
+        'Land Title': 'Land Title',
+        'PAMB Clearance': 'PAMB Clearance',
+        'SPA': 'SPA',
+        'Photos of Trees': 'Photos of Trees',
       };
 
       if (!applicationSnapshot.exists) {
@@ -175,20 +175,20 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
   Future<void> _submitFiles() async {
     if (resolution != null && resolution != null) {
       Map<String, File> filesToUpload = {
-        'resolution': resolution!,
-        'ptaResolution': resolution!,
+        'Homeowners Resolution': resolution!,
+        'PTA Resolution': resolution!,
       };
       if (landTitle != null) {
-        filesToUpload['landTitle'] = landTitle!;
+        filesToUpload['Land Title'] = landTitle!;
       }
       if (pambClearance != null) {
-        filesToUpload['pambClearance'] = pambClearance!;
+        filesToUpload['PAMB Clearance'] = pambClearance!;
       }
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (photo != null) {
-        filesToUpload['photo'] = photo!;
+        filesToUpload['Photos of Trees'] = photo!;
       }
 
       await _uploadFiles(filesToUpload);

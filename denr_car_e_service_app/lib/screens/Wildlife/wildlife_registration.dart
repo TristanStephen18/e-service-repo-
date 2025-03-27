@@ -51,32 +51,27 @@ class _WildlifeRegistrationScreenState
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('wildlife')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'WR-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'WR-$today-$newNumber';
   }
 

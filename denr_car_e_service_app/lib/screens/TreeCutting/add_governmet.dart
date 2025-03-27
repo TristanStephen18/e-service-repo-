@@ -78,8 +78,8 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'photo': 'Photos of Trees',
-        'others': 'Others',
+        'Photos of Trees': 'Photos of Trees',
+        'Others': 'Others',
       };
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
@@ -165,7 +165,10 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
   // Submit all files
   Future<void> _submitFiles() async {
     if (photo != null && others != null) {
-      Map<String, File> filesToUpload = {'photo': photo!, 'others': others!};
+      Map<String, File> filesToUpload = {
+        'Photos of Trees': photo!,
+        'Others': others!,
+      };
 
       await _uploadFiles(filesToUpload);
     } else {

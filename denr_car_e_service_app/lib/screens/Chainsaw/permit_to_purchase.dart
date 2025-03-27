@@ -53,32 +53,27 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('chainsaw')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'CH-$today-$newNumber';
   }
 
@@ -108,11 +103,11 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
               .get();
 
       final Map<String, String> fileLabelMap = {
-        'dulyAccomplishForm': 'Duly Accomplish Application Form',
-        'businessNameReg': 'Business Name',
-        'affidavit': 'Affidavit',
-        'business_permit': 'Business Permit from LGU',
-        'purchaseOrder': 'Purchase Order',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'Business Name': 'Business Name',
+        'Affidavit': 'Affidavit',
+        'Business Permit from LGU': 'Business Permit from LGU',
+        'Purchase Order': 'Purchase Order',
       };
 
       String clientName = userSnapshot.get('name') ?? 'Unknown Client';
@@ -234,18 +229,18 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
   Future<void> _submitFiles() async {
     if (dulyAccomplishForm != null && businessNameReg != null) {
       Map<String, File> filesToUpload = {
-        'dulyAccomplishForm': dulyAccomplishForm!,
-        'businessNameReg': businessNameReg!,
+        'Duly Accomplish Application Form': dulyAccomplishForm!,
+        'Business Name': businessNameReg!,
       };
 
       if (affidavit != null) {
-        filesToUpload['affidavit'] = affidavit!;
+        filesToUpload['Affidavit'] = affidavit!;
       }
       if (bussinessPermit != null) {
-        filesToUpload['business_permit'] = bussinessPermit!;
+        filesToUpload['Business Permit from LGU'] = bussinessPermit!;
       }
       if (purchaseOrder != null) {
-        filesToUpload['purchaseOrder'] = purchaseOrder!;
+        filesToUpload['Purchase Order'] = purchaseOrder!;
       }
 
       await _uploadFiles(filesToUpload);

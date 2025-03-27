@@ -53,32 +53,27 @@ class _PlantationRegistrationScreenState
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('plantation')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'PTP-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'PTP-$today-$newNumber';
   }
 
@@ -109,10 +104,10 @@ class _PlantationRegistrationScreenState
 
       // Define descriptive labels for fileName field
       final Map<String, String> fileLabelMap = {
-        'letterApplication': 'Letter of Application',
-        'oct': 'OCT/TCT',
-        'spa': 'SPA',
-        'numberSeed': 'Number of Seed',
+        'Letter of Application': 'Letter of Application',
+        'OCT or TCT': 'OCT or TCT',
+        'SPA': 'SPA',
+        'Number of Seed': 'Number of Seed',
       };
 
       String clientName = userSnapshot.get('name') ?? 'Unknown Client';
@@ -231,15 +226,15 @@ class _PlantationRegistrationScreenState
   Future<void> _submitFiles() async {
     if (letterApplication != null && oct != null) {
       Map<String, File> filesToUpload = {
-        'letterApplication': letterApplication!,
-        'oct': oct!,
+        'Letter of Application': letterApplication!,
+        'OCT or TCT': oct!,
       };
 
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (numberSeed != null) {
-        filesToUpload['numberSeed'] = numberSeed!;
+        filesToUpload['Number of Seed'] = numberSeed!;
       }
 
       await _uploadFiles(filesToUpload);

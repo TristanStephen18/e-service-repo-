@@ -56,32 +56,27 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('tree_cutting')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'TC-$today-$newNumber';
   }
 
@@ -115,14 +110,14 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'applicationLetter': 'Duly Accomplish Application Form',
-        'lguEndorsement': 'LGU Endorsement/Certification',
-        'resolution': 'Homeowners Resolution',
-        'ptaResolution': 'PTA Resolution',
-        'landTitle': 'Land Title',
-        'pambClearance': 'PAMB Clearance',
-        'spa': 'SPA',
-        'photo': 'Photos of Trees',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'LGU Endorsement/Certification': 'LGU Endorsement/Certification',
+        'Homeowners Resolution': 'Homeowners Resolution',
+        'PTA Resolution': 'PTA Resolution',
+        'Land Title': 'Land Title',
+        'PAMB Clearance': 'PAMB Clearance',
+        'SPA': 'SPA',
+        'Photos of Trees': 'Photos of Trees',
       };
 
       // Set root metadata
@@ -239,27 +234,27 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
   Future<void> _submitFiles() async {
     if (applicationLetter != null && lguEndorsement != null) {
       Map<String, File> filesToUpload = {
-        'applicationLetter': applicationLetter!,
-        'lguEndorsement': lguEndorsement!,
+        'Duly Accomplish Application Form': applicationLetter!,
+        'LGU Endorsement or Certification': lguEndorsement!,
       };
 
       if (resolution != null) {
-        filesToUpload['resolution'] = resolution!;
+        filesToUpload['Homeowners Resolution'] = resolution!;
       }
       if (ptaResolution != null) {
-        filesToUpload['ptaResolution'] = ptaResolution!;
+        filesToUpload['PTA Resolution'] = ptaResolution!;
       }
       if (landTitle != null) {
-        filesToUpload['landTitle'] = landTitle!;
+        filesToUpload['Land Title'] = landTitle!;
       }
       if (pambClearance != null) {
-        filesToUpload['pambClearance'] = pambClearance!;
+        filesToUpload['PAMB Clearance'] = pambClearance!;
       }
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (photo != null) {
-        filesToUpload['photo'] = photo!;
+        filesToUpload['Photos of Trees'] = photo!;
       }
 
       await _uploadFiles(filesToUpload);

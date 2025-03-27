@@ -58,32 +58,27 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('transport_permit')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'TP-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'TP-$today-$newNumber';
   }
 
@@ -117,12 +112,12 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'requestLetter': 'Request Letter',
-        'certification': 'Certification',
-        'tree_cutting_permit': 'Tree Cutting Permit',
-        'or_cr': 'OR/CR',
-        'transport_agreement': 'Transport Agreement',
-        'spa': 'SPA',
+        'Request Letter': 'Request Letter',
+        'Certification': 'Certification',
+        'Tree Cutting Permit': 'Tree Cutting Permit',
+        'OR CR': 'OR CR',
+        'Transport Agreement': 'Transport Agreement',
+        'SPA': 'SPA',
       };
 
       // Set root metadata
@@ -236,21 +231,21 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
   Future<void> _submitFiles() async {
     if (_certificationFile != null && _orCrFile != null) {
       Map<String, File> filesToUpload = {
-        'certification': _certificationFile!,
-        'or_cr': _orCrFile!,
+        'Certification': _certificationFile!,
+        'OR CR': _orCrFile!,
       };
 
       if (_treeCuttingPermitFile != null) {
-        filesToUpload['tree_cutting_permit'] = _treeCuttingPermitFile!;
+        filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
       }
       if (_transportAgreementFile != null) {
-        filesToUpload['transport_agreement'] = _transportAgreementFile!;
+        filesToUpload['Transport Agreement'] = _transportAgreementFile!;
       }
       if (_spaFile != null) {
-        filesToUpload['spa'] = _spaFile!;
+        filesToUpload['SPA'] = _spaFile!;
       }
       if (requestLetter != null) {
-        filesToUpload['requestLetter'] = requestLetter!;
+        filesToUpload['Request Letter'] = requestLetter!;
       }
 
       await _uploadFiles(filesToUpload);

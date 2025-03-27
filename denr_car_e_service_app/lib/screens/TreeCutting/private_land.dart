@@ -58,32 +58,27 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
   // Generate Document ID
   Future<String> _generateDocumentId() async {
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('tree_cutting')
-            .where(
-              'uploadedAt',
-              isGreaterThan: Timestamp.fromDate(
-                DateTime.now().subtract(Duration(days: 1)),
-              ),
-            )
+            .orderBy('uploadedAt', descending: true) // Get latest uploads first
+            .limit(1) // Only check the latest document
             .get();
 
     int latestNumber = 0;
-    for (var doc in querySnapshot.docs) {
-      String docId = doc.id;
+
+    if (querySnapshot.docs.isNotEmpty) {
+      String lastDocId = querySnapshot.docs.first.id;
       RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(docId);
+      Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
-        int currentNumber = int.parse(match.group(1)!);
-        if (currentNumber > latestNumber) {
-          latestNumber = currentNumber;
-        }
+        latestNumber = int.parse(match.group(1)!);
       }
     }
 
+    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
+
     return 'TC-$today-$newNumber';
   }
 
@@ -117,16 +112,16 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'applicationLetter': 'Duly Accomplish Application Form',
-        'lguEndorsement': 'LGU Endorsement/Certification',
-        'utiPlan': 'Utilization Plan',
-        'ecc': 'ECC',
-        'landTitle': 'Land Title',
-        'pambClearance': 'PAMB Clearance',
-        'spa': 'SPA',
-        'photo': 'Photos of Trees',
-        'larEndorsement': 'Local Agrarian Endorsement',
-        'ptaRes': 'PTA Resolution',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'LGU Endorsement or Certification': 'LGU Endorsement or Certification',
+        'Utilization Plan': 'Utilization Plan',
+        'ECC': 'ECC',
+        'Land Title': 'Land Title',
+        'PAMB Clearance': 'PAMB Clearance',
+        'SPA': 'SPA',
+        'Photos of Trees': 'Photos of Trees',
+        'Local Agrarian Endorsement': 'Local Agrarian Endorsement',
+        'PTA Resolution': 'PTA Resolution',
       };
 
       // Set root metadata
@@ -243,34 +238,34 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
   Future<void> _submitFiles() async {
     if (applicationLetter != null && lguEndorsement != null) {
       Map<String, File> filesToUpload = {
-        'applicationLetter': applicationLetter!,
-        'lguEndorsement': lguEndorsement!,
+        'Duly Accomplish Application Form': applicationLetter!,
+        'LGU Endorsement or Certification': lguEndorsement!,
       };
 
       if (utiPlan != null) {
-        filesToUpload['utiPlan'] = utiPlan!;
+        filesToUpload['Utilization Plan'] = utiPlan!;
       }
       if (ecc != null) {
-        filesToUpload['ecc'] = ecc!;
+        filesToUpload['ECC'] = ecc!;
       }
       if (landTitle != null) {
-        filesToUpload['landTitle'] = landTitle!;
+        filesToUpload['Land Title'] = landTitle!;
       }
       if (pambClearance != null) {
-        filesToUpload['pambClearance'] = pambClearance!;
+        filesToUpload['PAMB Clearance'] = pambClearance!;
       }
       if (spa != null) {
-        filesToUpload['spa'] = spa!;
+        filesToUpload['SPA'] = spa!;
       }
       if (photo != null) {
-        filesToUpload['photo'] = photo!;
+        filesToUpload['Photos of Trees'] = photo!;
       }
 
       if (ptaRes != null) {
-        filesToUpload['ptaRes'] = ptaRes!;
+        filesToUpload['PTA Resolution'] = ptaRes!;
       }
-      if (pambClearance != null) {
-        filesToUpload['pambClearance'] = pambClearance!;
+      if (larEndorsement != null) {
+        filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
       }
 
       await _uploadFiles(filesToUpload);
