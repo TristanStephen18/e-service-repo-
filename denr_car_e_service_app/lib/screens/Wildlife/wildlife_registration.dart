@@ -289,8 +289,12 @@ class _WildlifeRegistrationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wildlife Registration'),
-        centerTitle: true,
+        title: const Text(
+          'Wildlife Registration',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: BackButton(color: Colors.white),
+        backgroundColor: Colors.green,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -332,7 +336,7 @@ class _WildlifeRegistrationScreenState
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 32,
+                        horizontal: 80,
                         vertical: 12,
                       ),
                     ),

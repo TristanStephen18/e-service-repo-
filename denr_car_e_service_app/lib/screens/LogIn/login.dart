@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/register.dart';
 import 'package:email_validator/email_validator.dart';
@@ -21,6 +22,15 @@ class _LoginState extends State<Login> {
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
   bool _obscurePassword = true; // State variable to track password visibility
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the responsive scaling
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Responsive.init(context);
+    });
+  }
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -116,19 +126,24 @@ class _LoginState extends State<Login> {
       body: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(Responsive.getWidthScale(16)),
           child: Center(
             child: SingleChildScrollView(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.all(15),
-
-                    child: Image.asset("lib/images/logo.png", height: 130),
+                    padding: EdgeInsets.all(Responsive.getWidthScale(15)),
+                    child: Image.asset(
+                      "lib/images/logo.png",
+                      height: Responsive.getHeightScale(120),
+                    ),
                   ),
-                  Text("DENR-CAR E-SERVICES", style: TextStyle(fontSize: 25)),
-                  Gap(35),
+                  Text(
+                    "DENR-CAR E-SERVICES",
+                    style: TextStyle(fontSize: Responsive.getTextScale(18)),
+                  ),
+                  Gap(30),
                   TextFormField(
                     controller: username,
                     validator: (value) {
@@ -148,7 +163,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: Responsive.getHeightScale(15)),
                   TextFormField(
                     controller: password,
                     obscureText: _obscurePassword,
@@ -174,18 +189,23 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                   ),
-                  Gap(45),
+                  Gap(40),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(vertical: 13),
+                        padding: EdgeInsets.symmetric(
+                          vertical: Responsive.getHeightScale(10),
+                        ),
                         backgroundColor: Colors.green,
                       ),
                       child: Text(
                         'Login',
-                        style: TextStyle(color: Colors.white, fontSize: 17),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: Responsive.getTextScale(15),
+                        ),
                       ),
                     ),
                   ),
@@ -193,7 +213,10 @@ class _LoginState extends State<Login> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text("No Account?", style: TextStyle(fontSize: 15)),
+                      Text(
+                        "No Account?",
+                        style: TextStyle(fontSize: Responsive.getTextScale(12)),
+                      ),
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).push(
@@ -204,7 +227,10 @@ class _LoginState extends State<Login> {
                         },
                         child: Text(
                           "Register",
-                          style: TextStyle(fontSize: 15, color: Colors.green),
+                          style: TextStyle(
+                            fontSize: Responsive.getTextScale(12),
+                            color: Colors.green,
+                          ),
                         ),
                       ),
                     ],

@@ -339,7 +339,11 @@ class _ChainsawRegState extends State<ChainsawReg> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chainsaw Registration'),
+        backgroundColor: Colors.green,
+        title: const Text(
+          'Chainsaw Registration',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: Padding(

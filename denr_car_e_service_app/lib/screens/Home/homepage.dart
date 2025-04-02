@@ -3,6 +3,7 @@ import 'package:denr_car_e_service_app/classes/chat.dart';
 import 'package:denr_car_e_service_app/classes/profiles.dart';
 import 'package:denr_car_e_service_app/classes/services.dart';
 import 'package:flutter/material.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 
 class Homepage extends StatefulWidget {
   final String userid;
@@ -36,6 +37,9 @@ class _HomepageState extends State<Homepage> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive settings
+    Responsive.init(context);
+
     return Scaffold(
       body: SafeArea(child: _screens[_selectedIndex]),
       bottomNavigationBar: BottomNavigationBar(
@@ -47,9 +51,9 @@ class _HomepageState extends State<Homepage> {
         elevation: 10.0,
         showSelectedLabels: true,
         showUnselectedLabels: true,
-        selectedFontSize: 14,
-        unselectedFontSize: 12,
-        items: const <BottomNavigationBarItem>[
+        selectedFontSize: Responsive.getTextScale(12), // Scaled font size
+        unselectedFontSize: Responsive.getTextScale(10), // Scaled font size
+        items: <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.miscellaneous_services),
             label: 'Services',

@@ -72,7 +72,14 @@ class _DisplayState extends State<Display> {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Requirements')),
+      appBar: AppBar(
+        title: const Text(
+          'Requirements',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: BackButton(color: Colors.white),
+        backgroundColor: Colors.green,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(10),
@@ -181,6 +188,7 @@ class _DisplayState extends State<Display> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.green,
         onPressed: () {
           if (widget.applicationId.startsWith("CH-") &&
               applicationType == 'Chainsaw Registration') {
@@ -253,9 +261,12 @@ class _DisplayState extends State<Display> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.upload_file),
+            const Icon(Icons.upload_file, color: Colors.white),
             const SizedBox(height: 4),
-            const Text('Add', style: TextStyle(fontSize: 12)),
+            const Text(
+              'Add',
+              style: TextStyle(fontSize: 12, color: Colors.white),
+            ),
           ],
         ),
       ),

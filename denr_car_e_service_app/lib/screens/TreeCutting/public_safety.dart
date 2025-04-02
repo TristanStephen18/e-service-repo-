@@ -8,10 +8,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
 class PublicSafetyScreen extends StatefulWidget {
-  const PublicSafetyScreen({super.key});
+  final LatLng geoP;
+  final String address;
+  final String polygonName;
+  const PublicSafetyScreen({
+    super.key,
+    required this.address,
+    required this.geoP,
+    required this.polygonName,
+  });
 
   @override
   State<PublicSafetyScreen> createState() => _PublicSafetyScreenState();
@@ -132,6 +141,9 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'type': 'Public Safety Permit',
             'current_location': 'RPU - For Evaluation',
+            'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
+            'tcp_location': widget.address,
+            'pamb': widget.polygonName,
           });
 
       // Upload each file

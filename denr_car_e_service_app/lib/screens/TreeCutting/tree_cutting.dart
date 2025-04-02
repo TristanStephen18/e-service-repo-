@@ -1,24 +1,40 @@
 import 'package:denr_car_e_service_app/map/map.dart';
-import 'package:denr_car_e_service_app/screens/TreeCutting/public_safety.dart';
-
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class TreeCuttingChoices extends StatelessWidget {
-  const TreeCuttingChoices({super.key});
+  TreeCuttingChoices({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Initialize the responsive values when the widget is built
+    Responsive.init(context);
+
     return Scaffold(
-      appBar: AppBar(title: Text('Tree Cutting Type')),
+      appBar: AppBar(
+        title: Text(
+          'Tree Cutting Type',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: Responsive.getTextScale(
+              17,
+            ), // Adjusting the font size responsively
+          ),
+        ),
+        leading: BackButton(color: Colors.white),
+        backgroundColor: Colors.green,
+      ),
       body: Center(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(
+            Responsive.getWidthScale(16),
+          ), // Responsive padding
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Gap(20),
+              Gap(Responsive.getHeightScale(15)), // Responsive gap
               Container(
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -35,20 +51,32 @@ class TreeCuttingChoices extends StatelessWidget {
                   leading: Icon(Icons.public, color: Colors.green),
                   title: Text(
                     "Public safety Permit",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Responsive.getTextScale(
+                        15,
+                      ), // Responsive text size
+                    ),
                   ),
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => PublicSafetyScreen(),
+                        builder: (ctx) => MapScreen(type: 'PSP'),
                       ),
                     );
                   },
-                  subtitle: Text("For removal of trees in public places."),
+                  subtitle: Text(
+                    "For removal of trees in public places.",
+                    style: TextStyle(
+                      fontSize: Responsive.getTextScale(
+                        12,
+                      ), // Responsive text size
+                    ),
+                  ),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
-              const Gap(20),
+              Gap(Responsive.getHeightScale(15)), // Responsive gap
               // Tree Cutting Permit Service
               Container(
                 decoration: BoxDecoration(
@@ -66,19 +94,32 @@ class TreeCuttingChoices extends StatelessWidget {
                   leading: Icon(Icons.landscape, color: Colors.green),
                   title: Text(
                     "Private Land Timber Permit",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Responsive.getTextScale(
+                        14,
+                      ), // Responsive text size
+                    ),
                   ),
                   onTap: () {
-                    Navigator.of(
-                      context,
-                    ).push(CupertinoPageRoute(builder: (ctx) => MapScreen()));
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (ctx) => MapScreen(type: 'PLTP'),
+                      ),
+                    );
                   },
-                  subtitle: Text("For trees within private lands"),
+                  subtitle: Text(
+                    "For trees within private lands",
+                    style: TextStyle(
+                      fontSize: Responsive.getTextScale(
+                        12,
+                      ), // Responsive text size
+                    ),
+                  ),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
-
-              const Gap(20),
+              Gap(Responsive.getHeightScale(15)), // Responsive gap
               // Transport Permit Service
               Container(
                 decoration: BoxDecoration(
@@ -96,15 +137,27 @@ class TreeCuttingChoices extends StatelessWidget {
                   leading: Icon(Icons.security, color: Colors.green),
                   title: Text(
                     "National Government Agencies Permit",
-                    style: TextStyle(fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: Responsive.getTextScale(
+                        14,
+                      ), // Responsive text size
+                    ),
                   ),
                   onTap: () {
-                    Navigator.of(
-                      context,
-                    ).push(CupertinoPageRoute(builder: (ctx) => MapScreen()));
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(
+                        builder: (ctx) => MapScreen(type: 'NGA'),
+                      ),
+                    );
                   },
                   subtitle: Text(
                     "For trees affected by national government agency projects.",
+                    style: TextStyle(
+                      fontSize: Responsive.getTextScale(
+                        12,
+                      ), // Responsive text size
+                    ),
                   ),
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),

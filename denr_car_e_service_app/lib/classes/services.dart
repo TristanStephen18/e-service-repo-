@@ -6,17 +6,21 @@ import 'package:denr_car_e_service_app/screens/treeCutting/tree_cutting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 
 class Services extends StatelessWidget {
   const Services({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive settings
+    Responsive.init(context);
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(Responsive.getWidthScale(16)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -29,7 +33,7 @@ class Services extends StatelessWidget {
                         backgroundImage: ExactAssetImage('lib/images/logo.png'),
                       ),
                     ),
-                    const SizedBox(width: 13),
+                    SizedBox(width: Responsive.getWidthScale(12)),
                     const Text(
                       'DENR-CAR',
                       style: TextStyle(
@@ -40,19 +44,20 @@ class Services extends StatelessWidget {
                     ),
                   ],
                 ),
-                const Gap(25),
-                const Center(
+                Gap(Responsive.getHeightScale(15)),
+                Center(
                   child: Text(
                     'Services',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: Responsive.getTextScale(22), // Scaled text size
                       fontWeight: FontWeight.bold,
                       color: Colors.blue,
                     ),
                   ),
                 ),
-                const Gap(20),
+                Gap(Responsive.getHeightScale(15)),
 
+                // Use the responsive method for consistent spacing and scaling
                 _buildServiceTile(
                   context,
                   icon: Icons.carpenter,
@@ -133,7 +138,7 @@ class Services extends StatelessWidget {
     required VoidCallback onTap,
   }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20),
+      padding: EdgeInsets.only(bottom: Responsive.getHeightScale(15)),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,

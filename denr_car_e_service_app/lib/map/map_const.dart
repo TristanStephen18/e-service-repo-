@@ -1,10 +1,10 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class MapConstants {
-  static const LatLng center = LatLng(16.5, 120.5);
+  static const LatLng center = LatLng(16.403998064389572, 120.595873844749755);
 
   // Polygon Coordinates
-  static const List<LatLng> marcosHighway = [
+  static const List<LatLng> mtPulagCoords = [
     LatLng(16.70231147656999, 120.8998786065803),
     LatLng(16.70796802055422, 120.880996984595),
     LatLng(16.7056943435429, 120.8633429406037),
@@ -56,7 +56,7 @@ class MapConstants {
     LatLng(16.59639837363955, 120.9316886364915),
     LatLng(16.70231147656999, 120.8998786065803),
   ];
-  static const List<LatLng> mtPulagCoords = [
+  static const List<LatLng> marcosHighway = [
     LatLng(16.40240783400511, 120.5959755963186),
     LatLng(16.44394607598064, 120.5789715282792),
     LatLng(16.4416376157747, 120.5667876840442),

@@ -8,10 +8,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
 class GovermentScreen extends StatefulWidget {
-  const GovermentScreen({super.key});
+  final LatLng geoP;
+  final String address;
+  final String polygonName;
+  const GovermentScreen({
+    super.key,
+    required this.address,
+    required this.geoP,
+    required this.polygonName,
+  });
 
   @override
   State<GovermentScreen> createState() => _GovermentScreenState();
@@ -132,8 +141,11 @@ class _GovermentScreenState extends State<GovermentScreen> {
             'address': clientAddress,
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'National Government Agencies',
+            'type': 'National Agencies Government Permit',
             'current_location': 'RPU - For Evaluation',
+            'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
+            'tcp_location': widget.address,
+            'pamb': widget.polygonName,
           });
 
       // Upload each file

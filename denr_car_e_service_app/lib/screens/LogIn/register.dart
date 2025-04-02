@@ -1,6 +1,5 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -122,10 +121,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       ),
       filled: true,
       fillColor: Colors.white,
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+      contentPadding: EdgeInsets.symmetric(
+        horizontal: Responsive.getWidthScale(12), // Scaled padding
+        vertical: Responsive.getHeightScale(12),
+      ),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.green, width: 1.8),
       ),
     );
@@ -133,42 +135,57 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive settings
+    Responsive.init(context);
+
     return Scaffold(
-      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.green,
         centerTitle: true,
-        elevation: 0,
-        title: const Text(
+        title: Text(
           'Register',
-          style: TextStyle(color: Colors.black, fontWeight: FontWeight.w600),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.w600,
+            fontSize: Responsive.getTextScale(17), // Scaled font size
+          ),
         ),
-        iconTheme: const IconThemeData(color: Colors.black),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.getWidthScale(20), // Scaled padding
+            vertical: Responsive.getHeightScale(15), // Scaled padding
+          ),
           child: Form(
             key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Image.asset("lib/images/logo.png", height: 110),
-                const SizedBox(height: 10),
-                const Text(
-                  "Create Your Account",
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                Image.asset(
+                  "lib/images/logo.png",
+                  height: Responsive.getHeightScale(100), // Scaled height
                 ),
-                const SizedBox(height: 25),
+                SizedBox(height: Responsive.getHeightScale(10)),
+                Text(
+                  "Create Your Account",
+                  style: TextStyle(
+                    fontSize: Responsive.getTextScale(20), // Scaled font size
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: Responsive.getHeightScale(20)),
 
+                // Full Name
                 TextFormField(
                   controller: name,
                   validator:
                       (val) => val!.isEmpty ? 'Full name is required' : null,
                   decoration: _inputDecoration("Full Name"),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Age and Gender
                 Row(
                   children: [
                     Expanded(
@@ -180,7 +197,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         decoration: _inputDecoration("Age"),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    SizedBox(width: Responsive.getWidthScale(12)),
                     Expanded(
                       child: DropdownButtonFormField<String>(
                         value: sex.text.isEmpty ? null : sex.text,
@@ -205,16 +222,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Address
                 TextFormField(
                   controller: address,
                   validator:
                       (val) => val!.isEmpty ? 'Address is required' : null,
                   decoration: _inputDecoration("Complete Address"),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Contact Number
                 TextFormField(
                   controller: contact,
                   maxLength: 11,
@@ -226,8 +245,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     "Contact Number",
                   ).copyWith(counterText: ''),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Email Address
                 TextFormField(
                   controller: email,
                   keyboardType: TextInputType.emailAddress,
@@ -239,8 +259,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   decoration: _inputDecoration("Email Address"),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Password
                 TextFormField(
                   controller: password,
                   obscureText: _obscurePassword,
@@ -258,8 +279,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 16),
+                SizedBox(height: Responsive.getHeightScale(15)),
 
+                // Confirm Password
                 TextFormField(
                   controller: confirm,
                   obscureText: _obscurePassword,
@@ -270,25 +292,24 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   },
                   decoration: _inputDecoration("Confirm Password"),
                 ),
-                const SizedBox(height: 30),
+                SizedBox(height: Responsive.getHeightScale(25)),
 
+                // Register Button
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: _register,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green.shade700,
-                      padding: const EdgeInsets.symmetric(vertical: 15),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                      padding: EdgeInsets.symmetric(
+                        vertical: Responsive.getHeightScale(10),
                       ),
+                      backgroundColor: Colors.green,
                     ),
-                    child: const Text(
-                      "Sign Up",
+                    child: Text(
+                      'Register',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
                         color: Colors.white,
+                        fontSize: Responsive.getTextScale(15),
                       ),
                     ),
                   ),

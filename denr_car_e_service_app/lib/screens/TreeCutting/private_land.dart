@@ -8,10 +8,19 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
 class PrivateLandScreen extends StatefulWidget {
-  const PrivateLandScreen({super.key});
+  final LatLng geoP;
+  final String address;
+  final String polygonName;
+  const PrivateLandScreen({
+    super.key,
+    required this.address,
+    required this.geoP,
+    required this.polygonName,
+  });
 
   @override
   State<PrivateLandScreen> createState() => _PrivateLandScreenState();
@@ -136,6 +145,9 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'type': 'Private Land Timber Permit',
             'current_location': 'RPU - For Evaluation',
+            'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
+            'tcp_location': widget.address,
+            'pamb': widget.polygonName,
           });
 
       // Upload each file
@@ -320,6 +332,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
   @override
   Widget build(BuildContext context) {
+    print(widget.polygonName);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Private Land Timber'),

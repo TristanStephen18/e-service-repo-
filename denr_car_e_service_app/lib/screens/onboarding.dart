@@ -1,5 +1,5 @@
 import 'dart:core';
-
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +25,15 @@ class _OnboardingState extends State<Onboarding> {
     'Easy to use',
   ];
 
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the Responsive class to calculate screen sizes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Responsive.init(context);
+    });
+  }
+
   void _onPageChanged(int index) {
     setState(() {
       _currentPage = index;
@@ -42,8 +51,12 @@ class _OnboardingState extends State<Onboarding> {
                 context,
               ).push(MaterialPageRoute(builder: (ctx) => Login()));
             },
-
-            child: Text("Skip", style: TextStyle(fontSize: 18.0)),
+            child: Text(
+              "Skip",
+              style: TextStyle(
+                fontSize: Responsive.getTextScale(18.0), // Scaled font size
+              ),
+            ),
           ),
         ],
       ),
@@ -62,7 +75,7 @@ class _OnboardingState extends State<Onboarding> {
             },
           ),
           Positioned(
-            bottom: 20.0,
+            bottom: Responsive.getHeightScale(20.0), // Scaled position
             left: 0,
             right: 0,
             child: Row(
@@ -85,9 +98,11 @@ class _OnboardingState extends State<Onboarding> {
 
   Widget _indicator(bool isActive) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      height: 8.0,
-      width: 8.0,
+      margin: EdgeInsets.symmetric(
+        horizontal: Responsive.getWidthScale(8.0),
+      ), // Scaled margin
+      height: Responsive.getHeightScale(8.0), // Scaled height
+      width: Responsive.getWidthScale(8.0), // Scaled width
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: isActive ? Colors.green : Colors.grey,
@@ -114,19 +129,29 @@ class OnboardingPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        Image.asset(imagePath, height: 250.0),
-        SizedBox(height: 30.0),
+        Image.asset(
+          imagePath,
+          height: Responsive.getHeightScale(250.0),
+        ), // Scaled image height
+        SizedBox(height: Responsive.getHeightScale(30.0)), // Scaled space
         Text(
           title,
-          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: Responsive.getTextScale(26.0), // Scaled font size
+            fontWeight: FontWeight.bold,
+          ),
         ),
-        SizedBox(height: 10.0),
+        SizedBox(height: Responsive.getHeightScale(10.0)), // Scaled space
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.0),
+          padding: EdgeInsets.symmetric(
+            horizontal: Responsive.getWidthScale(40.0),
+          ), // Scaled padding
           child: Text(
             description,
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18.0),
+            style: TextStyle(
+              fontSize: Responsive.getTextScale(18.0),
+            ), // Scaled font size
           ),
         ),
       ],

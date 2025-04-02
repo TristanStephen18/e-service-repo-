@@ -224,8 +224,12 @@ class _AddPlantationRegistrationScreenState
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Private Tree Plantation'),
-        centerTitle: true,
+        title: const Text(
+          'Private Tree Plantation',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: BackButton(color: Colors.white),
+        backgroundColor: Colors.green,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

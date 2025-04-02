@@ -1,9 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 
 class Applications extends StatefulWidget {
   const Applications({super.key});
@@ -39,9 +39,14 @@ class _ApplicationsState extends State<Applications> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize Responsive class
+    Responsive.init(context);
+
     return SafeArea(
       child: Container(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(
+          Responsive.getWidthScale(15.0),
+        ), // Responsive padding
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -55,7 +60,9 @@ class _ApplicationsState extends State<Applications> {
                     backgroundImage: ExactAssetImage('lib/images/logo.png'),
                   ),
                 ),
-                const SizedBox(width: 13),
+                SizedBox(
+                  width: Responsive.getWidthScale(12.0),
+                ), // Responsive spacing
                 const Text(
                   'DENR-CAR',
                   style: TextStyle(
@@ -66,12 +73,17 @@ class _ApplicationsState extends State<Applications> {
                 ),
               ],
             ),
-            const Gap(25),
+            SizedBox(
+              height: Responsive.getHeightScale(20.0),
+            ), // Responsive height
+
             Center(
-              child: const Text(
+              child: Text(
                 'Applications',
                 style: TextStyle(
-                  fontSize: 24,
+                  fontSize: Responsive.getTextScale(
+                    22.0,
+                  ), // Responsive font size
                   fontWeight: FontWeight.bold,
                   color: Colors.blue,
                 ),
@@ -174,7 +186,9 @@ class _ApplicationsState extends State<Applications> {
                       }
 
                       return Container(
-                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        margin: EdgeInsets.symmetric(
+                          vertical: Responsive.getHeightScale(8.0),
+                        ), // Responsive margin
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
@@ -190,7 +204,7 @@ class _ApplicationsState extends State<Applications> {
                           leading: Icon(leadingIcon, color: iconColor),
                           title: Text(
                             "$title ($status)",
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text("Application No: $docId"),
                           trailing: const Icon(

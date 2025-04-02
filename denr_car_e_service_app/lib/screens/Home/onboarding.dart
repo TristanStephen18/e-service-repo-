@@ -1,7 +1,7 @@
 import 'dart:core';
-
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:flutter/material.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart'; // Import the responsive model
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
@@ -33,6 +33,9 @@ class _OnboardingState extends State<Onboarding> {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize responsive settings
+    Responsive.init(context);
+
     return Scaffold(
       appBar: AppBar(
         actions: [
@@ -42,8 +45,10 @@ class _OnboardingState extends State<Onboarding> {
                 context,
               ).push(MaterialPageRoute(builder: (ctx) => Login()));
             },
-
-            child: Text("Skip", style: TextStyle(fontSize: 18.0)),
+            child: Text(
+              "Skip",
+              style: TextStyle(fontSize: Responsive.getTextScale(15)),
+            ),
           ),
         ],
       ),
@@ -62,7 +67,7 @@ class _OnboardingState extends State<Onboarding> {
             },
           ),
           Positioned(
-            bottom: 20.0,
+            bottom: Responsive.getHeightScale(15),
             left: 0,
             right: 0,
             child: Row(
@@ -85,9 +90,9 @@ class _OnboardingState extends State<Onboarding> {
 
   Widget _indicator(bool isActive) {
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 8.0),
-      height: 8.0,
-      width: 8.0,
+      margin: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(8.0)),
+      height: Responsive.getHeightScale(8.0),
+      width: Responsive.getWidthScale(8.0),
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: isActive ? Colors.green : Colors.grey,
@@ -110,26 +115,43 @@ class OnboardingPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        Image.asset(imagePath, height: 250.0),
-        SizedBox(height: 30.0),
-        Text(
-          title,
-          style: TextStyle(fontSize: 26.0, fontWeight: FontWeight.bold),
-        ),
-        SizedBox(height: 10.0),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 40.0),
-          child: Text(
-            description,
-            textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 18.0),
+    // Initialize responsive settings
+    Responsive.init(context);
+
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Image.asset(
+            imagePath,
+            height: Responsive.getHeightScale(200), // Responsive image height
           ),
-        ),
-      ],
+          SizedBox(height: Responsive.getHeightScale(25.0)),
+          Text(
+            title,
+            style: TextStyle(
+              fontSize: Responsive.getTextScale(
+                20.0,
+              ), // Responsive title font size
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          SizedBox(height: Responsive.getHeightScale(10.0)),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: Responsive.getWidthScale(30.0),
+            ),
+            child: Text(
+              description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: Responsive.getTextScale(15.0), // Responsive text size
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

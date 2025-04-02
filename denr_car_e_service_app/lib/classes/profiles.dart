@@ -1,4 +1,7 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -9,37 +12,44 @@ class Profiles extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Initialize Responsive class
+    Responsive.init(context);
+
     User? user = FirebaseAuth.instance.currentUser;
     return SafeArea(
       child: SingleChildScrollView(
         child: Container(
-          padding: const EdgeInsets.all(16),
+          padding: EdgeInsets.all(
+            Responsive.getWidthScale(15.0),
+          ), // Responsive padding
           child: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Gap(25),
-                const Text(
+                Gap(Responsive.getHeightScale(20.0)), // Responsive gap
+                Text(
                   'Profile',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: Responsive.getTextScale(
+                      22.0,
+                    ), // Responsive font size
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
                 ),
-                const Gap(20),
+                Gap(Responsive.getHeightScale(20.0)), // Responsive gap
                 Container(
-                  width: 150,
+                  width: Responsive.getWidthScale(130.0), // Responsive width
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(color: Colors.grey, width: 1.0),
                   ),
                   child: CircleAvatar(
-                    radius: 60,
+                    radius: Responsive.getWidthScale(55.0), // Responsive radius
                     backgroundImage: ExactAssetImage('lib/images/user.png'),
                   ),
                 ),
-                Gap(10),
+                Gap(Responsive.getHeightScale(12.0)), // Responsive gap
                 FutureBuilder<DocumentSnapshot>(
                   future:
                       FirebaseFirestore.instance
@@ -53,7 +63,7 @@ class Profiles extends StatelessWidget {
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
                     }
-                    if (!snapshot.hasData || snapshot.data == null) {
+                    if (!snapshot.hasData || !snapshot.data!.exists) {
                       return Text('User not found');
                     }
 
@@ -62,118 +72,95 @@ class Profiles extends StatelessWidget {
                     return Column(
                       children: [
                         Text(
-                          '${userData['name'][0].toUpperCase()}${userData['name'].substring(1)}',
-
-                          style: TextStyle(color: Colors.black, fontSize: 20),
+                          '${userData['name']}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontSize: Responsive.getTextScale(
+                              20.0,
+                            ), // Responsive font size
+                          ),
                         ),
                         Text(
                           userData['email'] ?? '',
-                          style: TextStyle(color: Colors.black.withOpacity(.3)),
+                          style: TextStyle(
+                            color: Colors.black.withOpacity(.3),
+                            fontSize: Responsive.getTextScale(
+                              14.0,
+                            ), // Responsive font size
+                          ),
                         ),
                       ],
                     );
                   },
                 ),
-                Gap(30),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 5,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Icon(Icons.person, color: Colors.green),
-                    title: Text(
-                      "Account Settings",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    onTap: () {},
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.green,
-                    ),
-                  ),
+                Gap(Responsive.getHeightScale(25.0)), // Responsive gap
+                _buildListTile(
+                  context,
+                  icon: Icons.person,
+                  title: "Account Settings",
+                  onTap: () {},
                 ),
-                Gap(15),
-
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 5,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Icon(Icons.help, color: Colors.green),
-                    title: Text(
-                      "Help",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    onTap: () {
-                      // Navigator.of(
-                      //   context,
-                      // ).push(CupertinoPageRoute(builder: (ctx) => D()));
-                    },
-
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.green,
-                    ),
-                  ),
+                Gap(Responsive.getHeightScale(15.0)), // Responsive gap
+                _buildListTile(
+                  context,
+                  icon: Icons.help,
+                  title: "Help",
+                  onTap: () {
+                    // Navigator.of(
+                    //   context,
+                    // ).push(CupertinoPageRoute(builder: (ctx) => D()));
+                  },
                 ),
-                Gap(15),
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(10),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.grey.withOpacity(0.2),
-                        blurRadius: 5,
-                        spreadRadius: 1,
-                      ),
-                    ],
-                  ),
-                  child: ListTile(
-                    leading: Icon(Icons.logout_rounded, color: Colors.green),
-                    title: Text(
-                      "Logout",
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    onTap: () async {
-                      // Show confirmation dialog
-                      bool shouldLogout = await _showLogoutConfirmationDialog(
-                        context,
-                      );
+                Gap(Responsive.getHeightScale(15.0)), // Responsive gap
+                _buildListTile(
+                  context,
+                  icon: Icons.logout_rounded,
+                  title: "Logout",
+                  onTap: () async {
+                    // Show confirmation dialog
+                    bool shouldLogout = await _showLogoutConfirmationDialog(
+                      context,
+                    );
 
-                      if (shouldLogout) {
-                        // Sign out and show logout confirmation dialog
-                        await FirebaseAuth.instance.signOut();
-                        _showLogoutSuccessDialog(context);
-                      }
-                    },
-
-                    trailing: Icon(
-                      Icons.arrow_forward_ios,
-                      color: Colors.green,
-                    ),
-                  ),
+                    if (shouldLogout) {
+                      // Sign out and show logout confirmation dialog
+                      await FirebaseAuth.instance.signOut();
+                      _showLogoutSuccessDialog(context);
+                    }
+                  },
                 ),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // Reusable widget for ListTile
+  Widget _buildListTile(
+    BuildContext context, {
+    required IconData icon,
+    required String title,
+    required Function() onTap,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 5,
+            spreadRadius: 1,
+          ),
+        ],
+      ),
+      child: ListTile(
+        leading: Icon(icon, color: Colors.green),
+        title: Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+        onTap: onTap,
+        trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
       ),
     );
   }
