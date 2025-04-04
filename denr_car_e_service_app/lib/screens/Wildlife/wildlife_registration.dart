@@ -335,13 +335,19 @@ class _WildlifeRegistrationScreenState
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-                    child: const Text('Submit'),
+
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

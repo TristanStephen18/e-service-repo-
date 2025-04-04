@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -335,8 +336,15 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     print(widget.polygonName);
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Private Land Timber'),
-        centerTitle: true,
+        title: Text(
+          'Private Land Timber',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: Responsive.getTextScale(17), // Scale text size
+          ),
+        ),
+        backgroundColor: Colors.green,
+        leading: BackButton(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -441,13 +449,19 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-                    child: const Text('Submit'),
+
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

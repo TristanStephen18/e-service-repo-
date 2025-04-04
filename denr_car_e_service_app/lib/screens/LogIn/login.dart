@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/register.dart';
@@ -16,20 +17,43 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
 
   TextEditingController username = TextEditingController();
   TextEditingController password = TextEditingController();
-  bool _obscurePassword = true; // State variable to track password visibility
+  bool _obscurePassword = true;
+  String? _userID;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the responsive scaling
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Responsive.init(context);
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (_userID == null) return;
+
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.detached) {
+      FirebaseFirestore.instance.collection('mobile_users').doc(_userID).update(
+        {'status': 'offline', 'lastSeen': FieldValue.serverTimestamp()},
+      );
+    } else if (state == AppLifecycleState.resumed) {
+      FirebaseFirestore.instance.collection('mobile_users').doc(_userID).update(
+        {'status': 'online'},
+      );
+    }
   }
 
   void _togglePasswordVisibility() {
@@ -41,14 +65,17 @@ class _LoginState extends State<Login> {
   void _login() async {
     if (_formKey.currentState!.validate()) {
       try {
-        // Show circular progress indicator
         showDialog(
           context: context,
           barrierDismissible: false,
           builder: (BuildContext context) {
-            return Center(
-              child: CircularProgressIndicator(
-                semanticsLabel: "Signing in....",
+            return const AlertDialog(
+              content: Row(
+                children: [
+                  CircularProgressIndicator(),
+                  SizedBox(width: 15),
+                  Text('Logging in...'),
+                ],
               ),
             );
           },
@@ -58,13 +85,19 @@ class _LoginState extends State<Login> {
           email: username.text,
           password: password.text,
         );
+
         User? user = FirebaseAuth.instance.currentUser;
         String userID = user!.uid;
+        _userID = userID;
 
-        // Dismiss the progress dialog
+        // Update user's online status in Firestore
+        await FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(userID)
+            .update({'status': 'online'});
+
         Navigator.pop(context);
 
-        // Show a success dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -81,7 +114,6 @@ class _LoginState extends State<Login> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    // Navigate to the HomePage
                     Navigator.of(context).push(
                       CupertinoPageRoute(
                         builder: (ctx) => Homepage(userid: userID),
@@ -95,10 +127,8 @@ class _LoginState extends State<Login> {
           },
         );
       } catch (e) {
-        // Dismiss the progress dialog
         Navigator.pop(context);
 
-        // Show an error dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -118,6 +148,35 @@ class _LoginState extends State<Login> {
         );
       }
     }
+  }
+
+  // Dialog function to get the email
+  Future<String?> _showEmailDialog(BuildContext context) async {
+    TextEditingController emailController = TextEditingController();
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Enter your email'),
+          content: TextField(
+            controller: emailController,
+            keyboardType: TextInputType.emailAddress,
+            decoration: InputDecoration(hintText: 'Email'),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(emailController.text);
+              },
+              child: Text(
+                'Send Reset Email',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -140,7 +199,7 @@ class _LoginState extends State<Login> {
                     ),
                   ),
                   Text(
-                    "DENR-CAR E-SERVICES",
+                    "DENR-CENRO E-SERVICES",
                     style: TextStyle(fontSize: Responsive.getTextScale(18)),
                   ),
                   Gap(30),
@@ -159,6 +218,10 @@ class _LoginState extends State<Login> {
                       labelText: 'Email',
                       border: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.green),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.green, width: 2.0),
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
@@ -187,9 +250,53 @@ class _LoginState extends State<Login> {
                         borderSide: BorderSide(color: Colors.green),
                         borderRadius: BorderRadius.circular(10),
                       ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.green, width: 2.0),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                     ),
                   ),
-                  Gap(40),
+
+                  // Inside your widget's build method
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () async {
+                          // Show a dialog to enter the email address for password reset
+                          String? email = await _showEmailDialog(context);
+
+                          if (email != null && email.isNotEmpty) {
+                            try {
+                              // Send the password reset email
+                              await FirebaseAuth.instance
+                                  .sendPasswordResetEmail(email: email);
+
+                              // Show a success message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Password reset email sent to $email',
+                                  ),
+                                ),
+                              );
+                            } catch (e) {
+                              // Show an error message if something goes wrong
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          }
+                        },
+                        child: Text(
+                          'Forgot Password?',
+                          style: TextStyle(color: Colors.blue),
+                        ),
+                      ),
+                    ],
+                  ),
+
+                  Gap(15),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(

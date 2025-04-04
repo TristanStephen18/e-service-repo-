@@ -19,7 +19,7 @@ class _OnboardingState extends State<Onboarding> {
     'lib/images/logo.png',
   ];
 
-  final List<String> _titles = ['DENR-CAR E-SERVICES', 'SAMPLE'];
+  final List<String> _titles = ['DENR-CENRO E-SERVICES', 'SAMPLE'];
   final List<String> _descriptions = [
     'E-Services on permitting',
     'Easy to use',

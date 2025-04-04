@@ -70,43 +70,26 @@ class _MapScreenState extends State<MapScreen> {
       position.latitude,
       position.longitude,
     );
-    String? insidePolygon;
+    String polygonName =
+        "Private Land Area"; // Default value if outside all polygons
 
     if (_isPointInsidePolygon(position, MapConstants.marcosHighway)) {
-      insidePolygon = "Marcos Highway";
+      polygonName = "Marcos Highway";
     } else if (_isPointInsidePolygon(position, MapConstants.upperAgno)) {
-      insidePolygon = "Upper Agno";
+      polygonName = "Upper Agno";
     } else if (_isPointInsidePolygon(position, MapConstants.lowerAgno)) {
-      insidePolygon = "Lower Agno";
+      polygonName = "Lower Agno";
     } else if (_isPointInsidePolygon(position, MapConstants.mtPulagCoords)) {
-      insidePolygon = "Mt. Pulag";
-    }
-
-    if (insidePolygon == null) {
-      showDialog(
-        context: context,
-        builder:
-            (context) => AlertDialog(
-              title: Text("Invalid Location"),
-              content: Text("Selected location is outside the allowed areas."),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text("OK"),
-                ),
-              ],
-            ),
-      );
-      return;
+      polygonName = "Mt. Pulag";
     }
 
     setState(() {
       _selectedLocation = position;
       _selectedAddress = address;
-      _updateMarker(position); // Add marker when selecting a location
+      _updateMarker(position);
     });
 
-    _showLocationDetails(insidePolygon);
+    _showLocationDetails(polygonName);
   }
 
   void _updateMarker(LatLng position) {
@@ -145,6 +128,14 @@ class _MapScreenState extends State<MapScreen> {
                 height: Responsive.getHeightScale(20),
               ), // Responsive space
               ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 50,
+                    vertical: 12,
+                  ),
+                ),
                 onPressed: () {
                   if (widget.type == 'PLTP') {
                     if (_selectedLocation != null && _selectedAddress != null) {
@@ -193,7 +184,10 @@ class _MapScreenState extends State<MapScreen> {
                     }
                   }
                 },
-                child: Text("Confirm Location"),
+                child: Text(
+                  "Confirm Location",
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),

@@ -24,7 +24,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.denr_car_e_service_app"
-        minSdk = 31
+        minSdk = 29
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName

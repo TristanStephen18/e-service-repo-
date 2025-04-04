@@ -140,16 +140,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.green,
-        centerTitle: true,
         title: Text(
           'Register',
           style: TextStyle(
             color: Colors.white,
-            fontWeight: FontWeight.w600,
-            fontSize: Responsive.getTextScale(17), // Scaled font size
+            fontSize: Responsive.getTextScale(17), // Scale text size
           ),
         ),
+        backgroundColor: Colors.green,
+        leading: BackButton(color: Colors.white),
       ),
       body: SafeArea(
         child: SingleChildScrollView(

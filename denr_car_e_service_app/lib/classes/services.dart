@@ -29,17 +29,17 @@ class Services extends StatelessWidget {
                     Container(
                       decoration: const BoxDecoration(shape: BoxShape.circle),
                       child: const CircleAvatar(
-                        radius: 25,
+                        radius: 24,
                         backgroundImage: ExactAssetImage('lib/images/logo.png'),
                       ),
                     ),
                     SizedBox(width: Responsive.getWidthScale(12)),
                     const Text(
-                      'DENR-CAR',
+                      'DENR-CENRO',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 23,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Colors.green,
                       ),
                     ),
                   ],

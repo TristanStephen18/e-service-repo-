@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/view.dart';
+import 'package:denr_car_e_service_app/screens/app_options.dart';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +57,7 @@ class _ApplicationsState extends State<Applications> {
                 Container(
                   decoration: const BoxDecoration(shape: BoxShape.circle),
                   child: const CircleAvatar(
-                    radius: 25,
+                    radius: 24,
                     backgroundImage: ExactAssetImage('lib/images/logo.png'),
                   ),
                 ),
@@ -64,11 +65,11 @@ class _ApplicationsState extends State<Applications> {
                   width: Responsive.getWidthScale(12.0),
                 ), // Responsive spacing
                 const Text(
-                  'DENR-CAR',
+                  'DENR-CENRO',
                   style: TextStyle(
-                    fontSize: 24,
+                    fontSize: 23,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color: Colors.green,
                   ),
                 ),
               ],
@@ -214,7 +215,8 @@ class _ApplicationsState extends State<Applications> {
                           onTap: () {
                             Navigator.of(context).push(
                               CupertinoPageRoute(
-                                builder: (ctx) => Display(applicationId: docId),
+                                builder:
+                                    (ctx) => OptionScreen(applicationId: docId),
                               ),
                             );
                           },

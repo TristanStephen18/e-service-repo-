@@ -20,6 +20,7 @@ class ChatScreen extends StatelessWidget {
         title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green,
         elevation: 0,
+        leading: null,
       ),
       body: Column(
         children: [
@@ -196,7 +197,7 @@ class ChatScreen extends StatelessWidget {
 }
 
 class _MessageInputField extends StatefulWidget {
-  const _MessageInputField({super.key});
+  const _MessageInputField();
 
   @override
   State<_MessageInputField> createState() => _MessageInputFieldState();

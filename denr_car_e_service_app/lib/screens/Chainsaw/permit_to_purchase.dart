@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -324,8 +325,15 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Permit to Purchase'),
-        centerTitle: true,
+        title: Text(
+          'Permit To Purchase',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: Responsive.getTextScale(17), // Scale text size
+          ),
+        ),
+        backgroundColor: Colors.green,
+        leading: BackButton(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -388,13 +396,19 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-                    child: const Text('Submit'),
+
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],

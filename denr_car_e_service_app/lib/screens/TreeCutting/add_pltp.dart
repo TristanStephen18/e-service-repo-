@@ -246,8 +246,12 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Private Land Timber'),
-        centerTitle: true,
+        title: const Text(
+          'Private Land Timber',
+          style: TextStyle(color: Colors.white),
+        ),
+        leading: BackButton(color: Colors.white),
+        backgroundColor: Colors.green,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -307,13 +311,19 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-                    child: const Text('Submit'),
+
+                    child: const Text(
+                      'Submit',
+                      style: TextStyle(color: Colors.white),
+                    ),
                   ),
                 ),
               ],
