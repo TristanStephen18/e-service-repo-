@@ -25,6 +25,7 @@ class _WildlifeRegistrationScreenState
   File? financialCapability;
   File? proofAcquisition;
   File? intentLetter;
+  File? others;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -110,6 +111,7 @@ class _WildlifeRegistrationScreenState
         'Application Form': 'Application Form',
         'Financial Capability': 'Financial Capability',
         'Proof of Acquisition': 'Proof of Acquisition',
+        'Others': 'Others',
       };
 
       // Set root metadata
@@ -230,6 +232,9 @@ class _WildlifeRegistrationScreenState
       if (financialCapability != null) {
         filesToUpload['Financial Capability'] = financialCapability!;
       }
+      if (others != null) {
+        filesToUpload['Others'] = others!;
+      }
 
       if (proofAcquisition != null) {
         filesToUpload['Proof of Acquisition'] = proofAcquisition!;
@@ -330,6 +335,11 @@ class _WildlifeRegistrationScreenState
                   'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
                   proofAcquisition,
                   (file) => setState(() => proofAcquisition = file),
+                ),
+                _buildFilePicker(
+                  '5. Others:',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
 
                 Center(

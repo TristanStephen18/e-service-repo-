@@ -1,9 +1,14 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:denr_car_e_service_app/changepass.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
@@ -16,40 +21,25 @@ class Profiles extends StatelessWidget {
     Responsive.init(context);
 
     User? user = FirebaseAuth.instance.currentUser;
+
     return SafeArea(
       child: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.all(
-            Responsive.getWidthScale(15.0),
-          ), // Responsive padding
+          padding: EdgeInsets.all(Responsive.getWidthScale(15.0)),
           child: Center(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Gap(Responsive.getHeightScale(20.0)), // Responsive gap
+                Gap(Responsive.getHeightScale(20.0)),
                 Text(
                   'Profile',
                   style: TextStyle(
-                    fontSize: Responsive.getTextScale(
-                      22.0,
-                    ), // Responsive font size
+                    fontSize: Responsive.getTextScale(22.0),
                     fontWeight: FontWeight.bold,
                     color: Colors.blue,
                   ),
                 ),
-                Gap(Responsive.getHeightScale(20.0)), // Responsive gap
-                Container(
-                  width: Responsive.getWidthScale(130.0), // Responsive width
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.grey, width: 1.0),
-                  ),
-                  child: CircleAvatar(
-                    radius: Responsive.getWidthScale(55.0), // Responsive radius
-                    backgroundImage: ExactAssetImage('lib/images/user.png'),
-                  ),
-                ),
-                Gap(Responsive.getHeightScale(12.0)), // Responsive gap
+                Gap(Responsive.getHeightScale(20.0)),
                 FutureBuilder<DocumentSnapshot>(
                   future:
                       FirebaseFirestore.instance
@@ -68,62 +58,72 @@ class Profiles extends StatelessWidget {
                     }
 
                     var userData = snapshot.data!;
+                    String? imageUrl = userData['photo'];
+                    String name = userData['name'] ?? 'No Name';
+                    String email = userData['email'] ?? '';
+                    Uint8List imageBytes = base64Decode(imageUrl.toString());
 
                     return Column(
                       children: [
+                        Container(
+                          width: Responsive.getWidthScale(130.0),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(color: Colors.grey, width: 1.0),
+                          ),
+                          child: CircleAvatar(
+                            radius: Responsive.getWidthScale(55.0),
+                            backgroundImage: MemoryImage(imageBytes),
+                          ),
+                        ),
+                        Gap(Responsive.getHeightScale(12.0)),
                         Text(
-                          '${userData['name']}',
+                          name,
                           style: TextStyle(
                             color: Colors.black,
-                            fontSize: Responsive.getTextScale(
-                              20.0,
-                            ), // Responsive font size
+                            fontSize: Responsive.getTextScale(20.0),
                           ),
                         ),
                         Text(
-                          userData['email'] ?? '',
+                          email,
                           style: TextStyle(
                             color: Colors.black.withOpacity(.3),
-                            fontSize: Responsive.getTextScale(
-                              14.0,
-                            ), // Responsive font size
+                            fontSize: Responsive.getTextScale(14.0),
                           ),
                         ),
                       ],
                     );
                   },
                 ),
-                Gap(Responsive.getHeightScale(25.0)), // Responsive gap
+                Gap(Responsive.getHeightScale(25.0)),
                 _buildListTile(
                   context,
-                  icon: Icons.person,
-                  title: "Account Settings",
-                  onTap: () {},
+                  icon: Icons.key,
+                  title: "Change Password",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder: (ctx) => ChangePasswordScreen(),
+                        ),
+                      ),
                 ),
-                Gap(Responsive.getHeightScale(15.0)), // Responsive gap
+                Gap(Responsive.getHeightScale(15.0)),
                 _buildListTile(
                   context,
                   icon: Icons.help,
                   title: "Help",
-                  onTap: () {
-                    // Navigator.of(
-                    //   context,
-                    // ).push(CupertinoPageRoute(builder: (ctx) => D()));
-                  },
+                  onTap: () {},
                 ),
-                Gap(Responsive.getHeightScale(15.0)), // Responsive gap
+                Gap(Responsive.getHeightScale(15.0)),
                 _buildListTile(
                   context,
                   icon: Icons.logout_rounded,
                   title: "Logout",
                   onTap: () async {
-                    // Show confirmation dialog
                     bool shouldLogout = await _showLogoutConfirmationDialog(
                       context,
                     );
-
                     if (shouldLogout) {
-                      // Sign out and show logout confirmation dialog
                       await FirebaseAuth.instance.signOut();
                       _showLogoutSuccessDialog(context);
                     }
@@ -137,7 +137,7 @@ class Profiles extends StatelessWidget {
     );
   }
 
-  // Reusable widget for ListTile
+  // Reusable ListTile Widget
   Widget _buildListTile(
     BuildContext context, {
     required IconData icon,
@@ -165,7 +165,7 @@ class Profiles extends StatelessWidget {
     );
   }
 
-  // Function to show the confirmation dialog
+  // Logout Confirmation Dialog
   Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<bool>(
       context: context,
@@ -176,23 +176,23 @@ class Profiles extends StatelessWidget {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(false); // User canceled logout
+                Navigator.of(context).pop(false);
               },
               child: Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(true); // User confirmed logout
+                Navigator.of(context).pop(true);
               },
               child: Text('Logout'),
             ),
           ],
         );
       },
-    ).then((value) => value ?? false); // Return false if user canceled
+    ).then((value) => value ?? false);
   }
 
-  // Function to show success message after logout
+  // Logout Success Dialog
   void _showLogoutSuccessDialog(BuildContext context) {
     showDialog(
       context: context,

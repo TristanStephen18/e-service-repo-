@@ -28,6 +28,7 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
   File? ptaRes;
   File? spa;
   File? photo;
+  File? others;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -89,6 +90,7 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
         'Photos of Trees': 'Photos of Trees',
         'Local Agrarian Endorsement': 'Local Agrarian Endorsement',
         'PTA Resolution': 'PTA Resolution',
+        'Others': 'Others',
       };
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
@@ -191,6 +193,9 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
 
       if (ptaRes != null) {
         filesToUpload['PTA Resolution'] = ptaRes!;
+      }
+      if (others != null) {
+        filesToUpload['Others'] = others!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -304,6 +309,11 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
                   '6. Photos of the trees to be cut',
                   photo,
                   (file) => setState(() => photo = file),
+                ),
+                _buildFilePicker(
+                  '7. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
 
                 const SizedBox(height: 32),

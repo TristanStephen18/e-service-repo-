@@ -41,7 +41,11 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
   File? ptaRes;
   File? spa;
   File? photo;
+  final double certificationFee = 50.00;
+  final double oathFee = 36.00;
+  final double inventoryFee = 1200.00;
 
+  double get totalFee => certificationFee + oathFee + inventoryFee;
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -90,6 +94,33 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
     return 'TC-$today-$newNumber';
+  }
+
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   // Upload all files to Firestore
@@ -444,6 +475,17 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
                   (file) => setState(() => photo = file),
                 ),
 
+                const SizedBox(height: 15),
+                const Text(
+                  'Fees to be Paid',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildFeeRow('Certification Fee', certificationFee),
+                _buildFeeRow('Oath Fee', oathFee),
+                _buildFeeRow('Inventory Fee', inventoryFee),
+                const Divider(thickness: 1.2),
+                _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),
 
                 Center(

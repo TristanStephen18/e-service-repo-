@@ -9,9 +9,24 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
 class ForestRequirementsForm extends StatefulWidget {
+  final LatLng startLocation;
+  final LatLng destinationLocation;
+  final String startAddress;
+  final String destinationAddress;
+  final String polygonName;
+  const ForestRequirementsForm({
+    super.key,
+    required this.startAddress,
+    required this.destinationAddress,
+    required this.startLocation,
+    required this.destinationLocation,
+    required this.polygonName,
+  });
+
   @override
   _ForestRequirementsFormState createState() => _ForestRequirementsFormState();
 }
@@ -131,6 +146,16 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
             'address': clientAddress,
+            'from': widget.startAddress,
+            'to': widget.destinationAddress,
+            'from_coordinates': GeoPoint(
+              widget.startLocation.latitude,
+              widget.startLocation.longitude,
+            ),
+            'to_coordinates': GeoPoint(
+              widget.destinationLocation.latitude,
+              widget.destinationLocation.longitude,
+            ),
           });
 
       // Upload each file

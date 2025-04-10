@@ -3,7 +3,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class MapConstants {
   static const LatLng center = LatLng(16.403998064389572, 120.595873844749755);
 
-  // Polygon Coordinates
   static const List<LatLng> mtPulagCoords = [
     LatLng(16.70231147656999, 120.8998786065803),
     LatLng(16.70796802055422, 120.880996984595),

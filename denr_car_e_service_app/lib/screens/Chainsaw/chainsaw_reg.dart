@@ -36,6 +36,8 @@ class _ChainsawRegState extends State<ChainsawReg> {
   File? headOffice;
   File? certChainsawReg;
 
+  final double registrationFee = 500.00;
+
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -308,6 +310,33 @@ class _ChainsawRegState extends State<ChainsawReg> {
     }
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
@@ -441,6 +470,16 @@ class _ChainsawRegState extends State<ChainsawReg> {
                   certChainsawReg,
                   (file) => setState(() => certChainsawReg = file),
                 ),
+                const SizedBox(height: 20),
+                const Text(
+                  'Fees to be Paid',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildFeeRow('Registration Fee', registrationFee),
+
+                const Divider(thickness: 1.2),
+                _buildFeeRow('TOTAL', registrationFee, isTotal: true),
                 const SizedBox(height: 32),
 
                 Center(

@@ -257,22 +257,18 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                     ),
                   ),
 
-                  // Inside your widget's build method
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       TextButton(
                         onPressed: () async {
-                          // Show a dialog to enter the email address for password reset
                           String? email = await _showEmailDialog(context);
 
                           if (email != null && email.isNotEmpty) {
                             try {
-                              // Send the password reset email
                               await FirebaseAuth.instance
                                   .sendPasswordResetEmail(email: email);
 
-                              // Show a success message
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(
@@ -281,7 +277,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                                 ),
                               );
                             } catch (e) {
-                              // Show an error message if something goes wrong
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Error: $e')),
                               );
@@ -290,7 +285,10 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                         },
                         child: Text(
                           'Forgot Password?',
-                          style: TextStyle(color: Colors.blue),
+                          style: TextStyle(
+                            fontSize: Responsive.getTextScale(15),
+                            color: Colors.blue,
+                          ),
                         ),
                       ),
                     ],

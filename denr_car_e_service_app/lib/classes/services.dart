@@ -1,7 +1,8 @@
+import 'package:denr_car_e_service_app/map/transport_map.dart';
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_registration.dart';
 import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_registration.dart';
 import 'package:denr_car_e_service_app/screens/chainsaw/chainsaw_registration.dart';
-import 'package:denr_car_e_service_app/screens/transportPermit/transport_permit.dart';
+
 import 'package:denr_car_e_service_app/screens/treeCutting/tree_cutting.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -91,9 +92,7 @@ class Services extends StatelessWidget {
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (ctx) => ForestRequirementsForm(),
-                        ),
+                        CupertinoPageRoute(builder: (ctx) => TransportMap()),
                       ),
                 ),
 

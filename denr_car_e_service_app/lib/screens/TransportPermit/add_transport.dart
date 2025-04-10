@@ -25,6 +25,7 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
 
   File? _transportAgreementFile;
   File? _spaFile;
+  File? others;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
@@ -82,6 +83,7 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
       final Map<String, String> fileLabelMap = {
         'Transport Agreement': 'Transport Agreement',
         'SPA': 'SPA',
+        'Others': 'Others',
       };
 
       if (!applicationSnapshot.exists) {
@@ -167,10 +169,11 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (_transportAgreementFile != null && _spaFile != null) {
+    if (_transportAgreementFile != null && _spaFile != null && others != null) {
       Map<String, File> filesToUpload = {
         'Transport Agreement': _transportAgreementFile!,
         'SPA': _spaFile!,
+        'Others': others!,
       };
 
       await _uploadFiles(filesToUpload);
@@ -256,6 +259,11 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
                   '2. Special Power of Attorney (SPA) (1 original), if applicant is not the land owner',
                   _spaFile,
                   (file) => setState(() => _spaFile = file),
+                ),
+                _buildFilePicker(
+                  '3. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
                 const SizedBox(height: 15),
 

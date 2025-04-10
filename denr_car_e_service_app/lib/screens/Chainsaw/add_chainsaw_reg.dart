@@ -33,6 +33,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
   File? plantPermit;
   File? headOffice;
   File? certChainsawReg;
+  File? others;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
@@ -98,6 +99,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
         'Certification of Head Office': 'Certification of Head Office',
         'Certificate of Chainsaw Registration':
             'Certificate of Chainsaw Registration',
+        'others': 'Others',
       };
 
       if (!applicationSnapshot.exists) {
@@ -215,6 +217,9 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
     if (certChainsawReg != null) {
       filesToUpload['Certificate of Registration'] = certChainsawReg!;
     }
+    if (others != null) {
+      filesToUpload['Others'] = others!;
+    }
     if (filesToUpload.isNotEmpty) {
       await _uploadFiles(filesToUpload);
     } else {
@@ -314,6 +319,11 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                   '7. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
                   certChainsawReg,
                   (file) => setState(() => certChainsawReg = file),
+                ),
+                _buildFilePicker(
+                  '8. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
                 const SizedBox(height: 32),
 

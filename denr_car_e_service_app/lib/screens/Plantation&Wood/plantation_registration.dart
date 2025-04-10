@@ -27,6 +27,12 @@ class _PlantationRegistrationScreenState
   File? spa;
   File? numberSeed;
 
+  final double certificationFee = 50.00;
+  final double oathFee = 36.00;
+  final double inventoryFee = 360.00;
+
+  double get totalFee => certificationFee + oathFee + inventoryFee;
+
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -259,6 +265,33 @@ class _PlantationRegistrationScreenState
     }
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
@@ -344,6 +377,17 @@ class _PlantationRegistrationScreenState
                   (file) => setState(() => spa = file),
                 ),
 
+                const SizedBox(height: 15),
+                const Text(
+                  'Fees to be Paid',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                _buildFeeRow('Truck Load', certificationFee),
+                _buildFeeRow('Oath Fee', oathFee),
+                _buildFeeRow('Scaling Fee', inventoryFee),
+                const Divider(thickness: 1.2),
+                _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),
 
                 Center(

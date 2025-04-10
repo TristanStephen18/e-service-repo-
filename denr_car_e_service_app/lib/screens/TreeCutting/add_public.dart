@@ -29,6 +29,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
 
   File? spa;
   File? photo;
+  File? others;
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -87,6 +88,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
         'Land Title': 'Land Title',
         'PAMB Clearance': 'PAMB Clearance',
         'SPA': 'SPA',
+        'Others': 'Others',
         'Photos of Trees': 'Photos of Trees',
       };
 
@@ -173,10 +175,11 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (resolution != null && resolution != null) {
+    if (resolution != null && resolution != null && others != null) {
       Map<String, File> filesToUpload = {
         'Homeowners Resolution': resolution!,
         'PTA Resolution': resolution!,
+        'Others': others!,
       };
       if (landTitle != null) {
         filesToUpload['Land Title'] = landTitle!;
@@ -302,6 +305,11 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
                   '6. Photos of the trees to be cut',
                   photo,
                   (file) => setState(() => photo = file),
+                ),
+                _buildFilePicker(
+                  '7. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
 
                 Center(

@@ -164,7 +164,7 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (photo != null && others != null) {
+    if (photo != null && others != null && others != null) {
       Map<String, File> filesToUpload = {
         'Photos of Trees': photo!,
         'Others': others!,

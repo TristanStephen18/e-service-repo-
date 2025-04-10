@@ -28,6 +28,7 @@ class _AddPlantationRegistrationScreenState
   final _formKey = GlobalKey<FormState>();
 
   File? spa;
+  File? others;
 
   // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
@@ -82,7 +83,10 @@ class _AddPlantationRegistrationScreenState
 
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
-      final Map<String, String> fileLabelMap = {'SPA': 'SPA'};
+      final Map<String, String> fileLabelMap = {
+        'SPA': 'SPA',
+        'others': 'Others',
+      };
 
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
@@ -167,8 +171,8 @@ class _AddPlantationRegistrationScreenState
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (spa != null) {
-      Map<String, File> filesToUpload = {'SPA': spa!};
+    if (spa != null && others != null) {
+      Map<String, File> filesToUpload = {'SPA': spa!, 'Others': others!};
 
       await _uploadFiles(filesToUpload);
     } else {
@@ -252,6 +256,11 @@ class _AddPlantationRegistrationScreenState
                   '1. Special Power of Attorney (SPA) (1 original)',
                   spa,
                   (file) => setState(() => spa = file),
+                ),
+                _buildFilePicker(
+                  '2. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
 
                 const SizedBox(height: 32),
