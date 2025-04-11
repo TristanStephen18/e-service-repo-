@@ -22,8 +22,8 @@ class Display extends StatefulWidget {
 
 class _DisplayState extends State<Display> {
   late Stream<QuerySnapshot<Map<String, dynamic>>> _files;
-  String? applicationType; // Stores the application type
-  bool isLoading = true; // Track loading state
+  String? applicationType;
+  bool isLoading = true;
 
   @override
   void initState() {

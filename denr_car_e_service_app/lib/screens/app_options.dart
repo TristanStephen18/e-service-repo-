@@ -100,7 +100,10 @@ class OptionScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => OrderOfPaymentScreen(),
+                        builder:
+                            (ctx) => OrderOfPaymentScreen(
+                              applicationId: applicationId,
+                            ),
                       ),
                     );
                   },
