@@ -139,7 +139,10 @@ class OptionScreen extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => InspectionDateScreen(),
+                        builder:
+                            (ctx) => InspectionDateScreen(
+                              applicationId: applicationId,
+                            ),
                       ),
                     );
                   },

@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -11,15 +9,41 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:image_picker/image_picker.dart';
 
-class Profiles extends StatelessWidget {
+class Profiles extends StatefulWidget {
   const Profiles({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    // Initialize Responsive class
-    Responsive.init(context);
+  State<Profiles> createState() => _ProfilesState();
+}
 
+class _ProfilesState extends State<Profiles> {
+  String? imageBase64;
+
+  Future<void> _pickAndUploadImage(String uid) async {
+    final ImagePicker picker = ImagePicker();
+    final XFile? pickedImage = await picker.pickImage(
+      source: ImageSource.gallery,
+    );
+
+    if (pickedImage != null) {
+      final bytes = await pickedImage.readAsBytes();
+      final base64Image = base64Encode(bytes);
+
+      FirebaseFirestore.instance.collection('mobile_users').doc(uid).update({
+        'photo': base64Image,
+      });
+
+      setState(() {
+        imageBase64 = base64Image;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Responsive.init(context);
     User? user = FirebaseAuth.instance.currentUser;
 
     return SafeArea(
@@ -48,7 +72,9 @@ class Profiles extends StatelessWidget {
                           .get(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
+                      return CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                      );
                     }
                     if (snapshot.hasError) {
                       return Text('Error: ${snapshot.error}');
@@ -58,22 +84,48 @@ class Profiles extends StatelessWidget {
                     }
 
                     var userData = snapshot.data!;
-                    String? imageUrl = userData['photo'];
+                    String? base64Photo = imageBase64 ?? userData['photo'];
                     String name = userData['name'] ?? 'No Name';
                     String email = userData['email'] ?? '';
-                    Uint8List imageBytes = base64Decode(imageUrl.toString());
+                    Uint8List? imageBytes =
+                        base64Photo != null ? base64Decode(base64Photo) : null;
 
                     return Column(
                       children: [
-                        Container(
-                          width: Responsive.getWidthScale(130.0),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.grey, width: 1.0),
-                          ),
-                          child: CircleAvatar(
-                            radius: Responsive.getWidthScale(55.0),
-                            backgroundImage: MemoryImage(imageBytes),
+                        GestureDetector(
+                          onTap: () async {
+                            await _pickAndUploadImage(user!.uid);
+                          },
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Container(
+                                width: Responsive.getWidthScale(130.0),
+                                height: Responsive.getWidthScale(130.0),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.grey,
+                                    width: 1.0,
+                                  ),
+                                ),
+                                child: CircleAvatar(
+                                  radius: Responsive.getWidthScale(65.0),
+                                  backgroundImage:
+                                      imageBytes != null
+                                          ? MemoryImage(imageBytes)
+                                          : null,
+                                  child:
+                                      imageBytes == null
+                                          ? Icon(
+                                            Icons.person,
+                                            size: 60,
+                                            color: Colors.grey,
+                                          )
+                                          : null,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Gap(Responsive.getHeightScale(12.0)),
@@ -137,7 +189,6 @@ class Profiles extends StatelessWidget {
     );
   }
 
-  // Reusable ListTile Widget
   Widget _buildListTile(
     BuildContext context, {
     required IconData icon,
@@ -165,7 +216,6 @@ class Profiles extends StatelessWidget {
     );
   }
 
-  // Logout Confirmation Dialog
   Future<bool> _showLogoutConfirmationDialog(BuildContext context) async {
     return showDialog<bool>(
       context: context,
@@ -192,7 +242,6 @@ class Profiles extends StatelessWidget {
     ).then((value) => value ?? false);
   }
 
-  // Logout Success Dialog
   void _showLogoutSuccessDialog(BuildContext context) {
     showDialog(
       context: context,

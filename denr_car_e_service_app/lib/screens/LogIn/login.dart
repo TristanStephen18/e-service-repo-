@@ -72,7 +72,9 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
             return const AlertDialog(
               content: Row(
                 children: [
-                  CircularProgressIndicator(),
+                  CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                  ),
                   SizedBox(width: 15),
                   Text('Logging in...'),
                 ],
@@ -286,7 +288,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                         child: Text(
                           'Forgot Password?',
                           style: TextStyle(
-                            fontSize: Responsive.getTextScale(15),
+                            fontSize: Responsive.getTextScale(12),
                             color: Colors.blue,
                           ),
                         ),

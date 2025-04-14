@@ -114,7 +114,11 @@ class _ApplicationsState extends State<Applications> {
                 future: fetchUserApplications(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const Center(child: CircularProgressIndicator());
+                    return const Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                      ),
+                    );
                   }
 
                   if (snapshot.hasError) {

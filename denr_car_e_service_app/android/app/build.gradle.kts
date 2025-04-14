@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "com.example.denr_car_e_service_app"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = "27.0.12077973"  
 
     compileOptions {
@@ -25,7 +25,7 @@ android {
     defaultConfig {
         applicationId = "com.example.denr_car_e_service_app"
         minSdk = 29
-        targetSdk = flutter.targetSdkVersion
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
