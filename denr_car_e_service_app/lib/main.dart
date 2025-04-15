@@ -1,19 +1,27 @@
 import 'package:denr_car_e_service_app/firebase_options.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:denr_car_e_service_app/screens/Home/onboarding.dart';
+import 'package:denr_car_e_service_app/services/notif_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(Eservices());
+  await Firebase.initializeApp();
+  await NotifService.instance.initialize();
+  final token = await FirebaseMessaging.instance.getToken();
+
+  runApp(Eservices(token: token ?? ''));
 }
 
 class Eservices extends StatelessWidget {
-  const Eservices({super.key});
+  final String token;
+  const Eservices({super.key, required this.token});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +43,7 @@ class Eservices extends StatelessWidget {
             String userID = snapshot.data!.uid;
             return Homepage(userid: userID);
           }
-          return Onboarding();
+          return Onboarding(token: token);
         },
       ),
     );

@@ -16,6 +16,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true // ✅ FIXED
     }
 
     kotlinOptions {
@@ -24,10 +25,11 @@ android {
 
     defaultConfig {
         applicationId = "com.example.denr_car_e_service_app"
-        minSdk = 29
+        minSdk = 23
         targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -37,6 +39,11 @@ android {
     }
 }
 
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") // ✅ FIXED
+
+    // Add other dependencies here if needed
+}
 
 flutter {
     source = "../.."

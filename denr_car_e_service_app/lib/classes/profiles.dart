@@ -33,6 +33,7 @@ class _ProfilesState extends State<Profiles> {
 
       FirebaseFirestore.instance.collection('mobile_users').doc(uid).update({
         'photo': base64Image,
+        'changed_photo': true,
       });
 
       setState(() {
@@ -254,7 +255,7 @@ class _ProfilesState extends State<Profiles> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Login()),
+                  MaterialPageRoute(builder: (context) => Login(token: '')),
                 );
               },
               child: Text('OK'),

@@ -1,5 +1,7 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
@@ -11,7 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class Login extends StatefulWidget {
-  const Login({super.key});
+  final String token;
+  const Login({super.key, required this.token});
 
   @override
   State<Login> createState() => _LoginState();
@@ -62,8 +65,37 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
     });
   }
 
+  Future<bool> _hasInternet() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } on SocketException catch (_) {
+      return false;
+    }
+  }
+
   void _login() async {
-    if (_formKey.currentState!.validate()) {
+    bool hasInternet = await _hasInternet();
+
+    if (!hasInternet) {
+      showDialog(
+        context: context,
+        builder:
+            (context) => AlertDialog(
+              title: Text("No Internet"),
+              content: Text(
+                "Please check your internet connection and try again.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+      );
+      return;
+    } else if (_formKey.currentState!.validate()) {
       try {
         showDialog(
           context: context,
@@ -92,11 +124,10 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
         String userID = user!.uid;
         _userID = userID;
 
-        // Update user's online status in Firestore
         await FirebaseFirestore.instance
             .collection('mobile_users')
             .doc(userID)
-            .update({'status': 'online'});
+            .update({'status': 'online', 'token': widget.token});
 
         Navigator.pop(context);
 
@@ -130,7 +161,6 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
         );
       } catch (e) {
         Navigator.pop(context);
-
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -328,7 +358,8 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (ctx) => RegisterScreen(),
+                              builder:
+                                  (ctx) => RegisterScreen(token: widget.token),
                             ),
                           );
                         },

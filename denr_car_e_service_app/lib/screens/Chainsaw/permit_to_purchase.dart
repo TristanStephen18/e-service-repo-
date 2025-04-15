@@ -28,7 +28,6 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
   final double permitFee = 500.00;
 
-  // Pick file method
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -38,6 +37,29 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
     if (result != null) {
       File pickedFile = File(result.files.single.path!);
+      int fileSize = await pickedFile.length();
+
+      // File size validation: max 749 KB (in bytes = 749 * 1024)
+      if (fileSize > 749 * 1024) {
+        showDialog(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text("File Too Large"),
+                content: const Text(
+                  "The selected file exceeds the 750 KB limit. Please choose a smaller or compressed file.",
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    child: const Text("OK"),
+                  ),
+                ],
+              ),
+        );
+        return;
+      }
+
       onFilePicked(pickedFile);
     }
   }
@@ -87,7 +109,9 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
         return const AlertDialog(
           content: Row(
             children: [
-              CircularProgressIndicator(),
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              ),
               SizedBox(width: 16),
               Text('Uploading files...'),
             ],
