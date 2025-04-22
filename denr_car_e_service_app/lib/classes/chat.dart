@@ -20,7 +20,7 @@ class ChatScreen extends StatelessWidget {
         title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green,
         elevation: 0,
-        leading: null,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [

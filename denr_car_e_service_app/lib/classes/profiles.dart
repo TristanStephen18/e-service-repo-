@@ -1,15 +1,17 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/changepass.dart';
+import 'package:denr_car_e_service_app/help.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
 
 class Profiles extends StatefulWidget {
   const Profiles({super.key});
@@ -22,19 +24,21 @@ class _ProfilesState extends State<Profiles> {
   String? imageBase64;
 
   Future<void> _pickAndUploadImage(String uid) async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? pickedImage = await picker.pickImage(
-      source: ImageSource.gallery,
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      allowMultiple: false,
+      type: FileType.custom,
+      allowedExtensions: ['jpg', 'jpeg', 'png'],
     );
 
-    if (pickedImage != null) {
-      final bytes = await pickedImage.readAsBytes();
+    if (result != null && result.files.single.path != null) {
+      File file = File(result.files.single.path!);
+      final bytes = await file.readAsBytes();
       final base64Image = base64Encode(bytes);
 
-      FirebaseFirestore.instance.collection('mobile_users').doc(uid).update({
-        'photo': base64Image,
-        'changed_photo': true,
-      });
+      await FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(uid)
+          .update({'photo': base64Image, 'changed_photo': true});
 
       setState(() {
         imageBase64 = base64Image;
@@ -164,8 +168,11 @@ class _ProfilesState extends State<Profiles> {
                 _buildListTile(
                   context,
                   icon: Icons.help,
-                  title: "Help",
-                  onTap: () {},
+                  title: "Help & Support",
+                  onTap:
+                      () => Navigator.of(context).push(
+                        CupertinoPageRoute(builder: (ctx) => HelpScreen()),
+                      ),
                 ),
                 Gap(Responsive.getHeightScale(15.0)),
                 _buildListTile(

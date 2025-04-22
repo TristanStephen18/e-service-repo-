@@ -1,6 +1,7 @@
-import 'package:denr_car_e_service_app/map/transport_map.dart';
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_registration.dart';
-import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_registration.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/transport_type.dart';
+
+import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_type.dart';
 import 'package:denr_car_e_service_app/screens/chainsaw/chainsaw_registration.dart';
 
 import 'package:denr_car_e_service_app/screens/treeCutting/tree_cutting.dart';
@@ -92,7 +93,7 @@ class Services extends StatelessWidget {
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (ctx) => TransportMap()),
+                        CupertinoPageRoute(builder: (ctx) => TransportType()),
                       ),
                 ),
 
@@ -112,13 +113,11 @@ class Services extends StatelessWidget {
                 _buildServiceTile(
                   context,
                   icon: Icons.pets,
-                  title: "Wildlife Registration",
+                  title: "Wildlife",
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (ctx) => WildlifeRegistrationScreen(),
-                        ),
+                        CupertinoPageRoute(builder: (ctx) => WildlifeType()),
                       ),
                 ),
               ],

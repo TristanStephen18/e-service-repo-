@@ -19,7 +19,7 @@ class _ApplicationsState extends State<Applications> {
   final Map<String, String> applicationTypeMap = {
     'CH': 'Chainsaw',
     'TP': 'Transport Permit',
-    'WR': 'Certificate of Wildlife',
+    'WR': 'Wildlife',
     'PTP': 'Private Tree Plantation',
     'TC': 'Tree Cutting',
   };
@@ -152,7 +152,7 @@ class _ApplicationsState extends State<Applications> {
                       if (prefix == 'CH') {
                         title = 'Chainsaw - ${data['type'] ?? 'Chainsaw'}';
                       } else if (prefix == 'WR') {
-                        title = 'Certificate of Wildlife';
+                        title = 'Wildlife - ${data['type']}';
                       } else if (prefix == 'PTP') {
                         title = 'Private Tree Plantation';
                       } else if (prefix == 'TC') {

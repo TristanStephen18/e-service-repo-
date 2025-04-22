@@ -1,5 +1,6 @@
 import 'package:denr_car_e_service_app/map/api.dart';
 import 'package:denr_car_e_service_app/map/map_const.dart';
+import 'package:denr_car_e_service_app/map/transport_const.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/goverment.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/private_land.dart';
@@ -34,32 +35,81 @@ class _MapScreenState extends State<MapScreen> {
     setState(() {
       _polygons.addAll({
         Polygon(
-          polygonId: PolygonId("marcos"),
-          points: MapConstants.marcosHighway,
+          polygonId: PolygonId("baguioCity"),
+          points: TransportConstants.baguioCity,
           strokeColor: Colors.red,
           strokeWidth: 2,
           fillColor: Colors.red.withOpacity(0.35),
         ),
         Polygon(
-          polygonId: PolygonId("upperAgno"),
-          points: MapConstants.upperAgno,
+          polygonId: PolygonId("sablan"),
+          points: TransportConstants.sablan,
           strokeColor: Colors.green,
           strokeWidth: 2,
           fillColor: Colors.green.withOpacity(0.35),
         ),
         Polygon(
-          polygonId: PolygonId("lowerAgno"),
-          points: MapConstants.lowerAgno,
+          polygonId: PolygonId("tuba"),
+          points: TransportConstants.tuba,
           strokeColor: Colors.blue,
           strokeWidth: 2,
           fillColor: Colors.blue.withOpacity(0.35),
         ),
         Polygon(
-          polygonId: PolygonId("mtPulag"),
-          points: MapConstants.mtPulagCoords,
+          polygonId: PolygonId("itogon"),
+          points: TransportConstants.itogon,
           strokeColor: Colors.yellow,
           strokeWidth: 2,
           fillColor: Colors.yellow.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("laTrinidad"),
+          points: TransportConstants.laTrinidad,
+          strokeColor: Colors.purple,
+          strokeWidth: 2,
+          fillColor: Colors.purple.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("bokod"),
+          points: TransportConstants.bokod,
+          strokeColor: Colors.orange,
+          strokeWidth: 2,
+          fillColor: Colors.orange.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("kabayan"),
+          points: TransportConstants.kabayan,
+          strokeColor: Colors.brown,
+          strokeWidth: 2,
+          fillColor: Colors.brown.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("marcos"),
+          points: MapConstants.marcosHighway,
+          strokeColor: Colors.teal,
+          strokeWidth: 2,
+          fillColor: Colors.teal.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("upperAgno"),
+          points: MapConstants.upperAgno,
+          strokeColor: Colors.indigo,
+          strokeWidth: 2,
+          fillColor: Colors.indigo.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("lowerAgno"),
+          points: MapConstants.lowerAgno,
+          strokeColor: Colors.pink,
+          strokeWidth: 2,
+          fillColor: Colors.pink.withOpacity(0.35),
+        ),
+        Polygon(
+          polygonId: PolygonId("mtPulag"),
+          points: MapConstants.mtPulagCoords,
+          strokeColor: Colors.cyan,
+          strokeWidth: 2,
+          fillColor: Colors.cyan.withOpacity(0.35),
         ),
       });
     });
@@ -70,8 +120,8 @@ class _MapScreenState extends State<MapScreen> {
       position.latitude,
       position.longitude,
     );
-    String polygonName =
-        "Private Land Area"; // Default value if outside all polygons
+
+    String polygonName;
 
     if (_isPointInsidePolygon(position, MapConstants.marcosHighway)) {
       polygonName = "Marcos Highway";
@@ -81,12 +131,15 @@ class _MapScreenState extends State<MapScreen> {
       polygonName = "Lower Agno";
     } else if (_isPointInsidePolygon(position, MapConstants.mtPulagCoords)) {
       polygonName = "Mt. Pulag";
+    } else {
+      polygonName = "Private Land Area";
     }
 
     setState(() {
       _selectedLocation = position;
       _selectedAddress = address;
       _updateMarker(position);
+      print(polygonName);
     });
 
     _showLocationDetails(polygonName);
@@ -316,10 +369,17 @@ class _MapScreenState extends State<MapScreen> {
                       fontSize: Responsive.getTextScale(14),
                     ),
                   ),
-                  _legendItem(Colors.red, "Marcos Highway"),
-                  _legendItem(Colors.green, "Upper Agno"),
-                  _legendItem(Colors.blue, "Lower Agno"),
-                  _legendItem(Colors.yellow, "Mt. Pulag"),
+                  _legendItem(Colors.red, "Baguio City"),
+                  _legendItem(Colors.green, "Sablan"),
+                  _legendItem(Colors.blue, "Tuba"),
+                  _legendItem(Colors.yellow, "Itogon"),
+                  _legendItem(Colors.purple, "La Trinidad"),
+                  _legendItem(Colors.orange, "Bokod"),
+                  _legendItem(Colors.brown, "Kabayan"),
+                  _legendItem(Colors.teal, "Marcos Highway"),
+                  _legendItem(Colors.indigo, "Upper Agno"),
+                  _legendItem(Colors.pink, "Lower Agno"),
+                  _legendItem(Colors.cyan, "Mt. Pulag"),
                 ],
               ),
             ),

@@ -2,6 +2,7 @@ import 'package:denr_car_e_service_app/map/api.dart';
 
 import 'package:denr_car_e_service_app/map/transport_const.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
+
 import 'package:denr_car_e_service_app/screens/transportPermit/transport_permit.dart';
 
 import 'package:flutter/material.dart';
@@ -9,6 +10,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vector_math/vector_math.dart' as vector_math;
 
 class TransportMap extends StatefulWidget {
+  final String type;
+  TransportMap({required this.type});
   @override
   _TransportMapState createState() => _TransportMapState();
 }
@@ -318,19 +321,50 @@ class _TransportMapState extends State<TransportMap> {
                     _updateDestinationMarker(_destinationLocation!);
                   });
                   Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder:
-                          (context) => ForestRequirementsForm(
-                            startLocation: _startLocation!,
-                            destinationLocation: _destinationLocation!,
-                            startAddress: _startAddress!,
-                            destinationAddress: _destinationAddress!,
-                            polygonName: polygonName,
-                          ),
-                    ),
-                  );
+
+                  if (widget.type == 'Fauna') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ForestRequirementsForm(
+                              startLocation: _startLocation!,
+                              destinationLocation: _destinationLocation!,
+                              startAddress: _startAddress!,
+                              destinationAddress: _destinationAddress!,
+                              polygonName: polygonName,
+                            ),
+                      ),
+                    );
+                  } else if (widget.type == 'Flora') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ForestRequirementsForm(
+                              startLocation: _startLocation!,
+                              destinationLocation: _destinationLocation!,
+                              startAddress: _startAddress!,
+                              destinationAddress: _destinationAddress!,
+                              polygonName: polygonName,
+                            ),
+                      ),
+                    );
+                  } else if (widget.type == 'Transport') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder:
+                            (context) => ForestRequirementsForm(
+                              startLocation: _startLocation!,
+                              destinationLocation: _destinationLocation!,
+                              startAddress: _startAddress!,
+                              destinationAddress: _destinationAddress!,
+                              polygonName: polygonName,
+                            ),
+                      ),
+                    );
+                  }
                 },
                 child: Text(
                   "Confirm Destination Location",
