@@ -29,6 +29,30 @@ class _MapScreenState extends State<MapScreen> {
   void initState() {
     super.initState();
     _setPolygon();
+    _showInfoDialog();
+  }
+
+  void _showInfoDialog() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text("Important Notice"),
+              content: Text(
+                "Please select a location within the CENRO Baguio jurisdiction or Protected Areas. "
+                "Once confirmed, you can upload your requirements.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Got it"),
+                ),
+              ],
+            ),
+      );
+    });
   }
 
   void _setPolygon() {
@@ -115,34 +139,83 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
+  String _getFriendlyPolygonName(String polygonId) {
+    switch (polygonId) {
+      case 'tuba':
+        return 'Tuba Municipality';
+      case 'marcos':
+        return 'Marcos Highway';
+      case 'baguioCity':
+        return 'Baguio City';
+      case 'sablan':
+        return 'Sablan Municipality';
+      case 'itogon':
+        return 'Itogon Municipality';
+      case 'laTrinidad':
+        return 'La Trinidad Municipality';
+      case 'bokod':
+        return 'Bokod Municipality';
+      case 'kabayan':
+        return 'Kabayan Municipality';
+      case 'upperAgno':
+        return 'Upper Agno';
+      case 'lowerAgno':
+        return 'Lower Agno';
+      case 'mtPulag':
+        return 'Mt. Pulag';
+      default:
+        return 'Protected Area';
+    }
+  }
+
   void _handleMapTap(LatLng position) async {
     String address = await ApiCalls().reverseGeocode(
       position.latitude,
       position.longitude,
     );
 
-    String polygonName;
+    List<String> matchedPolygons = [];
 
-    if (_isPointInsidePolygon(position, MapConstants.marcosHighway)) {
-      polygonName = "Marcos Highway";
-    } else if (_isPointInsidePolygon(position, MapConstants.upperAgno)) {
-      polygonName = "Upper Agno";
-    } else if (_isPointInsidePolygon(position, MapConstants.lowerAgno)) {
-      polygonName = "Lower Agno";
-    } else if (_isPointInsidePolygon(position, MapConstants.mtPulagCoords)) {
-      polygonName = "Mt. Pulag";
-    } else {
-      polygonName = "Private Land Area";
+    for (Polygon polygon in _polygons) {
+      if (_isPointInsidePolygon(position, polygon.points)) {
+        matchedPolygons.add(polygon.polygonId.value);
+      }
     }
+
+    if (matchedPolygons.isEmpty) {
+      // Outside all polygons
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Text("Invalid Location"),
+              content: Text(
+                "The selected location is outside of valid areas. Please try again.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("OK"),
+                ),
+              ],
+            ),
+      );
+      return;
+    }
+
+    // Format the matched polygons
+    String combinedPolygonNames = matchedPolygons
+        .map((id) => _getFriendlyPolygonName(id))
+        .join(', ');
 
     setState(() {
       _selectedLocation = position;
       _selectedAddress = address;
       _updateMarker(position);
-      print(polygonName);
+      print("Matched Polygons: $combinedPolygonNames");
     });
 
-    _showLocationDetails(polygonName);
+    _showLocationDetails(combinedPolygonNames);
   }
 
   void _updateMarker(LatLng position) {

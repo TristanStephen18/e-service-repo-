@@ -76,7 +76,7 @@ class Services extends StatelessWidget {
                 _buildServiceTile(
                   context,
                   icon: Icons.forest,
-                  title: "Tree Cutting Permit",
+                  title: "Tree Cutting",
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(
@@ -89,7 +89,7 @@ class Services extends StatelessWidget {
                 _buildServiceTile(
                   context,
                   icon: Icons.car_crash,
-                  title: "Transport Permit",
+                  title: "Transport",
                   subtitle: "Apply Now!",
                   onTap:
                       () => Navigator.of(context).push(

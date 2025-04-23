@@ -2,6 +2,8 @@ import 'package:denr_car_e_service_app/map/api.dart';
 
 import 'package:denr_car_e_service_app/map/transport_const.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/ltp(Fauna).dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/ltp(Flora).dart';
 
 import 'package:denr_car_e_service_app/screens/transportPermit/transport_permit.dart';
 
@@ -41,8 +43,53 @@ class _TransportMapState extends State<TransportMap> {
   @override
   void initState() {
     super.initState();
+    _showInfoDialog(); // <- Add this
     _setPolygon();
     _loadIcons();
+  }
+
+  void _showInfoDialog() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text("Important Notice"),
+              content: Text(
+                "Please select a start location within the CENRO Baguio jurisdiction. "
+                "Once confirmed, you can select a destination location.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Got it"),
+                ),
+              ],
+            ),
+      );
+    });
+  }
+
+  void _showDestinationDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder:
+          (context) => AlertDialog(
+            title: Text("Destination Location"),
+            content: Text(
+              "Please select a destination location within or outside the CENRO Baguio jurisdiction. "
+              "Once confirmed, you can upload your requirements.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text("Got it"),
+              ),
+            ],
+          ),
+    );
   }
 
   void _loadIcons() async {
@@ -264,6 +311,7 @@ class _TransportMapState extends State<TransportMap> {
                     _updateStartMarker(_startLocation!);
                   });
                   Navigator.pop(context);
+                  _showDestinationDialog();
                 },
                 child: Text(
                   "Confirm Start Location",
@@ -327,7 +375,7 @@ class _TransportMapState extends State<TransportMap> {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ForestRequirementsForm(
+                            (context) => LtpFauna(
                               startLocation: _startLocation!,
                               destinationLocation: _destinationLocation!,
                               startAddress: _startAddress!,
@@ -341,7 +389,7 @@ class _TransportMapState extends State<TransportMap> {
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ForestRequirementsForm(
+                            (context) => LtpFlora(
                               startLocation: _startLocation!,
                               destinationLocation: _destinationLocation!,
                               startAddress: _startAddress!,

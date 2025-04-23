@@ -60,9 +60,9 @@ class _TransportTypeState extends State<TransportType> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.home, color: Colors.green),
+                  leading: Icon(Icons.car_crash, color: Colors.green),
                   title: Text(
-                    "Local Transport Permit (Fauna)",
+                    "Local Transport Permit of Wildlife (Fauna)",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14),
@@ -94,7 +94,7 @@ class _TransportTypeState extends State<TransportType> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.grass, color: Colors.green),
+                  leading: Icon(Icons.car_crash, color: Colors.green),
                   title: Text(
                     "Local Transport Permit (Flora)",
                     style: TextStyle(
@@ -127,9 +127,9 @@ class _TransportTypeState extends State<TransportType> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.grass, color: Colors.green),
+                  leading: Icon(Icons.car_crash, color: Colors.green),
                   title: Text(
-                    "Transport Permit",
+                    "Transport Permit (Forest Products)",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14), // Scale text size

@@ -9,9 +9,23 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
 class LtpFlora extends StatefulWidget {
+  final LatLng startLocation;
+  final LatLng destinationLocation;
+  final String startAddress;
+  final String destinationAddress;
+  final String polygonName;
+  const LtpFlora({
+    super.key,
+    required this.startAddress,
+    required this.destinationAddress,
+    required this.startLocation,
+    required this.destinationLocation,
+    required this.polygonName,
+  });
   @override
   _LtpFloraState createState() => _LtpFloraState();
 }
@@ -19,11 +33,9 @@ class LtpFlora extends StatefulWidget {
 class _LtpFloraState extends State<LtpFlora> {
   final _formKey = GlobalKey<FormState>();
 
-  File? dulyAccomplishForm;
-  File? financialCapability;
-  File? proofAcquisition;
   File? intentLetter;
-  File? others;
+  File? legalPossession;
+  File? phytosanitaryCert;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -75,7 +87,7 @@ class _LtpFloraState extends State<LtpFlora> {
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('wildlife')
+            .collection('transport_permit')
             .orderBy('uploadedAt', descending: true) // Get latest uploads first
             .limit(1) // Only check the latest document
             .get();
@@ -84,7 +96,7 @@ class _LtpFloraState extends State<LtpFlora> {
 
     if (querySnapshot.docs.isNotEmpty) {
       String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'WR-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'TP-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
         latestNumber = int.parse(match.group(1)!);
@@ -94,7 +106,7 @@ class _LtpFloraState extends State<LtpFlora> {
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
-    return 'WR-$today-$newNumber';
+    return 'TP-$today-$newNumber';
   }
 
   // Upload all files to Firestore
@@ -131,15 +143,13 @@ class _LtpFloraState extends State<LtpFlora> {
 
       final Map<String, String> fileLabelMap = {
         'Letter of Intent': 'Letter of Intent',
-        'Application Form': 'Application Form',
-        'Financial Capability': 'Financial Capability',
-        'Proof of Acquisition': 'Proof of Acquisition',
-        'Others': 'Others',
+        'Phytosanitary Certificate': 'Phytosanitary Certificate',
+        'Legal Possession': 'Legal Possession',
       };
 
       // Set root metadata
       await FirebaseFirestore.instance
-          .collection('wildlife')
+          .collection('transport_permit')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -148,6 +158,17 @@ class _LtpFloraState extends State<LtpFlora> {
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
             'address': clientAddress,
+            'from': widget.startAddress,
+            'to': widget.destinationAddress,
+            'from_coordinates': GeoPoint(
+              widget.startLocation.latitude,
+              widget.startLocation.longitude,
+            ),
+            'to_coordinates': GeoPoint(
+              widget.destinationLocation.latitude,
+              widget.destinationLocation.longitude,
+            ),
+            'type': 'LTP (Flora)',
           });
 
       // Upload each file
@@ -182,6 +203,7 @@ class _LtpFloraState extends State<LtpFlora> {
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'status': 'Pending',
+            'type': 'LTP (Flora)',
           });
 
       // Upload each file
@@ -193,7 +215,7 @@ class _LtpFloraState extends State<LtpFlora> {
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('wildlife')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -246,21 +268,14 @@ class _LtpFloraState extends State<LtpFlora> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && intentLetter != null) {
+    if (legalPossession != null && intentLetter != null) {
       Map<String, File> filesToUpload = {
-        'Application Form': dulyAccomplishForm!,
+        'Legal Possession': legalPossession!,
         'Letter of Intent': intentLetter!,
       };
 
-      if (financialCapability != null) {
-        filesToUpload['Financial Capability'] = financialCapability!;
-      }
-      if (others != null) {
-        filesToUpload['Others'] = others!;
-      }
-
-      if (proofAcquisition != null) {
-        filesToUpload['Proof of Acquisition'] = proofAcquisition!;
+      if (phytosanitaryCert != null) {
+        filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -313,14 +328,38 @@ class _LtpFloraState extends State<LtpFlora> {
     );
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Wildlife Registration',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('LTP (Fauna)', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -343,27 +382,27 @@ class _LtpFloraState extends State<LtpFlora> {
                   (file) => setState(() => intentLetter = file),
                 ),
                 _buildFilePicker(
-                  '2. Duly Accomplished Application Form (Notarized);',
-                  dulyAccomplishForm,
-                  (file) => setState(() => dulyAccomplishForm = file),
-                ),
-                _buildFilePicker(
-                  '3. Proof of Financial Capability (Certificate of Bank Statement and/or Proof of sustainable Resources to raise wildlife);',
-                  financialCapability,
-                  (file) => setState(() => financialCapability = file),
+                  '2. Documents supporting legal possession or acquisition of Wildlife;and',
+                  legalPossession,
+                  (file) => setState(() => legalPossession = file),
                 ),
 
                 _buildFilePicker(
-                  '4. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
-                  'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
-                  proofAcquisition,
-                  (file) => setState(() => proofAcquisition = file),
+                  '3. Phytosanitary Certificate from concerned DA Office.',
+                  phytosanitaryCert,
+                  (file) => setState(() => phytosanitaryCert = file),
                 ),
-                _buildFilePicker(
-                  '5. Others:',
-                  others,
-                  (file) => setState(() => others = file),
+                const SizedBox(height: 15),
+                const Text(
+                  'Fees to be Paid',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 16),
+                _buildFeeRow('LTP Fee', 100),
+
+                const Divider(thickness: 1.2),
+                _buildFeeRow('TOTAL', 100, isTotal: true),
+                const SizedBox(height: 32),
 
                 Center(
                   child: ElevatedButton(

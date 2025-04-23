@@ -18,7 +18,7 @@ class _ApplicationsState extends State<Applications> {
 
   final Map<String, String> applicationTypeMap = {
     'CH': 'Chainsaw',
-    'TP': 'Transport Permit',
+    'TP': 'Transport',
     'WR': 'Wildlife',
     'PTP': 'Private Tree Plantation',
     'TC': 'Tree Cutting',
@@ -157,6 +157,8 @@ class _ApplicationsState extends State<Applications> {
                         title = 'Private Tree Plantation';
                       } else if (prefix == 'TC') {
                         title = 'Tree Cutting - ${data['type']}';
+                      } else if (prefix == 'TP') {
+                        title = 'Transport - ${data['type']}';
                       } else {
                         title = applicationTypeMap[prefix] ?? 'Unknown Permit';
                       }

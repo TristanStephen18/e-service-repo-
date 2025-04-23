@@ -214,6 +214,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'status': 'Pending',
+            'type': 'Forest Product',
           });
 
       // Upload each file
@@ -452,9 +453,9 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildFeeRow('Certification Fee', certificationFee),
+                _buildFeeRow('Verefication Fee', certificationFee),
                 _buildFeeRow('Oath Fee', oathFee),
-                _buildFeeRow('Inventory Fee', inventoryFee),
+                _buildFeeRow('Inspection Fee', inventoryFee),
                 const Divider(thickness: 1.2),
                 _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),

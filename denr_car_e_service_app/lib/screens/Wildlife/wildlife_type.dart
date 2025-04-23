@@ -96,9 +96,9 @@ class _WildlifeTypeState extends State<WildlifeType> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.grass, color: Colors.green),
+                  leading: Icon(Icons.pets, color: Colors.green),
                   title: Text(
-                    "Wildlife Registration",
+                    "Certificate of Wildlife Registration",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14), // Scale text size

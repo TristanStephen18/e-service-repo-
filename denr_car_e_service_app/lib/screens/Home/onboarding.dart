@@ -48,7 +48,10 @@ class _OnboardingState extends State<Onboarding> {
             },
             child: Text(
               "Skip",
-              style: TextStyle(fontSize: Responsive.getTextScale(15)),
+              style: TextStyle(
+                fontSize: Responsive.getTextScale(15),
+                color: Colors.green,
+              ),
             ),
           ),
         ],
