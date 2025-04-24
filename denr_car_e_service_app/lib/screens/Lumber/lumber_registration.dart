@@ -11,32 +11,35 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class ChainsawReg extends StatefulWidget {
-  const ChainsawReg({super.key});
+class LumberRegistration extends StatefulWidget {
+  const LumberRegistration({super.key});
 
   @override
-  State<ChainsawReg> createState() => _ChainsawRegState();
+  State<LumberRegistration> createState() => _LumberRegistrationState();
 }
 
-class _ChainsawRegState extends State<ChainsawReg> {
+class _LumberRegistrationState extends State<LumberRegistration> {
   final _formKey = GlobalKey<FormState>();
 
   File? dulyAccomplishForm;
-  File? chainsawReciept;
-  File? spa;
-  File? chainsawSpec;
-  File? deedofSale;
-  File? regChainsaw;
+  File? picture;
+  File? permitEngage;
+  File? lumberContract;
+  File? businessPlan;
+  File? listEmployees;
 
-  File? forestTenure;
-  File? businessPermit;
+  File? incomeTax;
+  File? financialStatement;
+  File? certBank;
+  File? prevCert;
   File? certRegistration;
-  File? permitAffidavit;
-  File? plantPermit;
-  File? headOffice;
-  File? certChainsawReg;
+  File? certNonCoverage;
+  File? reportLumber;
+  File? inventory;
 
-  final double registrationFee = 500.00;
+  final double cashDeposit = 1500.00;
+
+  double get totalFee => 1116.00 + cashDeposit;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -88,7 +91,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('lumber_registration')
             .orderBy('uploadedAt', descending: true) // Get latest uploads first
             .limit(1) // Only check the latest document
             .get();
@@ -97,7 +100,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
     if (querySnapshot.docs.isNotEmpty) {
       String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'LR-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
         latestNumber = int.parse(match.group(1)!);
@@ -107,7 +110,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
-    return 'CH-$today-$newNumber';
+    return 'LR-$today-$newNumber';
   }
 
   // Upload all files to Firestore
@@ -143,24 +146,26 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
       final Map<String, String> fileLabelMap = {
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'Reciept of Chainsaw Purchase': 'Reciept of Chainsaw Purchase',
-        'SPA': 'SPA',
-        'Specification of Chainsaw': 'Specification of Chainsaw',
-        'Deed of Sale': 'Deed of Sale',
-        'Chainsaw': 'Chainsaw',
-        'Forest Tenure Agreement': 'Forest Tenure Agreement',
-        'Business Permit': 'Business Permit',
-        'Certificate of Registration': 'Certificate of Registration',
-        'Affidavit or Permit from LGU': 'Affidavit or Permit from LGU',
-        'Plant Permit': 'Plant Permit',
-        'Certification of Head Office': 'Certification of Head Office',
-        'Certificate of Chainsaw Registration':
-            'Certificate of Chainsaw Registration',
+        'Pictures of Establishment': 'Pictures of Establishment',
+        'Permit to Engage': 'Permit to Engage',
+        'Lumber Supply Contract': 'Lumber Supply Contract',
+        'Business Plan': 'Business Plan',
+        'List of Employees': 'List of Employees',
+        'Income Tax Return': 'Income Tax Return',
+        'Audited Financial Statement': 'Audited Financial Statement',
+        'Certificate of Bank': 'Certificate of Bank',
+        'Previous Certificate of Registration':
+            'Previous Certificate of Registration',
+        'Certificate of Registration(DTI/SEC)':
+            'Certificate of Registration(DTI/SEC)',
+        'Certification of Non-Coverage': 'Certification of Non-Coverage',
+        'Annual Report of Lumber': 'Annual Report of Lumber',
+        'Inventory of Lumber Stocks': 'Inventory of Lumber Stocks',
       };
 
       // Set root metadata
       await FirebaseFirestore.instance
-          .collection('chainsaw')
+          .collection('lumber_registration')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -168,7 +173,6 @@ class _ChainsawRegState extends State<ChainsawReg> {
             'address': clientAddress,
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
             'current_location': 'RPU - For Evaluation',
           });
 
@@ -203,7 +207,6 @@ class _ChainsawRegState extends State<ChainsawReg> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Chainsaw Registration',
 
             'status': 'Pending',
           });
@@ -217,7 +220,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('lumber_registration')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -271,45 +274,48 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && chainsawReciept != null) {
+    if (dulyAccomplishForm != null && picture != null) {
       Map<String, File> filesToUpload = {
         'Duly Accomplish Application Form': dulyAccomplishForm!,
-        'Reciept of Chainsaw Purchase': chainsawReciept!,
+        'Pictures of Establishment': picture!,
       };
 
-      if (spa != null) {
-        filesToUpload['SPA'] = spa!;
+      if (permitEngage != null) {
+        filesToUpload['Permit to Engage'] = permitEngage!;
       }
-      if (chainsawSpec != null) {
-        filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
+      if (lumberContract != null) {
+        filesToUpload['Lumber Supply Contract'] = lumberContract!;
       }
-      if (deedofSale != null) {
-        filesToUpload['Deed of Sale'] = deedofSale!;
+      if (businessPlan != null) {
+        filesToUpload['Business Plan'] = businessPlan!;
       }
-      if (regChainsaw != null) {
-        filesToUpload['Chainsaw Registration'] = regChainsaw!;
+      if (listEmployees != null) {
+        filesToUpload['List of Employees'] = listEmployees!;
       }
-      if (forestTenure != null) {
-        filesToUpload['Forest Tenure Agreement'] = forestTenure!;
+      if (incomeTax != null) {
+        filesToUpload['Income Tax Return'] = incomeTax!;
       }
-      if (businessPermit != null) {
-        filesToUpload['Business Permit'] = businessPermit!;
+      if (financialStatement != null) {
+        filesToUpload['Audited Financial Statement'] = financialStatement!;
+      }
+      if (certBank != null) {
+        filesToUpload['Certificate of Bank'] = certBank!;
+      }
+      if (prevCert != null) {
+        filesToUpload['Previous Certificate of Registration'] = prevCert!;
       }
       if (certRegistration != null) {
-        filesToUpload['Certificate of Registration'] = certRegistration!;
+        filesToUpload['Certificate of Registration(DTI/SEC)'] =
+            certRegistration!;
       }
-      if (permitAffidavit != null) {
-        filesToUpload['Affidavit or Permit from LGU'] = permitAffidavit!;
+      if (certNonCoverage != null) {
+        filesToUpload['Certification of Non-Coverage'] = certNonCoverage!;
       }
-      if (plantPermit != null) {
-        filesToUpload['Plant Permit'] = plantPermit!;
+      if (reportLumber != null) {
+        filesToUpload['Annual Report of Lumber'] = reportLumber!;
       }
-      if (headOffice != null) {
-        filesToUpload['Certification of Head Office'] = headOffice!;
-      }
-      if (certChainsawReg != null) {
-        filesToUpload['Certificate of Chainsaw Registration'] =
-            certChainsawReg!;
+      if (inventory != null) {
+        filesToUpload['Inventory of Lumber Stocks'] = inventory!;
       }
 
       await _uploadFiles(filesToUpload);
@@ -394,7 +400,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Chainsaw Registration',
+          'Lumber Registration',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(17), // Scale text size
@@ -417,93 +423,90 @@ class _ChainsawRegState extends State<ChainsawReg> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Duly Accomplish Application Form',
+                  '1. Application Form (Duly Accomplished)',
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
                 _buildFilePicker(
-                  '2. Official Receipt of Chainsaw Purchase (1 certified copy and 1 original for verification) '
-                  'or Affidavit of ownership in case the original copy is lost;',
-                  chainsawReciept,
-                  (file) => setState(() => chainsawReciept = file),
+                  '2. Pictures of the establishment/lumber yard;',
+                  picture,
+                  (file) => setState(() => picture = file),
                 ),
                 _buildFilePicker(
-                  '3. SPA if the applicant is not the owner of the chainsaw;',
-                  spa,
-                  (file) => setState(() => spa = file),
+                  '3. Permit to Engage in business issued by City Mayor;',
+                  permitEngage,
+                  (file) => setState(() => permitEngage = file),
                 ),
                 _buildFilePicker(
-                  '4. Detailed Specification of Chainsaw (e.g. brand, model, engine capacity, etc.);',
-                  chainsawSpec,
-                  (file) => setState(() => chainsawSpec = file),
+                  '4. Lumber Supply Contract; ',
+                  lumberContract,
+                  (file) => setState(() => lumberContract = file),
                 ),
                 _buildFilePicker(
-                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
+                  '5. Business Plan/Program;',
+                  businessPlan,
+                  (file) => setState(() => businessPlan = file),
                 ),
                 _buildFilePicker(
-                  '6. Chainsaw to be registered',
-                  regChainsaw,
-                  (file) => setState(() => regChainsaw = file),
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Additional Requirements',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildFilePicker(
-                  '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
-                  forestTenure,
-                  (file) => setState(() => forestTenure = file),
+                  '6. List of Employees, position and salaries;',
+                  listEmployees,
+                  (file) => setState(() => listEmployees = file),
                 ),
                 _buildFilePicker(
-                  '8. Business Permit (1 photocopy), if business owner;',
-                  businessPermit,
-                  (file) => setState(() => businessPermit = file),
+                  '7. Income Tax Return;',
+                  incomeTax,
+                  (file) => setState(() => incomeTax = file),
                 ),
                 _buildFilePicker(
-                  '9. Certificate of Registration, if registered as PTPR;',
-                  deedofSale,
-                  (file) => setState(() => deedofSale = file),
+                  '8. Audited Financial Statement',
+                  financialStatement,
+                  (file) => setState(() => financialStatement = file),
                 ),
                 _buildFilePicker(
-                  '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
-                  ' and will be used for legal purpose (1 photocopy);',
-                  permitAffidavit,
-                  (file) => setState(() => permitAffidavit = file),
+                  '9. Certificate of Bank with available account intended for the business (photocopy);',
+                  businessPlan,
+                  (file) => setState(() => businessPlan = file),
                 ),
                 _buildFilePicker(
-                  '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
-                  plantPermit,
-                  (file) => setState(() => plantPermit = file),
+                  '10. Previous Certificate of registration as Lumber Dealer (photocopy);',
+                  prevCert,
+                  (file) => setState(() => prevCert = file),
                 ),
                 _buildFilePicker(
-                  '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
-                  ' by the office and use for legal purposes (specify), if government and GOCC;',
-                  headOffice,
-                  (file) => setState(() => headOffice = file),
+                  '11. Certificate of Registration of Business name issued by DTI/SEC;',
+                  certRegistration,
+                  (file) => setState(() => certRegistration = file),
                 ),
                 _buildFilePicker(
-                  '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
-                  certChainsawReg,
-                  (file) => setState(() => certChainsawReg = file),
+                  '12. Certification of Non-Coverage issued by EMB, DENR-CAR;',
+                  certNonCoverage,
+                  (file) => setState(() => certNonCoverage = file),
                 ),
+                _buildFilePicker(
+                  '13. Annual Report of Lumber Purchases and Sales;',
+                  reportLumber,
+                  (file) => setState(() => reportLumber = file),
+                ),
+                _buildFilePicker(
+                  '14. Inventory of Lumber Stocks;',
+                  inventory,
+                  (file) => setState(() => inventory = file),
+                ),
+
                 const SizedBox(height: 20),
                 const Text(
                   'Fees to be Paid',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildFeeRow('Registration Fee', registrationFee),
+                _buildFeeRow(
+                  'Application, Permit,\nLicense, Oath Fee',
+                  1116.00,
+                ),
+                _buildFeeRow('Application Fee', cashDeposit),
 
                 const Divider(thickness: 1.2),
-                _buildFeeRow('TOTAL', registrationFee, isTotal: true),
+                _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),
 
                 Center(

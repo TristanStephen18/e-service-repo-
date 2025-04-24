@@ -11,21 +11,19 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class WildlifeRegistrationScreen extends StatefulWidget {
+class AddLumber extends StatefulWidget {
+  final String applicationId; // ID of existing application
+
+  const AddLumber({super.key, required this.applicationId});
   @override
-  _WildlifeRegistrationScreenState createState() =>
-      _WildlifeRegistrationScreenState();
+  _AddLumberState createState() => _AddLumberState();
 }
 
-class _WildlifeRegistrationScreenState
-    extends State<WildlifeRegistrationScreen> {
+class _AddLumberState extends State<AddLumber> {
   final _formKey = GlobalKey<FormState>();
 
-  File? dulyAccomplishForm;
-  File? financialCapability;
-  File? proofAcquisition;
-  File? intentLetter;
-  File? others;
+  File? appFee;
+  File? suretyBond;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -73,33 +71,6 @@ class _WildlifeRegistrationScreenState
     }
   }
 
-  // Generate Document ID
-  Future<String> _generateDocumentId() async {
-    QuerySnapshot querySnapshot =
-        await FirebaseFirestore.instance
-            .collection('wildlife')
-            .orderBy('uploadedAt', descending: true) // Get latest uploads first
-            .limit(1) // Only check the latest document
-            .get();
-
-    int latestNumber = 0;
-
-    if (querySnapshot.docs.isNotEmpty) {
-      String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'WR-\d{4}-\d{2}-\d{2}-(\d{4})');
-      Match? match = regExp.firstMatch(lastDocId);
-      if (match != null) {
-        latestNumber = int.parse(match.group(1)!);
-      }
-    }
-
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
-    String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
-
-    return 'WR-$today-$newNumber';
-  }
-
-  // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
@@ -118,41 +89,47 @@ class _WildlifeRegistrationScreenState
         );
       },
     );
+
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      DocumentSnapshot userSnapshot =
-          await FirebaseFirestore.instance
-              .collection('mobile_users')
-              .doc(userId)
-              .get();
+      String documentId = widget.applicationId; // Use provided application ID
 
-      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
-      String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
+      DocumentReference applicationRef = FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(userId)
+          .collection('applications')
+          .doc(documentId);
 
-      String documentId = await _generateDocumentId();
+      DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Application Form': 'Application Form',
-        'Financial Capability': 'Financial Capability',
-        'Proof of Acquisition': 'Proof of Acquisition',
-        'Others': 'Others',
+        'Application Fee': 'Application Fee',
+        'Surety Bond': 'Surety Bond',
       };
 
-      // Set root metadata
-      await FirebaseFirestore.instance
-          .collection('wildlife')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'status': 'Pending',
-            'client': clientName,
-            'current_location': 'RPU - For Evaluation',
-            'address': clientAddress,
-          });
+      if (!applicationSnapshot.exists) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Application not found!')));
+        return;
+      }
 
-      // Upload each file
+      for (var entry in files.entries) {
+        String label = entry.key;
+        File file = entry.value;
+
+        String fileExtension = path.extension(file.path).toLowerCase();
+        String base64File = await _convertFileToBase64(file);
+
+        await applicationRef.collection('requirements').doc(label).set({
+          'fileName': fileLabelMap[label] ?? label,
+          'fileExtension': fileExtension,
+          'file': base64File,
+          'uploadedAt': Timestamp.now(),
+        });
+      }
+
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
@@ -161,9 +138,7 @@ class _WildlifeRegistrationScreenState
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
+            .collection('lumber_registration')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -175,38 +150,6 @@ class _WildlifeRegistrationScreenState
             });
       }
 
-      await FirebaseFirestore.instance
-          .collection('mobile_users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('applications')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'status': 'Pending',
-            'type': 'Wildlife Registration',
-          });
-
-      // Upload each file
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
-
-        await FirebaseFirestore.instance
-            .collection('wildlife')
-            .doc(documentId)
-            .collection('requirements')
-            .doc(label)
-            .set({
-              'fileName': fileLabelMap[label] ?? label,
-              'fileExtension': fileExtension,
-              'file': base64File,
-              'uploadedAt': Timestamp.now(),
-            });
-      }
       Navigator.of(context).pop();
 
       showDialog(
@@ -220,17 +163,14 @@ class _WildlifeRegistrationScreenState
                 Text('Success'),
               ],
             ),
-            content: const Text('Application Submitted Successfully!'),
+            content: const Text('Files uploaded successfully!'),
             actions: [
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).pop();
                   Navigator.of(context).push(
                     CupertinoPageRoute(
-                      builder:
-                          (ctx) => Homepage(
-                            userid: FirebaseAuth.instance.currentUser!.uid,
-                          ),
+                      builder: (ctx) => Homepage(userid: userId),
                     ),
                   );
                 },
@@ -241,30 +181,20 @@ class _WildlifeRegistrationScreenState
         },
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Error during file upload.')),
-      );
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error during file upload: $e')));
     }
   }
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && intentLetter != null) {
+    if (appFee != null && suretyBond != null) {
       Map<String, File> filesToUpload = {
-        'Application Form': dulyAccomplishForm!,
-        'Letter of Intent': intentLetter!,
+        'Application Fee': appFee!,
+        'Surety Bond': suretyBond!,
       };
-
-      if (financialCapability != null) {
-        filesToUpload['Financial Capability'] = financialCapability!;
-      }
-      if (others != null) {
-        filesToUpload['Others'] = others!;
-      }
-
-      if (proofAcquisition != null) {
-        filesToUpload['Proof of Acquisition'] = proofAcquisition!;
-      }
 
       await _uploadFiles(filesToUpload);
     } else {
@@ -321,7 +251,7 @@ class _WildlifeRegistrationScreenState
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Wildlife Registration',
+          'Transport Permit',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -336,37 +266,22 @@ class _WildlifeRegistrationScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Checklist of Requirements ',
+                  'Additional Requirements',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Letter of Intent Addressed to this Office;',
-                  intentLetter,
-                  (file) => setState(() => intentLetter = file),
+                  '1. Application, Permit / License and Oath Fees (Reciept)',
+                  appFee,
+                  (file) => setState(() => appFee = file),
                 ),
                 _buildFilePicker(
-                  '2. Duly Accomplished Application Form (Notarized);',
-                  dulyAccomplishForm,
-                  (file) => setState(() => dulyAccomplishForm = file),
-                ),
-                _buildFilePicker(
-                  '3. Proof of Financial Capability (Certificate of Bank Statement and/or Proof of sustainable Resources to raise wildlife);',
-                  financialCapability,
-                  (file) => setState(() => financialCapability = file),
+                  '2. Money Order Payable to the ARD for Technical Services & Forestry Cash Bond Deposit (Reciept)',
+                  suretyBond,
+                  (file) => setState(() => suretyBond = file),
                 ),
 
-                _buildFilePicker(
-                  '4. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
-                  'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
-                  proofAcquisition,
-                  (file) => setState(() => proofAcquisition = file),
-                ),
-                _buildFilePicker(
-                  '5. Others:',
-                  others,
-                  (file) => setState(() => others = file),
-                ),
+                const SizedBox(height: 15),
 
                 Center(
                   child: ElevatedButton(

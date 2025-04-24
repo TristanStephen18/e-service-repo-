@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_chainsaw_reg.dart';
+import 'package:denr_car_e_service_app/screens/Lumber/add_lumber.dart';
+
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_plantation.dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_transport.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_governmet.dart';
@@ -250,6 +252,14 @@ class _DisplayState extends State<Display> {
                     (context) => AddPlantationRegistrationScreen(
                       applicationId: widget.applicationId,
                     ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("LR-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddLumber(applicationId: widget.applicationId),
               ),
             );
           } else {

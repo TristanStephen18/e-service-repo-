@@ -8,13 +8,13 @@ import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/register.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
 class Login extends StatefulWidget {
-  final String token;
-  const Login({super.key, required this.token});
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -76,6 +76,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
 
   void _login() async {
     bool hasInternet = await _hasInternet();
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
 
     if (!hasInternet) {
       showDialog(
@@ -124,10 +125,17 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
         String userID = user!.uid;
         _userID = userID;
 
-        await FirebaseFirestore.instance
+        DocumentReference userDoc = FirebaseFirestore.instance
             .collection('mobile_users')
-            .doc(userID)
-            .update({'status': 'online', 'token': widget.token});
+            .doc(userID);
+
+        // 🔄 Update status and token ONLY if fcmToken is available
+        Map<String, dynamic> updateData = {'status': 'online'};
+        if (fcmToken != null && fcmToken.isNotEmpty) {
+          updateData['token'] = fcmToken;
+        }
+
+        await userDoc.update(updateData);
 
         Navigator.pop(context);
 
@@ -160,7 +168,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
           },
         );
       } catch (e) {
-        Navigator.pop(context);
+        Navigator.pop(context); // Dismiss loading dialog
         showDialog(
           context: context,
           builder: (BuildContext context) {
@@ -358,8 +366,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder:
-                                  (ctx) => RegisterScreen(token: widget.token),
+                              builder: (ctx) => RegisterScreen(),
                             ),
                           );
                         },

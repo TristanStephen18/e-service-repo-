@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart'; // Import the responsive model
 
 class Onboarding extends StatefulWidget {
-  final String token;
-  const Onboarding({super.key, required this.token});
+  const Onboarding({super.key});
 
   @override
   State<Onboarding> createState() => _OnboardingState();
@@ -42,9 +41,9 @@ class _OnboardingState extends State<Onboarding> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (ctx) => Login(token: widget.token)),
-              );
+              Navigator.of(
+                context,
+              ).push(MaterialPageRoute(builder: (ctx) => Login()));
             },
             child: Text(
               "Skip",

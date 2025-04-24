@@ -12,7 +12,7 @@
        android:enableOnBackInvokedCallback="true"
     
       android:requestLegacyExternalStorage="true"
-        android:label="DENR-CAR E-SERVICES"
+        android:label="DENR-CENRO E-SERVICES"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
 

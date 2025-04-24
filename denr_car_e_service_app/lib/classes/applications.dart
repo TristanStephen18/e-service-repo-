@@ -20,8 +20,10 @@ class _ApplicationsState extends State<Applications> {
     'CH': 'Chainsaw',
     'TP': 'Transport',
     'WR': 'Wildlife',
-    'PTP': 'Private Tree Plantation',
+    'PTP': 'Private Tree',
     'TC': 'Tree Cutting',
+    'LR': 'Lumber',
+    'RP': 'Resaw',
   };
 
   Future<List<QueryDocumentSnapshot>> fetchUserApplications() async {
@@ -40,7 +42,6 @@ class _ApplicationsState extends State<Applications> {
 
   @override
   Widget build(BuildContext context) {
-    // Initialize Responsive class
     Responsive.init(context);
 
     return SafeArea(
@@ -155,6 +156,10 @@ class _ApplicationsState extends State<Applications> {
                         title = 'Wildlife - ${data['type']}';
                       } else if (prefix == 'PTP') {
                         title = 'Private Tree Plantation';
+                      } else if (prefix == 'LR') {
+                        title = 'Lumber Registration';
+                      } else if (prefix == 'RP') {
+                        title = 'Resaw Permit';
                       } else if (prefix == 'TC') {
                         title = 'Tree Cutting - ${data['type']}';
                       } else if (prefix == 'TP') {
@@ -179,6 +184,12 @@ class _ApplicationsState extends State<Applications> {
                         iconColor = Colors.green;
                       } else if (prefix == 'PTP') {
                         leadingIcon = Icons.grass;
+                        iconColor = Colors.green;
+                      } else if (prefix == 'LR') {
+                        leadingIcon = Icons.park;
+                        iconColor = Colors.green;
+                      } else if (prefix == 'RP') {
+                        leadingIcon = Icons.carpenter;
                         iconColor = Colors.green;
                       } else if (prefix == 'TC') {
                         leadingIcon = Icons.forest;

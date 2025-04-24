@@ -14,17 +14,18 @@ class InspectionDateScreen extends StatefulWidget {
 }
 
 class _InspectionDateScreenState extends State<InspectionDateScreen> {
-  DateTime? inspectionDate;
+  List<DateTime> inspectionDates = [];
+  DateTime? submissionDate;
   bool isLoading = true;
   bool hasNoInspection = false;
 
   @override
   void initState() {
     super.initState();
-    _loadInspectionDate();
+    _loadApplicationData();
   }
 
-  Future<void> _loadInspectionDate() async {
+  Future<void> _loadApplicationData() async {
     try {
       User? user = FirebaseAuth.instance.currentUser;
       var snapshot =
@@ -37,15 +38,16 @@ class _InspectionDateScreenState extends State<InspectionDateScreen> {
 
       if (snapshot.exists) {
         var data = snapshot.data();
-        if (data != null && data.containsKey('inspection')) {
-          Timestamp timestamp = data['inspection'];
+        if (data != null) {
+          List<dynamic> inspectionTimestamps = data['inspection_dates'] ?? [];
+          submissionDate = (data['submission_date'] as Timestamp?)?.toDate();
+
           setState(() {
-            inspectionDate = timestamp.toDate();
-            isLoading = false;
-          });
-        } else {
-          setState(() {
-            hasNoInspection = true;
+            inspectionDates =
+                inspectionTimestamps
+                    .map((ts) => (ts as Timestamp).toDate())
+                    .toList();
+            hasNoInspection = inspectionDates.isEmpty;
             isLoading = false;
           });
         }
@@ -81,12 +83,60 @@ class _InspectionDateScreenState extends State<InspectionDateScreen> {
     );
   }
 
+  void _showPopupSubmission(BuildContext context, DateTime selectedDate) {
+    final formatted = DateFormat.yMMMMd().format(selectedDate);
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: const Text("Submission Date"),
+            content: Text("You Submit your requirements on:\n$formatted"),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(),
+                child: const Text("OK"),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 20),
+      child: Wrap(
+        spacing: 16,
+        runSpacing: 10,
+        children: [
+          _legendItem(Colors.green, "Inspection Date"),
+          _legendItem(Colors.orange, "Submission Date"),
+          _legendItem(Colors.blue, "Today"),
+        ],
+      ),
+    );
+  }
+
+  Widget _legendItem(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 15,
+          height: 15,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(label, style: const TextStyle(fontSize: 14)),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Inspection Date',
+          'Activity Date',
           style: TextStyle(color: Colors.white),
         ),
         leading: const BackButton(color: Colors.white),
@@ -99,39 +149,95 @@ class _InspectionDateScreenState extends State<InspectionDateScreen> {
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
                 ),
               )
-              : hasNoInspection
+              : hasNoInspection && submissionDate == null
               ? const Center(
                 child: Text(
-                  'No Inspection Date!',
+                  'No Inspection or Submission Data!',
                   style: TextStyle(fontSize: 18, color: Colors.black54),
                 ),
               )
               : Column(
                 children: [
+                  _buildLegend(),
                   TableCalendar(
-                    focusedDay: inspectionDate!,
+                    focusedDay:
+                        inspectionDates.isNotEmpty
+                            ? inspectionDates[0]
+                            : DateTime.now(),
                     firstDay: DateTime.utc(2020, 01, 01),
                     lastDay: DateTime.utc(2030, 12, 31),
                     selectedDayPredicate: (day) {
-                      return isSameDay(inspectionDate, day);
+                      return inspectionDates.any((d) => isSameDay(d, day));
                     },
                     onDaySelected: (selectedDay, focusedDay) {
-                      if (isSameDay(selectedDay, inspectionDate)) {
+                      if (inspectionDates.any(
+                        (d) => isSameDay(d, selectedDay),
+                      )) {
                         _showPopup(context, selectedDay);
+                      } else if (submissionDate != null &&
+                          isSameDay(submissionDate!, selectedDay)) {
+                        _showPopupSubmission(context, selectedDay);
                       }
                     },
-                    calendarStyle: CalendarStyle(
-                      todayDecoration: const BoxDecoration(
+
+                    calendarStyle: const CalendarStyle(
+                      todayDecoration: BoxDecoration(
                         color: Colors.blue,
                         shape: BoxShape.circle,
                       ),
-                      selectedDecoration: const BoxDecoration(
-                        color: Colors.green,
-                        shape: BoxShape.circle,
-                      ),
-                      todayTextStyle: const TextStyle(color: Colors.white),
-                      selectedTextStyle: const TextStyle(color: Colors.white),
+                      todayTextStyle: TextStyle(color: Colors.white),
                     ),
+                    calendarBuilders: CalendarBuilders(
+                      defaultBuilder: (context, day, _) {
+                        final isInspectionDay = inspectionDates.any(
+                          (d) => isSameDay(d, day),
+                        );
+                        final isSubmissionDay =
+                            submissionDate != null &&
+                            isSameDay(submissionDate!, day);
+
+                        if (isInspectionDay) {
+                          return _buildCalendarDay(day, Colors.green);
+                        } else if (isSubmissionDay) {
+                          return _buildCalendarDay(day, Colors.orange);
+                        }
+                        return null;
+                      },
+                      todayBuilder: (context, day, _) {
+                        final isInspectionDay = inspectionDates.any(
+                          (d) => isSameDay(d, day),
+                        );
+                        final isSubmissionDay =
+                            submissionDate != null &&
+                            isSameDay(submissionDate!, day);
+
+                        if (isInspectionDay) {
+                          return _buildCalendarDay(day, Colors.green);
+                        } else if (isSubmissionDay) {
+                          return _buildCalendarDay(day, Colors.orange);
+                        }
+
+                        // If today is neither inspection nor submission, fallback to blue
+                        return _buildCalendarDay(day, Colors.blue);
+                      },
+                      selectedBuilder: (context, day, _) {
+                        final isInspectionDay = inspectionDates.any(
+                          (d) => isSameDay(d, day),
+                        );
+                        final isSubmissionDay =
+                            submissionDate != null &&
+                            isSameDay(submissionDate!, day);
+
+                        if (isInspectionDay) {
+                          return _buildCalendarDay(day, Colors.green);
+                        } else if (isSubmissionDay) {
+                          return _buildCalendarDay(day, Colors.orange);
+                        }
+
+                        return _buildCalendarDay(day, Colors.grey);
+                      },
+                    ),
+
                     headerStyle: const HeaderStyle(
                       formatButtonVisible: false,
                       titleCentered: true,
@@ -139,6 +245,21 @@ class _InspectionDateScreenState extends State<InspectionDateScreen> {
                   ),
                 ],
               ),
+    );
+  }
+
+  Widget _buildCalendarDay(DateTime day, Color color) {
+    return Center(
+      child: Container(
+        width: 35,
+        height: 35,
+        decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        alignment: Alignment.center,
+        child: Text(
+          '${day.day}',
+          style: const TextStyle(color: Colors.white, fontSize: 14),
+        ),
+      ),
     );
   }
 }

@@ -4,12 +4,12 @@ import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class RegisterScreen extends StatefulWidget {
-  final String token;
-  const RegisterScreen({super.key, required this.token});
+  const RegisterScreen({super.key});
 
   @override
   State<RegisterScreen> createState() => _RegisterScreenState();
@@ -32,10 +32,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     setState(() {
       _obscurePassword = !_obscurePassword;
     });
-    print('Pass Token: ${widget.token}');
   }
 
   void _register() async {
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+
     if (_formKey.currentState!.validate()) {
       try {
         showDialog(
@@ -63,7 +64,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
               'contact': contact.text.trim(),
               'email': email.text.trim(),
               'photo': ProfileDefault.photo,
-              'token': widget.token,
+              'token': fcmToken,
             });
 
         Navigator.pop(context);
@@ -82,13 +83,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 content: const Text('User successfully registered!'),
                 actions: [
                   TextButton(
-                    onPressed: () {
+                    onPressed: () async {
+                      await FirebaseMessaging.instance.deleteToken();
+                      await FirebaseAuth.instance.signOut();
+
                       Navigator.pop(context);
                       Navigator.pushReplacement(
                         context,
-                        CupertinoPageRoute(
-                          builder: (_) => const Login(token: ''),
-                        ),
+                        CupertinoPageRoute(builder: (_) => Login()),
                       );
                     },
                     child: const Text(

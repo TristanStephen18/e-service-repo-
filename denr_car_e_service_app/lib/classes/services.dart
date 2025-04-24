@@ -1,4 +1,6 @@
+import 'package:denr_car_e_service_app/screens/Lumber/lumber_registration.dart';
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_registration.dart';
+import 'package:denr_car_e_service_app/screens/Resaw/resaw_permit.dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/transport_type.dart';
 
 import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_type.dart';
@@ -19,109 +21,144 @@ class Services extends StatelessWidget {
     Responsive.init(context);
 
     return SafeArea(
-      child: SingleChildScrollView(
-        child: Center(
-          child: Padding(
-            padding: EdgeInsets.all(Responsive.getWidthScale(16)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Container(
-                      decoration: const BoxDecoration(shape: BoxShape.circle),
-                      child: const CircleAvatar(
-                        radius: 24,
-                        backgroundImage: ExactAssetImage('lib/images/logo.png'),
-                      ),
-                    ),
-                    SizedBox(width: Responsive.getWidthScale(12)),
-                    const Text(
-                      'DENR-CENRO',
-                      style: TextStyle(
-                        fontSize: 23,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                Gap(Responsive.getHeightScale(15)),
-                Center(
-                  child: Text(
-                    'Services',
-                    style: TextStyle(
-                      fontSize: Responsive.getTextScale(22), // Scaled text size
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue,
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.all(Responsive.getWidthScale(16)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    decoration: const BoxDecoration(shape: BoxShape.circle),
+                    child: const CircleAvatar(
+                      radius: 24,
+                      backgroundImage: ExactAssetImage('lib/images/logo.png'),
                     ),
                   ),
+                  SizedBox(width: Responsive.getWidthScale(12)),
+                  const Text(
+                    'DENR-CENRO',
+                    style: TextStyle(
+                      fontSize: 23,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
+                ],
+              ),
+              Gap(Responsive.getHeightScale(15)),
+              Center(
+                child: Text(
+                  'Services',
+                  style: TextStyle(
+                    fontSize: Responsive.getTextScale(22), // Scaled text size
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
                 ),
-                Gap(Responsive.getHeightScale(15)),
+              ),
+              Gap(Responsive.getHeightScale(15)),
 
-                // Use the responsive method for consistent spacing and scaling
-                _buildServiceTile(
-                  context,
-                  icon: Icons.carpenter,
-                  title: "Chainsaw",
-                  subtitle: "Apply Now!",
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (ctx) => ChainsawRegistrationScreen(),
-                        ),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Use the responsive method for consistent spacing and scaling
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.carpenter,
+                        title: "Chainsaw",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => ChainsawRegistrationScreen(),
+                              ),
+                            ),
                       ),
-                ),
 
-                _buildServiceTile(
-                  context,
-                  icon: Icons.forest,
-                  title: "Tree Cutting",
-                  subtitle: "Apply Now!",
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (ctx) => TreeCuttingChoices(),
-                        ),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.forest,
+                        title: "Tree Cutting",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => TreeCuttingChoices(),
+                              ),
+                            ),
                       ),
-                ),
 
-                _buildServiceTile(
-                  context,
-                  icon: Icons.car_crash,
-                  title: "Transport",
-                  subtitle: "Apply Now!",
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (ctx) => TransportType()),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.car_crash,
+                        title: "Transport",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => TransportType(),
+                              ),
+                            ),
                       ),
-                ),
 
-                _buildServiceTile(
-                  context,
-                  icon: Icons.grass,
-                  title: "Private Tree Plantation Registration",
-                  subtitle: "Apply Now!",
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoPageRoute(
-                          builder: (ctx) => PlantationRegistrationScreen(),
-                        ),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.grass,
+                        title: "Private Tree Plantation Registration",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder:
+                                    (ctx) => PlantationRegistrationScreen(),
+                              ),
+                            ),
                       ),
-                ),
 
-                _buildServiceTile(
-                  context,
-                  icon: Icons.pets,
-                  title: "Wildlife",
-                  subtitle: "Apply Now!",
-                  onTap:
-                      () => Navigator.of(context).push(
-                        CupertinoPageRoute(builder: (ctx) => WildlifeType()),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.pets,
+                        title: "Wildlife",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => WildlifeType(),
+                              ),
+                            ),
                       ),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.park,
+                        title: "Certificate of Lumber Registration",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => LumberRegistration(),
+                              ),
+                            ),
+                      ),
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.carpenter,
+                        title: "Issuance of Resaw Permit",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(
+                                builder: (ctx) => ResawPermit(),
+                              ),
+                            ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

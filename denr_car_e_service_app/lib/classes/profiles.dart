@@ -9,6 +9,7 @@ import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -184,6 +185,7 @@ class _ProfilesState extends State<Profiles> {
                       context,
                     );
                     if (shouldLogout) {
+                      await FirebaseMessaging.instance.deleteToken();
                       await FirebaseAuth.instance.signOut();
                       _showLogoutSuccessDialog(context);
                     }
@@ -262,7 +264,7 @@ class _ProfilesState extends State<Profiles> {
               onPressed: () {
                 Navigator.pushReplacement(
                   context,
-                  MaterialPageRoute(builder: (context) => Login(token: '')),
+                  MaterialPageRoute(builder: (context) => Login()),
                 );
               },
               child: Text('OK'),
