@@ -80,7 +80,7 @@ class _ResawPermitState extends State<ResawPermit> {
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('resaw_permit')
+            .collection('resaw')
             .orderBy('uploadedAt', descending: true) // Get latest uploads first
             .limit(1) // Only check the latest document
             .get();
@@ -142,17 +142,14 @@ class _ResawPermitState extends State<ResawPermit> {
       String documentId = await _generateDocumentId();
 
       // Set root metadata
-      await FirebaseFirestore.instance
-          .collection('resaw_permit')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'client': clientName,
-            'address': clientAddress,
-            'status': 'Pending',
-            'current_location': 'RPU - For Evaluation',
-          });
+      await FirebaseFirestore.instance.collection('resaw').doc(documentId).set({
+        'uploadedAt': Timestamp.now(),
+        'userID': FirebaseAuth.instance.currentUser!.uid,
+        'client': clientName,
+        'address': clientAddress,
+        'status': 'Pending',
+        'current_location': 'RPU - For Evaluation',
+      });
 
       // Upload each file
       for (var entry in files.entries) {
@@ -198,7 +195,7 @@ class _ResawPermitState extends State<ResawPermit> {
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('resaw_permit')
+            .collection('resaw')
             .doc(documentId)
             .collection('requirements')
             .doc(label)

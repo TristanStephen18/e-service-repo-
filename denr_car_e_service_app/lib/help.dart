@@ -33,7 +33,7 @@ class HelpScreen extends StatelessWidget {
         "title": "How to Change Password",
         "icon": Icons.key,
         "content": """
-1. On the Profiles screen, tap on 'Change Password'
+1. On the Profile screen, tap on 'Change Password'
 2. Enter old password then new password.
 3. Tap Update Password.
 

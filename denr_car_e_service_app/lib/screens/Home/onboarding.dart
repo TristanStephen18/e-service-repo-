@@ -1,7 +1,6 @@
-import 'dart:core';
-import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:flutter/material.dart';
-import 'package:denr_car_e_service_app/model/responsive.dart'; // Import the responsive model
+import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 
 class Onboarding extends StatefulWidget {
   const Onboarding({super.key});
@@ -16,13 +15,38 @@ class _OnboardingState extends State<Onboarding> {
 
   final List<String> _imagePaths = [
     'lib/images/logo.png',
-    'lib/images/logo.png',
+    'lib/images/register.png',
+    'lib/images/login.png',
+    'lib/images/services.png',
+    'lib/images/type.png',
+    'lib/images/applications.png',
+    'lib/images/options.png',
+    'lib/images/chat.png',
+    'lib/images/profile.png',
   ];
 
-  final List<String> _titles = ['DENR-CENRO E-SERVICES', 'SAMPLE'];
+  final List<String> _titles = [
+    'DENR-CENRO E-SERVICES',
+    'Create Account',
+    'Login',
+    'Available Services',
+    'Select Service Type',
+    'My Applications',
+    'Application Options',
+    'Chat Support',
+    'User Profile',
+  ];
+
   final List<String> _descriptions = [
-    'E-Services on permitting',
-    'Easy to use',
+    'Access online permitting and other DENR-CENRO services.',
+    'Register an account to start using the app.',
+    'Log in with your registered account.',
+    'Browse and choose from available services.',
+    'Choose the type of service you want to apply for.',
+    'View your submitted applications.',
+    'Manage and track your application details.',
+    'Chat with an administrator for faster support.',
+    'View and update your profile information.',
   ];
 
   void _onPageChanged(int index) {
@@ -31,76 +55,121 @@ class _OnboardingState extends State<Onboarding> {
     });
   }
 
+  void _skipToLogin() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (ctx) => const Login()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Initialize responsive settings
     Responsive.init(context);
 
     return Scaffold(
-      appBar: AppBar(
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(
-                context,
-              ).push(MaterialPageRoute(builder: (ctx) => Login()));
-            },
-            child: Text(
-              "Skip",
-              style: TextStyle(
-                fontSize: Responsive.getTextScale(15),
-                color: Colors.green,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Stack(
-        children: <Widget>[
-          PageView.builder(
-            controller: _pageController,
-            onPageChanged: _onPageChanged,
-            itemCount: _titles.length,
-            itemBuilder: (context, index) {
-              return OnboardingPage(
-                imagePath: _imagePaths[index],
-                title: _titles[index],
-                description: _descriptions[index],
-              );
-            },
-          ),
-          Positioned(
-            bottom: Responsive.getHeightScale(15),
-            left: 0,
-            right: 0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: _buildPageIndicator(),
-            ),
-          ),
-        ],
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                PageView.builder(
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: _titles.length,
+                  itemBuilder: (context, index) {
+                    return OnboardingPage(
+                      imagePath: _imagePaths[index],
+                      title: _titles[index],
+                      description: _descriptions[index],
+                      index: index,
+                    );
+                  },
+                ),
+                Positioned(
+                  top: Responsive.getHeightScale(5),
+                  right: Responsive.getWidthScale(10),
+                  child: TextButton(
+                    onPressed: _skipToLogin,
+                    child: Text(
+                      "Skip",
+                      style: TextStyle(
+                        color: Colors.green,
+                        fontSize: Responsive.getTextScale(16),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: Responsive.getHeightScale(70),
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: _buildPageIndicator(),
+                  ),
+                ),
+                Positioned(
+                  bottom: Responsive.getHeightScale(15),
+                  left: Responsive.getWidthScale(60),
+                  right: Responsive.getWidthScale(60),
+                  child: SizedBox(
+                    height: Responsive.getHeightScale(40),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_currentPage == _titles.length - 1) {
+                          _skipToLogin();
+                        } else {
+                          _pageController.nextPage(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                          );
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        _currentPage == _titles.length - 1
+                            ? 'Get Started'
+                            : 'Next',
+                        style: TextStyle(
+                          fontSize: Responsive.getTextScale(16),
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
 
   List<Widget> _buildPageIndicator() {
-    List<Widget> list = [];
-    for (int i = 0; i < _titles.length; i++) {
-      list.add(i == _currentPage ? _indicator(true) : _indicator(false));
-    }
-    return list;
-  }
-
-  Widget _indicator(bool isActive) {
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(8.0)),
-      height: Responsive.getHeightScale(8.0),
-      width: Responsive.getWidthScale(8.0),
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        color: isActive ? Colors.green : Colors.grey,
-      ),
-    );
+    return List<Widget>.generate(_titles.length, (i) {
+      return AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        margin: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(6)),
+        height: Responsive.getHeightScale(8),
+        width:
+            _currentPage == i
+                ? Responsive.getWidthScale(20)
+                : Responsive.getWidthScale(8),
+        decoration: BoxDecoration(
+          color: _currentPage == i ? Colors.green : Colors.grey.shade400,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      );
+    });
   }
 }
 
@@ -108,49 +177,47 @@ class OnboardingPage extends StatelessWidget {
   final String imagePath;
   final String title;
   final String description;
+  final int index;
 
   const OnboardingPage({
     super.key,
     required this.imagePath,
     required this.title,
     required this.description,
+    required this.index,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Initialize responsive settings
     Responsive.init(context);
 
-    return Center(
+    final screenHeight = MediaQuery.of(context).size.height;
+
+    double imageHeight = index == 0 ? screenHeight * 0.30 : screenHeight * 0.45;
+
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(24)),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          Image.asset(
-            imagePath,
-            height: Responsive.getHeightScale(200), // Responsive image height
-          ),
-          SizedBox(height: Responsive.getHeightScale(25.0)),
+        children: [
+          Image.asset(imagePath, height: imageHeight),
+          SizedBox(height: Responsive.getHeightScale(20)),
           Text(
             title,
             style: TextStyle(
-              fontSize: Responsive.getTextScale(
-                20.0,
-              ), // Responsive title font size
+              fontSize: Responsive.getTextScale(20),
               fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
+            textAlign: TextAlign.center,
           ),
-          SizedBox(height: Responsive.getHeightScale(10.0)),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: Responsive.getWidthScale(30.0),
-            ),
-            child: Text(
-              description,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: Responsive.getTextScale(15.0), // Responsive text size
-              ),
+          SizedBox(height: Responsive.getHeightScale(5)),
+          Text(
+            description,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: Responsive.getTextScale(13),
+              color: Colors.grey.shade700,
             ),
           ),
         ],

@@ -396,6 +396,18 @@ class _WildlifeFarmScreenState extends State<WildlifeFarmScreen> {
                   (file) => setState(() => paymentFee = file),
                 ),
 
+                const Text(
+                  'Fees to be paid at the Regional Office',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black, // Optional: define a text color
+                  ),
+                  textAlign:
+                      TextAlign.center, // Optional: center-align the text
+                ),
+                const SizedBox(height: 20),
+
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
