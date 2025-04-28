@@ -271,48 +271,78 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && chainsawReciept != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': dulyAccomplishForm!,
-        'Reciept of Chainsaw Purchase': chainsawReciept!,
-      };
+    if (dulyAccomplishForm != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': dulyAccomplishForm!,
+          'Reciept of Chainsaw Purchase': chainsawReciept!,
+        };
 
-      if (spa != null) {
-        filesToUpload['SPA'] = spa!;
-      }
-      if (chainsawSpec != null) {
-        filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
-      }
-      if (deedofSale != null) {
-        filesToUpload['Deed of Sale'] = deedofSale!;
-      }
-      if (regChainsaw != null) {
-        filesToUpload['Chainsaw Registration'] = regChainsaw!;
-      }
-      if (forestTenure != null) {
-        filesToUpload['Forest Tenure Agreement'] = forestTenure!;
-      }
-      if (businessPermit != null) {
-        filesToUpload['Business Permit'] = businessPermit!;
-      }
-      if (certRegistration != null) {
-        filesToUpload['Certificate of Registration'] = certRegistration!;
-      }
-      if (permitAffidavit != null) {
-        filesToUpload['Affidavit or Permit from LGU'] = permitAffidavit!;
-      }
-      if (plantPermit != null) {
-        filesToUpload['Plant Permit'] = plantPermit!;
-      }
-      if (headOffice != null) {
-        filesToUpload['Certification of Head Office'] = headOffice!;
-      }
-      if (certChainsawReg != null) {
-        filesToUpload['Certificate of Chainsaw Registration'] =
-            certChainsawReg!;
-      }
+        if (spa != null) {
+          filesToUpload['SPA'] = spa!;
+        }
+        if (chainsawSpec != null) {
+          filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
+        }
+        if (deedofSale != null) {
+          filesToUpload['Deed of Sale'] = deedofSale!;
+        }
+        if (regChainsaw != null) {
+          filesToUpload['Chainsaw Registration'] = regChainsaw!;
+        }
+        if (forestTenure != null) {
+          filesToUpload['Forest Tenure Agreement'] = forestTenure!;
+        }
+        if (businessPermit != null) {
+          filesToUpload['Business Permit'] = businessPermit!;
+        }
+        if (certRegistration != null) {
+          filesToUpload['Certificate of Registration'] = certRegistration!;
+        }
+        if (permitAffidavit != null) {
+          filesToUpload['Affidavit or Permit from LGU'] = permitAffidavit!;
+        }
+        if (plantPermit != null) {
+          filesToUpload['Plant Permit'] = plantPermit!;
+        }
+        if (headOffice != null) {
+          filesToUpload['Certification of Head Office'] = headOffice!;
+        }
+        if (certChainsawReg != null) {
+          filesToUpload['Certificate of Chainsaw Registration'] =
+              certChainsawReg!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

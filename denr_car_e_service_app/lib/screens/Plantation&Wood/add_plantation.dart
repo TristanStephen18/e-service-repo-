@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'dart:convert';
 import 'dart:io';
@@ -11,7 +11,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class AddPlantationRegistrationScreen extends StatefulWidget {
-  final String applicationId; // ID of existing application
+  final String applicationId;
 
   const AddPlantationRegistrationScreen({
     super.key,
@@ -19,16 +19,41 @@ class AddPlantationRegistrationScreen extends StatefulWidget {
   });
 
   @override
-  State<AddPlantationRegistrationScreen> createState() =>
+  _AddPlantationRegistrationScreenState createState() =>
       _AddPlantationRegistrationScreenState();
 }
 
 class _AddPlantationRegistrationScreenState
     extends State<AddPlantationRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
-
+  File? letterApplication;
+  File? oct;
   File? spa;
-  File? others;
+  File? numberSeed;
+
+  Set<String> uploadedLabels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUploadedFiles();
+  }
+
+  Future<void> _loadUploadedFiles() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference applicationRef = FirebaseFirestore.instance
+        .collection('mobile_users')
+        .doc(userId)
+        .collection('applications')
+        .doc(widget.applicationId);
+
+    QuerySnapshot existingFiles =
+        await applicationRef.collection('requirements').get();
+
+    setState(() {
+      uploadedLabels = existingFiles.docs.map((doc) => doc.id).toSet();
+    });
+  }
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -41,7 +66,6 @@ class _AddPlantationRegistrationScreenState
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -66,7 +90,6 @@ class _AddPlantationRegistrationScreenState
     }
   }
 
-  // Convert file to Base64
   Future<String> _convertFileToBase64(File file) async {
     try {
       List<int> fileBytes = await file.readAsBytes();
@@ -97,7 +120,7 @@ class _AddPlantationRegistrationScreenState
 
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      String documentId = widget.applicationId; // Use provided application ID
+      String documentId = widget.applicationId;
 
       DocumentReference applicationRef = FirebaseFirestore.instance
           .collection('mobile_users')
@@ -108,8 +131,10 @@ class _AddPlantationRegistrationScreenState
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
+        'Letter of Application': 'Letter of Application',
+        'OCT or TCT': 'OCT or TCT',
         'SPA': 'SPA',
-        'others': 'Others',
+        'Number of Seed': 'Number of Seed',
       };
 
       if (!applicationSnapshot.exists) {
@@ -133,14 +158,6 @@ class _AddPlantationRegistrationScreenState
           'file': base64File,
           'uploadedAt': Timestamp.now(),
         });
-      }
-
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('plantation')
@@ -173,7 +190,7 @@ class _AddPlantationRegistrationScreenState
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     CupertinoPageRoute(
                       builder: (ctx) => Homepage(userid: userId),
                     ),
@@ -193,13 +210,22 @@ class _AddPlantationRegistrationScreenState
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
-    if (spa != null && others != null) {
-      Map<String, File> filesToUpload = {'SPA': spa!, 'Others': others!};
+    Map<String, File> filesToUpload = {};
+    if (oct != null) {
+      filesToUpload['OCT or TCT'] = oct!;
+    }
+    if (letterApplication != null) {
+      filesToUpload['Letter of Application'] = letterApplication!;
+    }
+    if (spa != null) {
+      filesToUpload['SPA'] = spa!;
+    }
+    if (numberSeed != null) {
+      filesToUpload['Number of Seed'] = numberSeed!;
+    }
 
-      await _uploadFiles(filesToUpload);
-    } else {
+    if (filesToUpload.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -209,18 +235,45 @@ class _AddPlantationRegistrationScreenState
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -264,51 +317,86 @@ class _AddPlantationRegistrationScreenState
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Additional Requirements',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildFilePicker(
-                  '1. Special Power of Attorney (SPA) (1 original)',
-                  spa,
-                  (file) => setState(() => spa = file),
-                ),
-                _buildFilePicker(
-                  '2. Others',
-                  others,
-                  (file) => setState(() => others = file),
-                ),
-
-                const SizedBox(height: 32),
-
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 12,
+            child:
+                uploadedLabels.containsAll([
+                      'Letter of Application',
+                      'OCT or TCT',
+                      'SPA',
+                      'Number of Seed',
+                    ])
+                    ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 200),
+                        child: Text(
+                          "All documents have been successfully uploaded.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green,
+                          ),
+                        ),
                       ),
-                    ),
-                    onPressed: _submitFiles,
+                    )
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Additional Requirements',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                        if (!uploadedLabels.contains('Letter of Application'))
+                          _buildFilePicker(
+                            '1. Letter of Application;',
+                            letterApplication,
+                            (file) => setState(() => letterApplication = file),
+                          ),
+
+                        if (!uploadedLabels.contains('OCT or TCT'))
+                          _buildFilePicker(
+                            '2. OCT, TCT, Judicial Title, CLOA, Tac Declared Alienable and Disposable Lands (1 certified true copy) ',
+                            oct,
+                            (file) => setState(() => oct = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Number of Seed'))
+                          _buildFilePicker(
+                            '3. Data on the number of seedlings planted, species and area planted',
+                            numberSeed,
+                            (file) => setState(() => numberSeed = file),
+                          ),
+                        if (!uploadedLabels.contains('SPA'))
+                          _buildFilePicker(
+                            '4. Special Power of Attorney (SPA) (1 original)',
+                            spa,
+                            (file) => setState(() => spa = file),
+                          ),
+
+                        const SizedBox(height: 15),
+
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 80,
+                                vertical: 12,
+                              ),
+                            ),
+                            onPressed: _submitFiles,
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

@@ -273,24 +273,58 @@ class _LtpFaunaState extends State<LtpFauna> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && intentLetter != null) {
-      Map<String, File> filesToUpload = {
-        'Application Form': dulyAccomplishForm!,
-        'Letter of Intent': intentLetter!,
-      };
+    if (dulyAccomplishForm != null &&
+        intentLetter != null &&
+        legalPossession != null &&
+        inspection != null &&
+        quarantineCert != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Application Form': dulyAccomplishForm!,
+          'Letter of Intent': intentLetter!,
+        };
 
-      if (legalPossession != null) {
-        filesToUpload['Legal Possession'] = legalPossession!;
-      }
-      if (inspection != null) {
-        filesToUpload['Inspection'] = inspection!;
-      }
+        if (legalPossession != null) {
+          filesToUpload['Legal Possession'] = legalPossession!;
+        }
+        if (inspection != null) {
+          filesToUpload['Inspection'] = inspection!;
+        }
 
-      if (quarantineCert != null) {
-        filesToUpload['Qurantine Certificate'] = quarantineCert!;
-      }
+        if (quarantineCert != null) {
+          filesToUpload['Qurantine Certificate'] = quarantineCert!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,
@@ -408,11 +442,6 @@ class _LtpFaunaState extends State<LtpFauna> {
                   '4. Veterinary Quarantine Certificate issued by Department of Agriculture Officer;',
                   quarantineCert,
                   (file) => setState(() => quarantineCert = file),
-                ),
-                _buildFilePicker(
-                  '5. Inspection / Verification of Wildlife by CENRO nearest place of collection using inspection report form;',
-                  inspection,
-                  (file) => setState(() => inspection = file),
                 ),
                 _buildFilePicker(
                   '5. Inspection / Verification of Wildlife by CENRO nearest place of collection using inspection report form;',

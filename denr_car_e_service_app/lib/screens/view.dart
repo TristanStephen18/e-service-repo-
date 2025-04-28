@@ -2,13 +2,21 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_chainsaw_reg.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/add_permit_to_purchase.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/add_permit_to_sell.dart';
 import 'package:denr_car_e_service_app/screens/Lumber/add_lumber.dart';
 
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_plantation.dart';
+import 'package:denr_car_e_service_app/screens/Resaw/add_resaw.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/add_ltp(Fauna).dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/add_ltp(Flora).dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_transport.dart';
+
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_governmet.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_pltp.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_public.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/add_farm.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/add_registration.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
@@ -202,7 +210,29 @@ class _DisplayState extends State<Display> {
                         AddChainsawReg(applicationId: widget.applicationId),
               ),
             );
-          } else if (widget.applicationId.startsWith("TP-")) {
+          } else if (widget.applicationId.startsWith("CH-") &&
+              applicationType == 'Permit To Sell') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddPermitToSell(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("CH-") &&
+              applicationType == 'Permit To Purchase') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddPermitToPurchase(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TP-") &&
+              applicationType == 'Forest Product') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -210,6 +240,26 @@ class _DisplayState extends State<Display> {
                     (context) => AddForestRequirementsForm(
                       applicationId: widget.applicationId,
                     ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TP-") &&
+              applicationType == 'LTP(Fauna)') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddLTPFauna(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TP-") &&
+              applicationType == 'LTP(Flora)') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddLTPFlora(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("TC-") &&
@@ -260,6 +310,33 @@ class _DisplayState extends State<Display> {
               MaterialPageRoute(
                 builder:
                     (context) => AddLumber(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("WR-") &&
+              applicationType == 'Wildlife Farm Permit') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddFarm(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("WR-") &&
+              applicationType == 'Wildlife Registration') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddRegistration(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("RP-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddResaw(applicationId: widget.applicationId),
               ),
             );
           } else {

@@ -10,26 +10,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddPublicSafetyScreen extends StatefulWidget {
+class AddResaw extends StatefulWidget {
   final String applicationId;
 
-  const AddPublicSafetyScreen({super.key, required this.applicationId});
+  const AddResaw({super.key, required this.applicationId});
 
   @override
-  _AddPublicSafetyScreenState createState() => _AddPublicSafetyScreenState();
+  _AddResawState createState() => _AddResawState();
 }
 
-class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
+class _AddResawState extends State<AddResaw> {
   final _formKey = GlobalKey<FormState>();
-  File? applicationLetter;
-  File? lguEndorsement;
-  File? resolution;
-  File? ptaResolution;
-  File? landTitle;
-  File? pambClearance;
+  File? letterApplication;
+  File? dulyAccomplishForm;
 
-  File? spa;
-  File? photo;
+  File? certificateRegistration;
+  File? birthCertificate;
+  File? environmentalCompliance;
+  File? swornStatement;
+  File? appSLUP;
 
   Set<String> uploadedLabels = {};
 
@@ -131,14 +130,14 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
+        'Letter of Application': 'Letter of Applicaition',
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement/Certification': 'LGU Endorsement/Certification',
-        'Homeowners Resolution': 'Homeowners Resolution',
-        'PTA Resolution': 'PTA Resolution',
-        'Land Title': 'Land Title',
-        'PAMB Clearance': 'PAMB Clearance',
-        'SPA': 'SPA',
-        'Photos of Trees': 'Photos of Trees',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Birth Certificate': 'Birth Certificate',
+
+        'Environmetal Compliance': 'Environmetal Compliance',
+        'Sworn Statement': 'Sworn Statement',
+        'Application for SLUP': 'Application for SLUP',
       };
 
       if (!applicationSnapshot.exists) {
@@ -164,7 +163,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
         });
 
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('resaw')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -216,30 +215,26 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (applicationLetter != null) {
-      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    if (dulyAccomplishForm != null) {
+      filesToUpload['Duly Accomplish Application Form'] = dulyAccomplishForm!;
     }
-    if (lguEndorsement != null) {
-      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    if (letterApplication != null) {
+      filesToUpload['Letter of Application'] = letterApplication!;
     }
-
-    if (resolution != null) {
-      filesToUpload['Homeowners Resolution'] = resolution!;
+    if (certificateRegistration != null) {
+      filesToUpload['Certificate of Registration'] = certificateRegistration!;
     }
-    if (ptaResolution != null) {
-      filesToUpload['PTA Resolution'] = ptaResolution!;
+    if (birthCertificate != null) {
+      filesToUpload['Birth Certificate'] = birthCertificate!;
     }
-    if (landTitle != null) {
-      filesToUpload['Land Title'] = landTitle!;
+    if (environmentalCompliance != null) {
+      filesToUpload['Environmental Compliance'] = environmentalCompliance!;
     }
-    if (pambClearance != null) {
-      filesToUpload['PAMB Clearance'] = pambClearance!;
+    if (swornStatement != null) {
+      filesToUpload['Sworn Statement'] = swornStatement!;
     }
-    if (spa != null) {
-      filesToUpload['SPA'] = spa!;
-    }
-    if (photo != null) {
-      filesToUpload['Photos of Trees'] = photo!;
+    if (appSLUP != null) {
+      filesToUpload['Application for SLUP'] = appSLUP!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -323,7 +318,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Public Safety',
+          'Resaw Permit',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -336,14 +331,14 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
+                      'Letter of Application',
                       'Duly Accomplish Application Form',
-                      'LGU Endorsement/Certification',
-                      'Homeowners Resolution',
-                      'PTA Resolution',
-                      'Land Title',
-                      'PAMB Clearance',
-                      'SPA',
-                      'Photos of Trees',
+                      'Certificate of Registration',
+                      'Birth Certificate',
+
+                      'Environmetal Compliance',
+                      'Sworn Statement',
+                      'Application for SLUP',
                     ])
                     ? const Center(
                       child: Padding(
@@ -371,71 +366,59 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
                         ),
                         const SizedBox(height: 16),
 
+                        if (!uploadedLabels.contains('Letter of Application'))
+                          _buildFilePicker(
+                            '1. Letter of Application;',
+                            letterApplication,
+                            (file) => setState(() => letterApplication = file),
+                          ),
+
                         if (!uploadedLabels.contains(
                           'Duly Accomplish Application Form',
                         ))
                           _buildFilePicker(
-                            '1. Application Letter (1 original Copy)\n'
-                            '\t\t\t Address: Engr. Leandro L. De Jesus\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
-                            applicationLetter,
-                            (file) => setState(() => applicationLetter = file),
+                            '2. Duly accomplished application form by the applicant with notation by hte authorized DENR Collection Officer on the Official Receipt number and the date of payment of the application fee;',
+                            dulyAccomplishForm,
+                            (file) => setState(() => dulyAccomplishForm = file),
                           ),
 
                         if (!uploadedLabels.contains(
-                          'LGU Endorsement or Certification',
+                          'Certificate of Registration',
                         ))
                           _buildFilePicker(
-                            '2. LGU Endorsement / Certification of No Objection / Resolution (1 original) - interposing no objection to the cutting of trees',
-                            lguEndorsement,
-                            (file) => setState(() => lguEndorsement = file),
+                            '3. Certificate of Registration of Articles of Incorporation, partnership or cooperative, as the case may be;',
+                            certificateRegistration,
+                            (file) =>
+                                setState(() => certificateRegistration = file),
                           ),
 
-                        if (!uploadedLabels.contains('Homeowners Resolution'))
+                        if (!uploadedLabels.contains('Birth Certificate'))
                           _buildFilePicker(
-                            '3. Homeowners Resolution (1 original / 1 Certified True Copy), if within Subdivisions;',
-                            resolution,
-                            (file) => setState(() => resolution = file),
+                            '4. Document reflecting filipino citizenship such as Birth Certtificate of Naturalization; (for individual applicant)',
+                            birthCertificate,
+                            (file) => setState(() => birthCertificate = file),
                           ),
-
-                        if (!uploadedLabels.contains('PTA Resolution'))
+                        if (!uploadedLabels.contains(
+                          'Environmental Compliance',
+                        ))
                           _buildFilePicker(
-                            '4. PTA Resolution or Resolution from any organized group of No Objection and reason for Cutting (1 original), if School/Organization;',
-                            ptaResolution,
-                            (file) => setState(() => ptaResolution = file),
+                            '5. Environmental Compliance Certificate or Certificate of Non-Coverage, as the case may be, issued by EMB pursuant to DAO-96-37;',
+                            environmentalCompliance,
+                            (file) =>
+                                setState(() => environmentalCompliance = file),
                           ),
-                        if (!uploadedLabels.contains('Land Title'))
+                        if (!uploadedLabels.contains('Sworn Statement'))
                           _buildFilePicker(
-                            '5. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable, if within private land;',
-                            landTitle,
-                            (file) => setState(() => landTitle = file),
+                            '6. Sworn Statement of the applicant declaring the source wood raw materials, supported by certified documnets such as, but not limited to Supplu Contract, or other appropriate Proof of availability and legitimacy of wood source; and',
+                            swornStatement,
+                            (file) => setState(() => swornStatement = file),
                           ),
-
-                        if (!uploadedLabels.contains('PAMB Clearance'))
+                        if (!uploadedLabels.contains('Application for SLUP'))
                           _buildFilePicker(
-                            '6. Protected Area Management Board (PAMB) Clearance/Certification\n'
-                            '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
-                            '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
-                            '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
-                            '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
-                            pambClearance,
-                            (file) => setState(() => pambClearance = file),
+                            '7. The application of SLUP and Processing plant shall be processed simultaneously. (In case Wood Processing Plant is to be located in/or already located in Public forestland).',
+                            appSLUP,
+                            (file) => setState(() => appSLUP = file),
                           ),
-
-                        if (!uploadedLabels.contains('SPA'))
-                          _buildFilePicker(
-                            '7. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
-                            spa,
-                            (file) => setState(() => spa = file),
-                          ),
-                        if (!uploadedLabels.contains('Photos of Trees'))
-                          _buildFilePicker(
-                            '8. Photos of the trees to be cut',
-                            photo,
-                            (file) => setState(() => photo = file),
-                          ),
-
                         const SizedBox(height: 15),
 
                         Center(

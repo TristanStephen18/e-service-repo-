@@ -155,7 +155,7 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    Navigator.of(context).push(
+                    Navigator.of(context).pushReplacement(
                       CupertinoPageRoute(
                         builder: (ctx) => Homepage(userid: userID),
                       ),

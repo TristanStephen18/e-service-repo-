@@ -268,17 +268,49 @@ class _LtpFloraState extends State<LtpFlora> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (legalPossession != null && intentLetter != null) {
-      Map<String, File> filesToUpload = {
-        'Legal Possession': legalPossession!,
-        'Letter of Intent': intentLetter!,
-      };
+    if (legalPossession != null &&
+        intentLetter != null &&
+        phytosanitaryCert != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Legal Possession': legalPossession!,
+          'Letter of Intent': intentLetter!,
+        };
 
-      if (phytosanitaryCert != null) {
-        filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+        if (phytosanitaryCert != null) {
+          filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+        }
+
+        await _uploadFiles(filesToUpload);
       }
-
-      await _uploadFiles(filesToUpload);
     } else {
       showDialog(
         context: context,

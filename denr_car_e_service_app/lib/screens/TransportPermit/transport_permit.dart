@@ -5,7 +5,6 @@ import 'dart:io';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -18,6 +17,7 @@ class ForestRequirementsForm extends StatefulWidget {
   final String startAddress;
   final String destinationAddress;
   final String polygonName;
+
   const ForestRequirementsForm({
     super.key,
     required this.startAddress,
@@ -58,7 +58,6 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -83,23 +82,17 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
     }
   }
 
-  // Convert file to Base64
   Future<String> _convertFileToBase64(File file) async {
-    try {
-      List<int> fileBytes = await file.readAsBytes();
-      return base64Encode(fileBytes);
-    } catch (e) {
-      throw Exception("Failed to convert file to Base64: $e");
-    }
+    List<int> fileBytes = await file.readAsBytes();
+    return base64Encode(fileBytes);
   }
 
-  // Generate Document ID
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
             .collection('transport_permit')
-            .orderBy('uploadedAt', descending: true) // Get latest uploads first
-            .limit(1) // Only check the latest document
+            .orderBy('uploadedAt', descending: true)
+            .limit(1)
             .get();
 
     int latestNumber = 0;
@@ -113,31 +106,30 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
       }
     }
 
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
+    String today = DateTime.now().toString().split(' ')[0];
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
     return 'TP-$today-$newNumber';
   }
 
-  // Upload all files to Firestore
-  Future<void> _uploadFiles(Map<String, File> files) async {
+  Future<String?> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              ),
-              SizedBox(width: 16),
-              Text('Uploading files...'),
-            ],
+      builder:
+          (_) => const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ),
+                SizedBox(width: 16),
+                Text('Uploading files...'),
+              ],
+            ),
           ),
-        );
-      },
     );
+
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
       DocumentSnapshot userSnapshot =
@@ -159,13 +151,12 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
         'SPA': 'SPA',
       };
 
-      // Set root metadata
       await FirebaseFirestore.instance
           .collection('transport_permit')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
+            'userID': userId,
             'status': 'Pending',
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
@@ -180,19 +171,18 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
               widget.destinationLocation.latitude,
               widget.destinationLocation.longitude,
             ),
+            'type': 'Forest Product',
           });
 
-      // Upload each file
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
-
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .doc(userId)
             .collection('applications')
             .doc(documentId)
             .collection('requirements')
@@ -203,27 +193,6 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
-      }
-
-      await FirebaseFirestore.instance
-          .collection('mobile_users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('applications')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'status': 'Pending',
-            'type': 'Forest Product',
-          });
-
-      // Upload each file
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('transport_permit')
@@ -237,90 +206,134 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
               'uploadedAt': Timestamp.now(),
             });
       }
-      Navigator.of(context).pop();
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Row(
-              children: const [
-                Icon(Icons.check_circle, color: Colors.green),
-                SizedBox(width: 10),
-                Text('Success'),
-              ],
-            ),
-            content: const Text('Application Submitted Successfully!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop(); // Close the dialog
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder:
-                          (ctx) => Homepage(
-                            userid: FirebaseAuth.instance.currentUser!.uid,
-                          ),
-                    ),
-                  );
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      await FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(userId)
+          .collection('applications')
+          .doc(documentId)
+          .set({
+            'uploadedAt': Timestamp.now(),
+            'userID': userId,
+            'status': 'Pending',
+            'type': 'Forest Product',
+          });
+
+      Navigator.of(context).pop(); // close loader
+      return documentId;
     } catch (e) {
+      Navigator.of(context).pop(); // close loader
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error during file upload.')),
       );
+      return null;
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
-    if (_certificationFile != null && _orCrFile != null) {
-      Map<String, File> filesToUpload = {
-        'Certification': _certificationFile!,
-        'OR CR': _orCrFile!,
-      };
+    if (requestLetter != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Confirm Upload'),
+              content: const Text(
+                'Are you sure you want to upload attached files?',
+              ),
+              actions: [
+                TextButton(
+                  child: const Text('Cancel'),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                TextButton(
+                  child: const Text(
+                    'Upload',
+                    style: TextStyle(color: Colors.green),
+                  ),
+                  onPressed: () => Navigator.of(context).pop(true),
+                ),
+              ],
+            ),
+      );
 
-      if (_treeCuttingPermitFile != null) {
-        filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
-      }
-      if (_transportAgreementFile != null) {
-        filesToUpload['Transport Agreement'] = _transportAgreementFile!;
-      }
-      if (_spaFile != null) {
-        filesToUpload['SPA'] = _spaFile!;
-      }
-      if (requestLetter != null) {
-        filesToUpload['Request Letter'] = requestLetter!;
-      }
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {};
 
-      await _uploadFiles(filesToUpload);
+        if (_certificationFile != null) {
+          filesToUpload['Certification'] = _certificationFile!;
+        }
+        if (_orCrFile != null) {
+          filesToUpload['OR CR'] = _orCrFile!;
+        }
+        if (_treeCuttingPermitFile != null) {
+          filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
+        }
+        if (_transportAgreementFile != null) {
+          filesToUpload['Transport Agreement'] = _transportAgreementFile!;
+        }
+        if (_spaFile != null) {
+          filesToUpload['SPA'] = _spaFile!;
+        }
+        if (requestLetter != null) {
+          filesToUpload['Request Letter'] = requestLetter!;
+        }
+
+        String? documentId = await _uploadFiles(filesToUpload);
+
+        if (documentId != null) {
+          showDialog(
+            context: context,
+            builder:
+                (_) => AlertDialog(
+                  title: Row(
+                    children: const [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      SizedBox(width: 10),
+                      Text('Success'),
+                    ],
+                  ),
+                  content: const Text('Application Submitted Successfully!'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        Navigator.of(context).push(
+                          CupertinoPageRoute(
+                            builder:
+                                (_) => Homepage(
+                                  userid:
+                                      FirebaseAuth.instance.currentUser!.uid,
+                                ),
+                          ),
+                        );
+                      },
+                      child: const Text('OK'),
+                    ),
+                  ],
+                ),
+          );
+        }
+      }
     } else {
       showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
-                },
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Missing Files'),
+              content: const Text(
+                'Please attach at least one file before submitting.',
               ),
-            ],
-          );
-        },
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
       );
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -383,7 +396,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
           'Transport Permit',
           style: TextStyle(color: Colors.white),
         ),
-        leading: BackButton(color: Colors.white),
+        leading: const BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
       body: Padding(
@@ -400,27 +413,26 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Request letter indicating the following: (1 original, 1 photocopy)\n'
-                  '\t\t\t\ta. Type of forest product\n'
-                  '\t\t\t\tb. Species\n'
-                  '\t\t\t\tc. Estimated volume/quantity\n'
-                  '\t\t\t\td. Type of conveyance and plate number\n'
-                  '\t\t\t\te. Name and address of the consignee/destination\n'
-                  '\t\t\t\tf. Date of Transport',
+                  '1. Request letter indictating the following: (1 original, 1 photocopy)\n'
+                  '\t a. Type of forest product.\n'
+                  '\t b. Species\n'
+                  '\t c. Estimated volume/quantity\n'
+                  '\t d. Type of conveyance and plate number\n'
+                  '\t e. Name and address of the consignee/destination\n'
+                  '\t f. Date of transport.',
                   requestLetter,
                   (file) => setState(() => requestLetter = file),
                 ),
                 _buildFilePicker(
-                  '2. Certification that the forest products are harvested within the area of the owner (for non-timber) (1 original)',
+                  '2. Certification that the forest products are harvested within the area of the owner (for non-timber)(1 original)',
                   _certificationFile,
                   (file) => setState(() => _certificationFile = file),
                 ),
                 _buildFilePicker(
-                  '3. Approved Tree Cutting Permit for Timber (1 photocopy)',
+                  '3. Approved Tree Cutting Permit for timber (1 photocopy)',
                   _treeCuttingPermitFile,
                   (file) => setState(() => _treeCuttingPermitFile = file),
                 ),
-
                 _buildFilePicker(
                   '4. OR/CR of conveyance and Driver’s License (1 photocopy)',
                   _orCrFile,
@@ -436,14 +448,13 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                   ),
                 ),
                 const SizedBox(height: 12),
-
                 _buildFilePicker(
-                  '5. Certificate of Transport Agreement (1 photocopy), if the owner of the forest product is not the owner of the conveyance',
+                  '5. Certificate of Transport Agreement (1 original)',
                   _transportAgreementFile,
                   (file) => setState(() => _transportAgreementFile = file),
                 ),
                 _buildFilePicker(
-                  '6. Special Power of Attorney (SPA) (1 original), if applicant is not the land owner',
+                  '6. Special Power of Attorney (SPA) (1 original)',
                   _spaFile,
                   (file) => setState(() => _spaFile = file),
                 ),
@@ -453,7 +464,7 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildFeeRow('Verefication Fee', certificationFee),
+                _buildFeeRow('Verification Fee', certificationFee),
                 _buildFeeRow('Oath Fee', oathFee),
                 _buildFeeRow('Inspection Fee', inventoryFee),
                 const Divider(thickness: 1.2),
@@ -463,14 +474,12 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-
                     child: const Text(
                       'Submit',
                       style: TextStyle(color: Colors.white),

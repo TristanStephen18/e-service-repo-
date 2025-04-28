@@ -10,26 +10,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddPublicSafetyScreen extends StatefulWidget {
+class AddFarm extends StatefulWidget {
   final String applicationId;
 
-  const AddPublicSafetyScreen({super.key, required this.applicationId});
+  const AddFarm({super.key, required this.applicationId});
 
   @override
-  _AddPublicSafetyScreenState createState() => _AddPublicSafetyScreenState();
+  _AddFarmState createState() => _AddFarmState();
 }
 
-class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
+class _AddFarmState extends State<AddFarm> {
   final _formKey = GlobalKey<FormState>();
-  File? applicationLetter;
-  File? lguEndorsement;
-  File? resolution;
-  File? ptaResolution;
-  File? landTitle;
-  File? pambClearance;
-
-  File? spa;
-  File? photo;
+  File? intentLetter;
+  File? dulyAccomplishForm;
+  File? certRegistration;
+  File? scientificExpertise;
+  File? financialPlan;
+  File? letterCommitment;
+  File? priorClearance;
+  File? paymentFee;
 
   Set<String> uploadedLabels = {};
 
@@ -131,14 +130,14 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement/Certification': 'LGU Endorsement/Certification',
-        'Homeowners Resolution': 'Homeowners Resolution',
-        'PTA Resolution': 'PTA Resolution',
-        'Land Title': 'Land Title',
-        'PAMB Clearance': 'PAMB Clearance',
-        'SPA': 'SPA',
-        'Photos of Trees': 'Photos of Trees',
+        'Letter of Intent': 'Letter of Intent',
+        'Application Form': 'Application Form',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Scientific Expertise': 'Scientific Expertise',
+        'Financial Plan': 'Financial Plan',
+        'Letter of Commitment': 'Letter of Commitment',
+        'Prior Clearance': 'Prior Clearance',
+        'Payment Fee': 'Payment Fee',
       };
 
       if (!applicationSnapshot.exists) {
@@ -164,7 +163,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
         });
 
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('wildlife')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -216,30 +215,32 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (applicationLetter != null) {
-      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    if (dulyAccomplishForm != null) {
+      filesToUpload['Application Form'] = dulyAccomplishForm!;
     }
-    if (lguEndorsement != null) {
-      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    if (intentLetter != null) {
+      filesToUpload['Letter of Intent'] = intentLetter!;
     }
 
-    if (resolution != null) {
-      filesToUpload['Homeowners Resolution'] = resolution!;
+    if (certRegistration != null) {
+      filesToUpload['Certificate of Registration'] = certRegistration!;
     }
-    if (ptaResolution != null) {
-      filesToUpload['PTA Resolution'] = ptaResolution!;
+    if (scientificExpertise != null) {
+      filesToUpload['Scientific Expertise'] = scientificExpertise!;
     }
-    if (landTitle != null) {
-      filesToUpload['Land Title'] = landTitle!;
+
+    if (financialPlan != null) {
+      filesToUpload['Financial Plan'] = financialPlan!;
     }
-    if (pambClearance != null) {
-      filesToUpload['PAMB Clearance'] = pambClearance!;
+    if (letterCommitment != null) {
+      filesToUpload['Letter of Commitment'] = letterCommitment!;
     }
-    if (spa != null) {
-      filesToUpload['SPA'] = spa!;
+    if (paymentFee != null) {
+      filesToUpload['Payment Fee'] = paymentFee!;
     }
-    if (photo != null) {
-      filesToUpload['Photos of Trees'] = photo!;
+
+    if (priorClearance != null) {
+      filesToUpload['Prior Clearance'] = priorClearance!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -323,7 +324,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Public Safety',
+          'Wildlife Farm Permit',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -336,14 +337,14 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Duly Accomplish Application Form',
-                      'LGU Endorsement/Certification',
-                      'Homeowners Resolution',
-                      'PTA Resolution',
-                      'Land Title',
-                      'PAMB Clearance',
-                      'SPA',
-                      'Photos of Trees',
+                      'Letter of Intent',
+                      'Application Form',
+                      'Certificate of Registration',
+                      'Scientific Expertise',
+                      'Financial Plan',
+                      'Letter of Commitment',
+                      'Prior Clearance',
+                      'Payment Fee',
                     ])
                     ? const Center(
                       child: Padding(
@@ -371,69 +372,59 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains(
-                          'Duly Accomplish Application Form',
-                        ))
+                        if (!uploadedLabels.contains('Letter of Intent'))
                           _buildFilePicker(
-                            '1. Application Letter (1 original Copy)\n'
-                            '\t\t\t Address: Engr. Leandro L. De Jesus\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
-                            applicationLetter,
-                            (file) => setState(() => applicationLetter = file),
+                            '1. Letter of Intent Addressed to the Regional Executive Director;',
+                            intentLetter,
+                            (file) => setState(() => intentLetter = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Application Form'))
+                          _buildFilePicker(
+                            '2. Duly Accomplished Application Form with two (2) recent 2x2 photo of applicant;',
+                            dulyAccomplishForm,
+                            (file) => setState(() => dulyAccomplishForm = file),
                           ),
 
                         if (!uploadedLabels.contains(
-                          'LGU Endorsement or Certification',
+                          'Certificate of Registration',
                         ))
                           _buildFilePicker(
-                            '2. LGU Endorsement / Certification of No Objection / Resolution (1 original) - interposing no objection to the cutting of trees',
-                            lguEndorsement,
-                            (file) => setState(() => lguEndorsement = file),
+                            '3. Copy of the Certificate of Registration from the appropriate Govenrment Agencies such as the Security and Exchange Commision (SEC), Cooperative Development Authority (CDA), etc;',
+                            certRegistration,
+                            (file) => setState(() => certRegistration = file),
                           ),
 
-                        if (!uploadedLabels.contains('Homeowners Resolution'))
+                        if (!uploadedLabels.contains('Scientific Expertise'))
                           _buildFilePicker(
-                            '3. Homeowners Resolution (1 original / 1 Certified True Copy), if within Subdivisions;',
-                            resolution,
-                            (file) => setState(() => resolution = file),
+                            '4. Proof of Scientific expertise (list and qualifications of manpower):',
+                            scientificExpertise,
+                            (file) =>
+                                setState(() => scientificExpertise = file),
                           ),
-
-                        if (!uploadedLabels.contains('PTA Resolution'))
+                        if (!uploadedLabels.contains('Financial Plan'))
                           _buildFilePicker(
-                            '4. PTA Resolution or Resolution from any organized group of No Objection and reason for Cutting (1 original), if School/Organization;',
-                            ptaResolution,
-                            (file) => setState(() => ptaResolution = file),
+                            '5. Financial Plan showing financial capability to go into breeding;',
+                            financialPlan,
+                            (file) => setState(() => financialPlan = file),
                           ),
-                        if (!uploadedLabels.contains('Land Title'))
+                        if (!uploadedLabels.contains('Letter of Commitment'))
                           _buildFilePicker(
-                            '5. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable, if within private land;',
-                            landTitle,
-                            (file) => setState(() => landTitle = file),
+                            '6. Letter of commitment to simultaenously undertake conservation breeding and purpose mesaures on rehabilitation and/or protection of habitat, where appropriate, as may be determined by the RWMC (if in case of Indigenous Threatened Species);',
+                            letterCommitment,
+                            (file) => setState(() => letterCommitment = file),
                           ),
-
-                        if (!uploadedLabels.contains('PAMB Clearance'))
+                        if (!uploadedLabels.contains('Prior Clearance'))
                           _buildFilePicker(
-                            '6. Protected Area Management Board (PAMB) Clearance/Certification\n'
-                            '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
-                            '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
-                            '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
-                            '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
-                            pambClearance,
-                            (file) => setState(() => pambClearance = file),
+                            '7. Prior Clearance from the affected communities (Concerned LGUs, Recognized head of Indigenous people in accordance with RA 8371, or Protected Area Management Board; and)',
+                            priorClearance,
+                            (file) => setState(() => priorClearance = file),
                           ),
-
-                        if (!uploadedLabels.contains('SPA'))
+                        if (!uploadedLabels.contains('Payment Fee'))
                           _buildFilePicker(
-                            '7. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
-                            spa,
-                            (file) => setState(() => spa = file),
-                          ),
-                        if (!uploadedLabels.contains('Photos of Trees'))
-                          _buildFilePicker(
-                            '8. Photos of the trees to be cut',
-                            photo,
-                            (file) => setState(() => photo = file),
+                            '8. Payment Fee',
+                            paymentFee,
+                            (file) => setState(() => paymentFee = file),
                           ),
 
                         const SizedBox(height: 15),

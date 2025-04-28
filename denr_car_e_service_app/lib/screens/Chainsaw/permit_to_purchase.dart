@@ -252,23 +252,53 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && businessNameReg != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': dulyAccomplishForm!,
-        'Business Name': businessNameReg!,
-      };
+    if (dulyAccomplishForm != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': dulyAccomplishForm!,
+          'Business Name': businessNameReg!,
+        };
 
-      if (affidavit != null) {
-        filesToUpload['Affidavit'] = affidavit!;
-      }
-      if (bussinessPermit != null) {
-        filesToUpload['Business Permit from LGU'] = bussinessPermit!;
-      }
-      if (purchaseOrder != null) {
-        filesToUpload['Purchase Order'] = purchaseOrder!;
-      }
+        if (affidavit != null) {
+          filesToUpload['Affidavit'] = affidavit!;
+        }
+        if (bussinessPermit != null) {
+          filesToUpload['Business Permit from LGU'] = bussinessPermit!;
+        }
+        if (purchaseOrder != null) {
+          filesToUpload['Purchase Order'] = purchaseOrder!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

@@ -5,16 +5,16 @@ import 'dart:io';
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class AddForestRequirementsForm extends StatefulWidget {
-  final String applicationId; // ID of existing application
+  final String applicationId;
 
   const AddForestRequirementsForm({super.key, required this.applicationId});
+
   @override
   _AddForestRequirementsFormState createState() =>
       _AddForestRequirementsFormState();
@@ -22,10 +22,37 @@ class AddForestRequirementsForm extends StatefulWidget {
 
 class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
   final _formKey = GlobalKey<FormState>();
-
+  File? _certificationFile;
+  File? _orCrFile;
+  File? _treeCuttingPermitFile;
   File? _transportAgreementFile;
   File? _spaFile;
+  File? requestLetter;
   File? others;
+
+  Set<String> uploadedLabels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUploadedFiles();
+  }
+
+  Future<void> _loadUploadedFiles() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference applicationRef = FirebaseFirestore.instance
+        .collection('mobile_users')
+        .doc(userId)
+        .collection('applications')
+        .doc(widget.applicationId);
+
+    QuerySnapshot existingFiles =
+        await applicationRef.collection('requirements').get();
+
+    setState(() {
+      uploadedLabels = existingFiles.docs.map((doc) => doc.id).toSet();
+    });
+  }
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -38,7 +65,6 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -63,7 +89,6 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
     }
   }
 
-  // Convert file to Base64
   Future<String> _convertFileToBase64(File file) async {
     try {
       List<int> fileBytes = await file.readAsBytes();
@@ -94,7 +119,7 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
 
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      String documentId = widget.applicationId; // Use provided application ID
+      String documentId = widget.applicationId;
 
       DocumentReference applicationRef = FirebaseFirestore.instance
           .collection('mobile_users')
@@ -105,6 +130,10 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
+        'Request Letter': 'Request Letter',
+        'Certification': 'Certification',
+        'Tree Cutting Permit': 'Tree Cutting Permit',
+        'OR CR': 'OR CR',
         'Transport Agreement': 'Transport Agreement',
         'SPA': 'SPA',
         'Others': 'Others',
@@ -131,14 +160,6 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
           'file': base64File,
           'uploadedAt': Timestamp.now(),
         });
-      }
-
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('transport_permit')
@@ -171,7 +192,7 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     CupertinoPageRoute(
                       builder: (ctx) => Homepage(userid: userId),
                     ),
@@ -191,17 +212,32 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
-    if (_transportAgreementFile != null && _spaFile != null && others != null) {
-      Map<String, File> filesToUpload = {
-        'Transport Agreement': _transportAgreementFile!,
-        'SPA': _spaFile!,
-        'Others': others!,
-      };
+    Map<String, File> filesToUpload = {};
 
-      await _uploadFiles(filesToUpload);
-    } else {
+    if (_certificationFile != null) {
+      filesToUpload['Certification'] = _certificationFile!;
+    }
+    if (_orCrFile != null) {
+      filesToUpload['OR CR'] = _orCrFile!;
+    }
+    if (_treeCuttingPermitFile != null) {
+      filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
+    }
+    if (_transportAgreementFile != null) {
+      filesToUpload['Transport Agreement'] = _transportAgreementFile!;
+    }
+    if (_spaFile != null) {
+      filesToUpload['SPA'] = _spaFile!;
+    }
+    if (requestLetter != null) {
+      filesToUpload['Request Letter'] = requestLetter!;
+    }
+    if (others != null) {
+      filesToUpload['Others'] = others!;
+    }
+
+    if (filesToUpload.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -211,18 +247,45 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
-                },
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -266,51 +329,104 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Additional Requirements',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildFilePicker(
-                  '1. Certificate of Transport Agreement (1 photocopy), if the owner of the forest product is not the owner of the conveyance',
-                  _transportAgreementFile,
-                  (file) => setState(() => _transportAgreementFile = file),
-                ),
-                _buildFilePicker(
-                  '2. Special Power of Attorney (SPA) (1 original), if applicant is not the land owner',
-                  _spaFile,
-                  (file) => setState(() => _spaFile = file),
-                ),
-                _buildFilePicker(
-                  '3. Others',
-                  others,
-                  (file) => setState(() => others = file),
-                ),
-                const SizedBox(height: 15),
-
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 12,
+            child:
+                uploadedLabels.containsAll([
+                      'Request Letter',
+                      'Certification',
+                      'Tree Cutting Permit',
+                      'OR CR',
+                      'Transport Agreement',
+                      'SPA',
+                      'Others',
+                    ])
+                    ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 200),
+                        child: Text(
+                          "All documents have been successfully uploaded.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green,
+                          ),
+                        ),
                       ),
-                    ),
-                    onPressed: _submitFiles,
+                    )
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Additional Requirements',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                        if (!uploadedLabels.contains('Certification'))
+                          _buildFilePicker(
+                            '1. Certification that the forest products are harvested within the area of the owner (for non-timber)(1 original)',
+                            _certificationFile,
+                            (file) => setState(() => _certificationFile = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Tree Cutting Permit'))
+                          _buildFilePicker(
+                            '3. Approved Tree Cutting Permit for timber (1 photocopy)',
+                            _treeCuttingPermitFile,
+                            (file) =>
+                                setState(() => _treeCuttingPermitFile = file),
+                          ),
+
+                        if (!uploadedLabels.contains('OR CR'))
+                          _buildFilePicker(
+                            '4. OR/CR of conveyance and Driver’s License (1 photocopy)',
+                            _orCrFile,
+                            (file) => setState(() => _orCrFile = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Transport Agreement'))
+                          _buildFilePicker(
+                            '5. Certificate of Transport Agreement (1 original)',
+                            _transportAgreementFile,
+                            (file) =>
+                                setState(() => _transportAgreementFile = file),
+                          ),
+                        if (!uploadedLabels.contains('SPA'))
+                          _buildFilePicker(
+                            '6. Special Power of Attorney (SPA) (1 original)',
+                            _spaFile,
+                            (file) => setState(() => _spaFile = file),
+                          ),
+                        if (!uploadedLabels.contains('Others'))
+                          _buildFilePicker(
+                            '6. Others',
+                            others,
+                            (file) => setState(() => others = file),
+                          ),
+
+                        const SizedBox(height: 15),
+
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 80,
+                                vertical: 12,
+                              ),
+                            ),
+                            onPressed: _submitFiles,
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

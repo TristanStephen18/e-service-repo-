@@ -130,11 +130,14 @@ class _ResawPermitState extends State<ResawPermit> {
               .get();
 
       final Map<String, String> fileLabelMap = {
+        'Letter of Application': 'Letter of Applicaition',
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'Business Name': 'Business Name',
-        'certificateRegistration': 'certificateRegistration',
-        'Business Permit from LGU': 'Business Permit from LGU',
-        'Purchase Order': 'Purchase Order',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Birth Certificate': 'Birth Certificate',
+
+        'Environmetal Compliance': 'Environmetal Compliance',
+        'Sworn Statement': 'Sworn Statement',
+        'Application for SLUP': 'Application for SLUP',
       };
 
       String clientName = userSnapshot.get('name') ?? 'Unknown Client';
@@ -249,29 +252,60 @@ class _ResawPermitState extends State<ResawPermit> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && letterApplication != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': dulyAccomplishForm!,
-        'Letter of Application': letterApplication!,
-      };
+    if (dulyAccomplishForm != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': dulyAccomplishForm!,
+          'Letter of Application': letterApplication!,
+        };
 
-      if (certificateRegistration != null) {
-        filesToUpload['Certificate of Registration'] = certificateRegistration!;
-      }
-      if (birthCertificate != null) {
-        filesToUpload['Birth Certificate'] = birthCertificate!;
-      }
-      if (environmentalCompliance != null) {
-        filesToUpload['Environmetal Compliance'] = environmentalCompliance!;
-      }
-      if (swornStatement != null) {
-        filesToUpload['Sworn Statement'] = swornStatement!;
-      }
-      if (appSLUP != null) {
-        filesToUpload['Application for SLUP'] = appSLUP!;
-      }
+        if (certificateRegistration != null) {
+          filesToUpload['Certificate of Registration'] =
+              certificateRegistration!;
+        }
+        if (birthCertificate != null) {
+          filesToUpload['Birth Certificate'] = birthCertificate!;
+        }
+        if (environmentalCompliance != null) {
+          filesToUpload['Environmetal Compliance'] = environmentalCompliance!;
+        }
+        if (swornStatement != null) {
+          filesToUpload['Sworn Statement'] = swornStatement!;
+        }
+        if (appSLUP != null) {
+          filesToUpload['Application for SLUP'] = appSLUP!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

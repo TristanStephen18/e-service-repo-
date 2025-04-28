@@ -10,26 +10,20 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddPublicSafetyScreen extends StatefulWidget {
+class AddLTPFlora extends StatefulWidget {
   final String applicationId;
 
-  const AddPublicSafetyScreen({super.key, required this.applicationId});
+  const AddLTPFlora({super.key, required this.applicationId});
 
   @override
-  _AddPublicSafetyScreenState createState() => _AddPublicSafetyScreenState();
+  _AddLTPFloraState createState() => _AddLTPFloraState();
 }
 
-class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
+class _AddLTPFloraState extends State<AddLTPFlora> {
   final _formKey = GlobalKey<FormState>();
-  File? applicationLetter;
-  File? lguEndorsement;
-  File? resolution;
-  File? ptaResolution;
-  File? landTitle;
-  File? pambClearance;
-
-  File? spa;
-  File? photo;
+  File? intentLetter;
+  File? legalPossession;
+  File? phytosanitaryCert;
 
   Set<String> uploadedLabels = {};
 
@@ -131,14 +125,9 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement/Certification': 'LGU Endorsement/Certification',
-        'Homeowners Resolution': 'Homeowners Resolution',
-        'PTA Resolution': 'PTA Resolution',
-        'Land Title': 'Land Title',
-        'PAMB Clearance': 'PAMB Clearance',
-        'SPA': 'SPA',
-        'Photos of Trees': 'Photos of Trees',
+        'Letter of Intent': 'Letter of Intent',
+        'Phytosanitary Certificate': 'Phytosanitary Certificate',
+        'Legal Possession': 'Legal Possession',
       };
 
       if (!applicationSnapshot.exists) {
@@ -164,7 +153,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
         });
 
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -216,30 +205,15 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (applicationLetter != null) {
-      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    if (legalPossession != null) {
+      filesToUpload['Legal Possession'] = legalPossession!;
     }
-    if (lguEndorsement != null) {
-      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    if (intentLetter != null) {
+      filesToUpload['Letter of Intent'] = intentLetter!;
     }
 
-    if (resolution != null) {
-      filesToUpload['Homeowners Resolution'] = resolution!;
-    }
-    if (ptaResolution != null) {
-      filesToUpload['PTA Resolution'] = ptaResolution!;
-    }
-    if (landTitle != null) {
-      filesToUpload['Land Title'] = landTitle!;
-    }
-    if (pambClearance != null) {
-      filesToUpload['PAMB Clearance'] = pambClearance!;
-    }
-    if (spa != null) {
-      filesToUpload['SPA'] = spa!;
-    }
-    if (photo != null) {
-      filesToUpload['Photos of Trees'] = photo!;
+    if (phytosanitaryCert != null) {
+      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -322,10 +296,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Public Safety',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -336,14 +307,9 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Duly Accomplish Application Form',
-                      'LGU Endorsement/Certification',
-                      'Homeowners Resolution',
-                      'PTA Resolution',
-                      'Land Title',
-                      'PAMB Clearance',
-                      'SPA',
-                      'Photos of Trees',
+                      'Letter of Intent',
+                      'Phytosanitary Certificate',
+                      'Legal Possession',
                     ])
                     ? const Center(
                       child: Padding(
@@ -371,69 +337,26 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains(
-                          'Duly Accomplish Application Form',
-                        ))
+                        if (!uploadedLabels.contains('Letter of Intent'))
                           _buildFilePicker(
-                            '1. Application Letter (1 original Copy)\n'
-                            '\t\t\t Address: Engr. Leandro L. De Jesus\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
-                            applicationLetter,
-                            (file) => setState(() => applicationLetter = file),
+                            '1. Letter of Intent Addressed to this Office;',
+                            intentLetter,
+                            (file) => setState(() => intentLetter = file),
+                          ),
+                        if (!uploadedLabels.contains('Legal Possession'))
+                          _buildFilePicker(
+                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
+                            legalPossession,
+                            (file) => setState(() => legalPossession = file),
                           ),
 
                         if (!uploadedLabels.contains(
-                          'LGU Endorsement or Certification',
+                          'Phytosanitary Certificate',
                         ))
                           _buildFilePicker(
-                            '2. LGU Endorsement / Certification of No Objection / Resolution (1 original) - interposing no objection to the cutting of trees',
-                            lguEndorsement,
-                            (file) => setState(() => lguEndorsement = file),
-                          ),
-
-                        if (!uploadedLabels.contains('Homeowners Resolution'))
-                          _buildFilePicker(
-                            '3. Homeowners Resolution (1 original / 1 Certified True Copy), if within Subdivisions;',
-                            resolution,
-                            (file) => setState(() => resolution = file),
-                          ),
-
-                        if (!uploadedLabels.contains('PTA Resolution'))
-                          _buildFilePicker(
-                            '4. PTA Resolution or Resolution from any organized group of No Objection and reason for Cutting (1 original), if School/Organization;',
-                            ptaResolution,
-                            (file) => setState(() => ptaResolution = file),
-                          ),
-                        if (!uploadedLabels.contains('Land Title'))
-                          _buildFilePicker(
-                            '5. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable, if within private land;',
-                            landTitle,
-                            (file) => setState(() => landTitle = file),
-                          ),
-
-                        if (!uploadedLabels.contains('PAMB Clearance'))
-                          _buildFilePicker(
-                            '6. Protected Area Management Board (PAMB) Clearance/Certification\n'
-                            '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
-                            '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
-                            '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
-                            '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
-                            pambClearance,
-                            (file) => setState(() => pambClearance = file),
-                          ),
-
-                        if (!uploadedLabels.contains('SPA'))
-                          _buildFilePicker(
-                            '7. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
-                            spa,
-                            (file) => setState(() => spa = file),
-                          ),
-                        if (!uploadedLabels.contains('Photos of Trees'))
-                          _buildFilePicker(
-                            '8. Photos of the trees to be cut',
-                            photo,
-                            (file) => setState(() => photo = file),
+                            '2. Duly Accomplished Application Form ;',
+                            phytosanitaryCert,
+                            (file) => setState(() => phytosanitaryCert = file),
                           ),
 
                         const SizedBox(height: 15),

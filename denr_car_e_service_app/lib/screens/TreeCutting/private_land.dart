@@ -302,41 +302,73 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
-    if (applicationLetter != null && lguEndorsement != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': applicationLetter!,
-        'LGU Endorsement or Certification': lguEndorsement!,
-      };
+    if (applicationLetter != null &&
+        lguEndorsement != null &&
+        ecc != null &&
+        landTitle != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': applicationLetter!,
+          'LGU Endorsement or Certification': lguEndorsement!,
+        };
 
-      if (utiPlan != null) {
-        filesToUpload['Utilization Plan'] = utiPlan!;
-      }
-      if (ecc != null) {
-        filesToUpload['ECC'] = ecc!;
-      }
-      if (landTitle != null) {
-        filesToUpload['Land Title'] = landTitle!;
-      }
-      if (pambClearance != null) {
-        filesToUpload['PAMB Clearance'] = pambClearance!;
-      }
-      if (spa != null) {
-        filesToUpload['SPA'] = spa!;
-      }
-      if (photo != null) {
-        filesToUpload['Photos of Trees'] = photo!;
-      }
+        if (utiPlan != null) {
+          filesToUpload['Utilization Plan'] = utiPlan!;
+        }
+        if (ecc != null) {
+          filesToUpload['ECC'] = ecc!;
+        }
+        if (landTitle != null) {
+          filesToUpload['Land Title'] = landTitle!;
+        }
+        if (pambClearance != null) {
+          filesToUpload['PAMB Clearance'] = pambClearance!;
+        }
+        if (spa != null) {
+          filesToUpload['SPA'] = spa!;
+        }
+        if (photo != null) {
+          filesToUpload['Photos of Trees'] = photo!;
+        }
 
-      if (ptaRes != null) {
-        filesToUpload['PTA Resolution'] = ptaRes!;
-      }
-      if (larEndorsement != null) {
-        filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
-      }
+        if (ptaRes != null) {
+          filesToUpload['PTA Resolution'] = ptaRes!;
+        }
+        if (larEndorsement != null) {
+          filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,
@@ -388,7 +420,6 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.polygonName);
     return Scaffold(
       appBar: AppBar(
         title: Text(

@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
 
 import 'dart:convert';
 import 'dart:io';
@@ -11,19 +11,50 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class AddGovermentScreen extends StatefulWidget {
-  final String applicationId; // ID of existing application
+  final String applicationId;
 
   const AddGovermentScreen({super.key, required this.applicationId});
 
   @override
-  State<AddGovermentScreen> createState() => _AddGovermentScreenState();
+  _AddGovermentScreenState createState() => _AddGovermentScreenState();
 }
 
 class _AddGovermentScreenState extends State<AddGovermentScreen> {
   final _formKey = GlobalKey<FormState>();
+  File? applicationLetter;
+  File? lguEndorsement;
+  File? ecc;
+  File? siteDevelopment;
 
+  File? waiver;
+  File? pambClearance;
   File? others;
+  File? ncip;
   File? photo;
+
+  Set<String> uploadedLabels = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUploadedFiles();
+  }
+
+  Future<void> _loadUploadedFiles() async {
+    String userId = FirebaseAuth.instance.currentUser!.uid;
+    DocumentReference applicationRef = FirebaseFirestore.instance
+        .collection('mobile_users')
+        .doc(userId)
+        .collection('applications')
+        .doc(widget.applicationId);
+
+    QuerySnapshot existingFiles =
+        await applicationRef.collection('requirements').get();
+
+    setState(() {
+      uploadedLabels = existingFiles.docs.map((doc) => doc.id).toSet();
+    });
+  }
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -36,7 +67,6 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -61,7 +91,6 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
     }
   }
 
-  // Convert file to Base64
   Future<String> _convertFileToBase64(File file) async {
     try {
       List<int> fileBytes = await file.readAsBytes();
@@ -92,7 +121,7 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
 
     try {
       String userId = FirebaseAuth.instance.currentUser!.uid;
-      String documentId = widget.applicationId; // Use provided application ID
+      String documentId = widget.applicationId;
 
       DocumentReference applicationRef = FirebaseFirestore.instance
           .collection('mobile_users')
@@ -103,9 +132,17 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'LGU Endorsement or Certification': 'LGU Endorsement or Certification',
+        'Waiver': 'Waiver',
+        'ECC': 'ECC',
+        'Site Development Plan': 'Site Development Plan',
+        'PAMB Clearance': 'PAMB Clearance',
+        'NCIP Clearance': 'NCIP Clearance',
         'Photos of Trees': 'Photos of Trees',
         'Others': 'Others',
       };
+
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(
@@ -127,14 +164,6 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
           'file': base64File,
           'uploadedAt': Timestamp.now(),
         });
-      }
-
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('tree_cutting')
@@ -167,7 +196,7 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pop();
-                  Navigator.of(context).push(
+                  Navigator.of(context).pushReplacement(
                     CupertinoPageRoute(
                       builder: (ctx) => Homepage(userid: userId),
                     ),
@@ -187,16 +216,39 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
-    if (photo != null && others != null && others != null) {
-      Map<String, File> filesToUpload = {
-        'Photos of Trees': photo!,
-        'Others': others!,
-      };
+    Map<String, File> filesToUpload = {};
+    if (applicationLetter != null) {
+      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    }
+    if (lguEndorsement != null) {
+      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    }
 
-      await _uploadFiles(filesToUpload);
-    } else {
+    if (waiver != null) {
+      filesToUpload['Waiver'] = waiver!;
+    }
+    if (ecc != null) {
+      filesToUpload['ECC'] = ecc!;
+    }
+    if (siteDevelopment != null) {
+      filesToUpload['Site Development Plan'] = siteDevelopment!;
+    }
+    if (pambClearance != null) {
+      filesToUpload['PAMB Clearance'] = pambClearance!;
+    }
+    if (ncip != null) {
+      filesToUpload['NCIP Clearance'] = ncip!;
+    }
+    if (photo != null) {
+      filesToUpload['Photos of Trees'] = photo!;
+    }
+
+    if (others != null) {
+      filesToUpload['Others'] = others!;
+    }
+
+    if (filesToUpload.isEmpty) {
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -206,18 +258,45 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
-                },
+                onPressed: () => Navigator.of(context).pop(),
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(false),
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () => Navigator.of(context).pop(true),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -250,7 +329,7 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'National Government Agencies',
+          'Private Land Timber',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -261,52 +340,150 @@ class _AddGovermentScreenState extends State<AddGovermentScreen> {
         child: SingleChildScrollView(
           child: Form(
             key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Additional Requirements',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                _buildFilePicker(
-                  '1. Photos of the trees to be cut',
-                  photo,
-                  (file) => setState(() => photo = file),
-                ),
-                _buildFilePicker(
-                  '2. Others:',
-                  others,
-                  (file) => setState(() => others = file),
-                ),
-
-                const SizedBox(height: 32),
-
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 12,
+            child:
+                uploadedLabels.containsAll([
+                      'Duly Accomplish Application Form',
+                      'LGU Endorsement or Certification',
+                      'Waiver',
+                      'ECC',
+                      'Site Development Plan',
+                      'PAMB Clearance',
+                      'NCIP Clearance',
+                      'Photos of Trees',
+                      'Others',
+                    ])
+                    ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 200),
+                        child: Text(
+                          "All documents have been successfully uploaded.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.green,
+                          ),
+                        ),
                       ),
-                    ),
-                    onPressed: _submitFiles,
+                    )
+                    : Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Additional Requirements',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                        if (!uploadedLabels.contains(
+                          'Duly Accomplish Application Form',
+                        ))
+                          _buildFilePicker(
+                            '1. Application Letter (1 original Copy)\n'
+                            '\t\t\t Address: Engr. Leandro L. De Jesus\n'
+                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
+                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
+                            applicationLetter,
+                            (file) => setState(() => applicationLetter = file),
+                          ),
+
+                        if (!uploadedLabels.contains(
+                          'LGU Endorsement or Certification',
+                        ))
+                          _buildFilePicker(
+                            '2. Endorsement / Certification from the concerned LGU interposing no objection to the cutting of trees under the following conditions: (1 original)\n'
+                            '\t\t\ta. If the trees to be cut falls within one barangay, an\n'
+                            '\t\t\t  endorsement from Barangay Captain shall be\n'
+                            '\t\t\t  secured\n'
+                            '\t\t\tb. If the trees to be cut falls within more than one\n'
+                            '\t\t\t  barangay, endorsement shall be secured either from\n'
+                            '\t\t\t  the Municipal/City Mayor or all the Barangay\n'
+                            '\t\t\t  Captains concerned\n'
+                            '\t\t\tc. If the trees to be cut falls within more than one\n'
+                            '\t\t\t  municipality/city, endorsement shall be secured\n'
+                            '\t\t\t  either from the Provincial Governor or all the\n'
+                            '\t\t\t  Municipal/City Mayors concerned\n'
+                            '\t\t\td. If within Baguio City, Clearance from the City\n'
+                            '\t\t\t  Environment and Parks Management Office\n'
+                            '\t\t\t  (CEPMO)',
+
+                            lguEndorsement,
+                            (file) => setState(() => lguEndorsement = file),
+                          ),
+                        if (!uploadedLabels.contains('Site Development Plan'))
+                          _buildFilePicker(
+                            '3. Approved Site Development Plan/Infrastructure Plan with Tree Charting indicating the geotagged location of individual trees affected by the project, to be numbered sequentially, as basis of validation by the DENR during actual cutting operations(1 certified copy);',
+                            siteDevelopment,
+                            (file) => setState(() => siteDevelopment = file),
+                          ),
+
+                        if (!uploadedLabels.contains('ECC'))
+                          _buildFilePicker(
+                            '4. Environmental Compliance Certificate (ECC) / Certificate of Non-Coverage (CNC), whichever is applicable, issued by EMB (1certified true copy);',
+                            ecc,
+                            (file) => setState(() => ecc = file),
+                          ),
+                        if (!uploadedLabels.contains('NCIP Clearance'))
+                          _buildFilePicker(
+                            '5. NCIP Clearance (FPIC/CP/CNO, whichever is applicable);',
+                            ncip,
+                            (file) => setState(() => ncip = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Waiver'))
+                          _buildFilePicker(
+                            '6. Waiver/Consent of owner/s, if titled property, if applicable (1 original);',
+                            waiver,
+                            (file) => setState(() => waiver = file),
+                          ),
+
+                        if (!uploadedLabels.contains('PAMB Clearance'))
+                          _buildFilePicker(
+                            '7. Protected Area Management Board (PAMB) Clearance/Certification\n'
+                            '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
+                            '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
+                            '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
+                            '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
+                            pambClearance,
+                            (file) => setState(() => pambClearance = file),
+                          ),
+                        if (!uploadedLabels.contains('Photos of Trees'))
+                          _buildFilePicker(
+                            '8. Photos of the trees to be cut',
+                            photo,
+                            (file) => setState(() => photo = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Others'))
+                          _buildFilePicker(
+                            '9. Others:',
+                            others,
+                            (file) => setState(() => others = file),
+                          ),
+
+                        const SizedBox(height: 15),
+
+                        Center(
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 80,
+                                vertical: 12,
+                              ),
+                            ),
+                            onPressed: _submitFiles,
+                            child: const Text(
+                              'Submit',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ),
-              ],
-            ),
           ),
         ),
       ),

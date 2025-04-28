@@ -151,7 +151,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
 
       final Map<String, String> fileLabelMap = {
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement/Certification': 'LGU Endorsement/Certification',
+        'LGU Endorsement Certification': 'LGU Endorsement Certification',
         'Homeowners Resolution': 'Homeowners Resolution',
         'PTA Resolution': 'PTA Resolution',
         'Land Title': 'Land Title',
@@ -276,31 +276,61 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
   // Submit all files
   Future<void> _submitFiles() async {
     if (applicationLetter != null && lguEndorsement != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': applicationLetter!,
-        'LGU Endorsement or Certification': lguEndorsement!,
-      };
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': applicationLetter!,
+          'LGU Endorsement or Certification': lguEndorsement!,
+        };
 
-      if (resolution != null) {
-        filesToUpload['Homeowners Resolution'] = resolution!;
-      }
-      if (ptaResolution != null) {
-        filesToUpload['PTA Resolution'] = ptaResolution!;
-      }
-      if (landTitle != null) {
-        filesToUpload['Land Title'] = landTitle!;
-      }
-      if (pambClearance != null) {
-        filesToUpload['PAMB Clearance'] = pambClearance!;
-      }
-      if (spa != null) {
-        filesToUpload['SPA'] = spa!;
-      }
-      if (photo != null) {
-        filesToUpload['Photos of Trees'] = photo!;
-      }
+        if (resolution != null) {
+          filesToUpload['Homeowners Resolution'] = resolution!;
+        }
+        if (ptaResolution != null) {
+          filesToUpload['PTA Resolution'] = ptaResolution!;
+        }
+        if (landTitle != null) {
+          filesToUpload['Land Title'] = landTitle!;
+        }
+        if (pambClearance != null) {
+          filesToUpload['PAMB Clearance'] = pambClearance!;
+        }
+        if (spa != null) {
+          filesToUpload['SPA'] = spa!;
+        }
+        if (photo != null) {
+          filesToUpload['Photos of Trees'] = photo!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

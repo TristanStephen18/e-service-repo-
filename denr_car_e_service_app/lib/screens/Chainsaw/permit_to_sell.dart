@@ -253,19 +253,49 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
   // Submit all files
   Future<void> _submitFiles() async {
     if (dulyAccomplishForm != null && _proofOfOwnership != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': dulyAccomplishForm!,
-        'Proof of Ownership of Chainsaws': _proofOfOwnership!,
-      };
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': dulyAccomplishForm!,
+          'Proof of Ownership of Chainsaws': _proofOfOwnership!,
+        };
 
-      if (bussinesReg != null) {
-        filesToUpload['Business Registration'] = bussinesReg!;
-      }
-      if (bussinessPermit != null) {
-        filesToUpload['Business Permit from LGU'] = bussinessPermit!;
-      }
+        if (bussinesReg != null) {
+          filesToUpload['Business Registration'] = bussinesReg!;
+        }
+        if (bussinessPermit != null) {
+          filesToUpload['Business Permit from LGU'] = bussinessPermit!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

@@ -153,6 +153,7 @@ class _WildlifeFarmScreenState extends State<WildlifeFarmScreen> {
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
             'address': clientAddress,
+            'type': 'Wildlife Farm Permit',
           });
 
       // Upload each file
@@ -252,34 +253,71 @@ class _WildlifeFarmScreenState extends State<WildlifeFarmScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && intentLetter != null) {
-      Map<String, File> filesToUpload = {
-        'Application Form': dulyAccomplishForm!,
-        'Letter of Intent': intentLetter!,
-      };
+    if (dulyAccomplishForm != null &&
+        intentLetter != null &&
+        certRegistration != null &&
+        scientificExpertise != null &&
+        financialPlan != null &&
+        letterCommitment != null &&
+        priorClearance != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
 
-      if (certRegistration != null) {
-        filesToUpload['Certificate of Registration'] = certRegistration!;
-      }
-      if (scientificExpertise != null) {
-        filesToUpload['Scientific Expertise'] = scientificExpertise!;
-      }
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Application Form': dulyAccomplishForm!,
+          'Letter of Intent': intentLetter!,
+        };
 
-      if (financialPlan != null) {
-        filesToUpload['Financial Plan'] = financialPlan!;
-      }
-      if (letterCommitment != null) {
-        filesToUpload['Letter of Commitment'] = letterCommitment!;
-      }
-      if (paymentFee != null) {
-        filesToUpload['Payment Fee'] = paymentFee!;
-      }
+        if (certRegistration != null) {
+          filesToUpload['Certificate of Registration'] = certRegistration!;
+        }
+        if (scientificExpertise != null) {
+          filesToUpload['Scientific Expertise'] = scientificExpertise!;
+        }
 
-      if (priorClearance != null) {
-        filesToUpload['Prior Clearance'] = priorClearance!;
-      }
+        if (financialPlan != null) {
+          filesToUpload['Financial Plan'] = financialPlan!;
+        }
+        if (letterCommitment != null) {
+          filesToUpload['Letter of Commitment'] = letterCommitment!;
+        }
+        if (paymentFee != null) {
+          filesToUpload['Payment Fee'] = paymentFee!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        if (priorClearance != null) {
+          filesToUpload['Prior Clearance'] = priorClearance!;
+        }
+
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

@@ -150,6 +150,7 @@ class _WildlifeRegistrationScreenState
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
             'address': clientAddress,
+            'type': 'Wildlife Registration',
           });
 
       // Upload each file
@@ -247,26 +248,55 @@ class _WildlifeRegistrationScreenState
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
     if (dulyAccomplishForm != null && intentLetter != null) {
-      Map<String, File> filesToUpload = {
-        'Application Form': dulyAccomplishForm!,
-        'Letter of Intent': intentLetter!,
-      };
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
 
-      if (financialCapability != null) {
-        filesToUpload['Financial Capability'] = financialCapability!;
-      }
-      if (others != null) {
-        filesToUpload['Others'] = others!;
-      }
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Application Form': dulyAccomplishForm!,
+          'Letter of Intent': intentLetter!,
+        };
 
-      if (proofAcquisition != null) {
-        filesToUpload['Proof of Acquisition'] = proofAcquisition!;
-      }
+        if (financialCapability != null) {
+          filesToUpload['Financial Capability'] = financialCapability!;
+        }
+        if (others != null) {
+          filesToUpload['Others'] = others!;
+        }
+        if (proofAcquisition != null) {
+          filesToUpload['Proof of Acquisition'] = proofAcquisition!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,

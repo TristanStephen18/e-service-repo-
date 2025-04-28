@@ -277,36 +277,66 @@ class _GovermentScreenState extends State<GovermentScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (applicationLetter != null && lguEndorsement != null) {
-      Map<String, File> filesToUpload = {
-        'Duly Accomplish Application Form': applicationLetter!,
-        'LGU Endorsement or Certification': lguEndorsement!,
-      };
+    if (applicationLetter != null) {
+      bool? confirmed = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop(false);
+                },
+              ),
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () {
+                  Navigator.of(context).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+      if (confirmed == true) {
+        Map<String, File> filesToUpload = {
+          'Duly Accomplish Application Form': applicationLetter!,
+          'LGU Endorsement or Certification': lguEndorsement!,
+        };
 
-      if (waiver != null) {
-        filesToUpload['Waiver'] = waiver!;
-      }
-      if (ecc != null) {
-        filesToUpload['ECC'] = ecc!;
-      }
-      if (siteDevelopment != null) {
-        filesToUpload['Site Development Plan'] = siteDevelopment!;
-      }
-      if (pambClearance != null) {
-        filesToUpload['PAMB Clearance'] = pambClearance!;
-      }
-      if (ncip != null) {
-        filesToUpload['NCIP Clearance'] = ncip!;
-      }
-      if (photo != null) {
-        filesToUpload['Photos of Trees'] = photo!;
-      }
+        if (waiver != null) {
+          filesToUpload['Waiver'] = waiver!;
+        }
+        if (ecc != null) {
+          filesToUpload['ECC'] = ecc!;
+        }
+        if (siteDevelopment != null) {
+          filesToUpload['Site Development Plan'] = siteDevelopment!;
+        }
+        if (pambClearance != null) {
+          filesToUpload['PAMB Clearance'] = pambClearance!;
+        }
+        if (ncip != null) {
+          filesToUpload['NCIP Clearance'] = ncip!;
+        }
+        if (photo != null) {
+          filesToUpload['Photos of Trees'] = photo!;
+        }
 
-      if (others != null) {
-        filesToUpload['Others'] = others!;
-      }
+        if (others != null) {
+          filesToUpload['Others'] = others!;
+        }
 
-      await _uploadFiles(filesToUpload);
+        await _uploadFiles(filesToUpload);
+      }
     } else {
       showDialog(
         context: context,
