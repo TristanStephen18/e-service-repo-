@@ -249,72 +249,78 @@ class _WildlifeRegistrationScreenState
   }
 
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
     if (dulyAccomplishForm != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Upload'),
-            content: const Text(
-              'Are you sure you want to upload attached files?',
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          );
-        },
-      );
+      filesToUpload['Application Form'] = dulyAccomplishForm!;
+    }
+    if (intentLetter != null) {
+      filesToUpload['Letter of Intent'] = intentLetter!;
+    }
 
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {
-          'Application Form': dulyAccomplishForm!,
-          'Letter of Intent': intentLetter!,
-        };
+    if (financialCapability != null) {
+      filesToUpload['Financial Capability'] = financialCapability!;
+    }
+    if (others != null) {
+      filesToUpload['Others'] = others!;
+    }
+    if (proofAcquisition != null) {
+      filesToUpload['Proof of Acquisition'] = proofAcquisition!;
+    }
 
-        if (financialCapability != null) {
-          filesToUpload['Financial Capability'] = financialCapability!;
-        }
-        if (others != null) {
-          filesToUpload['Others'] = others!;
-        }
-        if (proofAcquisition != null) {
-          filesToUpload['Proof of Acquisition'] = proofAcquisition!;
-        }
-
-        await _uploadFiles(filesToUpload);
-      }
-    } else {
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
+            content: const Text('Please attach at least one file.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 

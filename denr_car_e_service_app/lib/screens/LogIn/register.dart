@@ -35,89 +35,121 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   void _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
     String? fcmToken = await FirebaseMessaging.instance.getToken();
 
-    if (_formKey.currentState!.validate()) {
-      try {
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (_) => const Center(child: CircularProgressIndicator()),
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const AlertDialog(
+          content: Row(
+            children: [
+              CircularProgressIndicator(
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+              ),
+              SizedBox(width: 15),
+              Text('Registering user...'),
+            ],
+          ),
         );
+      },
+    );
 
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(
-              email: email.text.trim(),
-              password: password.text,
-            );
+    try {
+      // Create user
+      UserCredential userCredential = await FirebaseAuth.instance
+          .createUserWithEmailAndPassword(
+            email: email.text.trim(),
+            password: password.text,
+          );
 
-        String userId = userCredential.user!.uid;
+      String userId = userCredential.user!.uid;
 
-        await FirebaseFirestore.instance
-            .collection("mobile_users")
-            .doc(userId)
-            .set({
-              'name': name.text.trim(),
-              'age': age.text.trim(),
-              'sex': sex.text.trim(),
-              'address': address.text.trim(),
-              'contact': contact.text.trim(),
-              'email': email.text.trim(),
-              'photo': ProfileDefault.photo,
-              'token': fcmToken,
-            });
+      // Save user data to Firestore
+      await FirebaseFirestore.instance
+          .collection("mobile_users")
+          .doc(userId)
+          .set({
+            'name': name.text.trim(),
+            'age': age.text.trim(),
+            'sex': sex.text.trim(),
+            'address': address.text.trim(),
+            'contact': contact.text.trim(),
+            'email': email.text.trim(),
+            'photo': ProfileDefault.photo,
+            'token': fcmToken,
+          });
 
-        Navigator.pop(context);
+      Navigator.pop(context);
 
-        showDialog(
-          context: context,
-          builder:
-              (_) => AlertDialog(
-                title: Row(
-                  children: const [
-                    Icon(Icons.check_circle, color: Colors.green),
-                    SizedBox(width: 10),
-                    Text('Success'),
-                  ],
+      // Show success dialog
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: Row(
+                children: const [
+                  Icon(Icons.check_circle, color: Colors.green),
+                  SizedBox(width: 10),
+                  Text('Success'),
+                ],
+              ),
+              content: const Text('User successfully registered!'),
+              actions: [
+                TextButton(
+                  onPressed: () async {
+                    await FirebaseMessaging.instance.deleteToken();
+                    await FirebaseAuth.instance.signOut();
+
+                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      CupertinoPageRoute(builder: (_) => Login()),
+                    );
+                  },
+                  child: const Text(
+                    'OK',
+                    style: TextStyle(color: Colors.green),
+                  ),
                 ),
-                content: const Text('User successfully registered!'),
-                actions: [
-                  TextButton(
-                    onPressed: () async {
-                      await FirebaseMessaging.instance.deleteToken();
-                      await FirebaseAuth.instance.signOut();
-
-                      Navigator.pop(context);
-                      Navigator.pushReplacement(
-                        context,
-                        CupertinoPageRoute(builder: (_) => Login()),
-                      );
-                    },
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(color: Colors.green),
-                    ),
-                  ),
-                ],
-              ),
-        );
-      } catch (e) {
-        Navigator.pop(context);
-        showDialog(
-          context: context,
-          builder:
-              (_) => AlertDialog(
-                title: const Text('Registration Failed'),
-                content: Text(e.toString()),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('OK'),
-                  ),
-                ],
-              ),
-        );
-      }
+              ],
+            ),
+      );
+    } on FirebaseAuthException catch (e) {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Registration Failed'),
+              content: Text(e.message ?? 'An unknown error occurred.'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
+    } catch (e) {
+      Navigator.pop(context);
+      showDialog(
+        context: context,
+        builder:
+            (_) => AlertDialog(
+              title: const Text('Error'),
+              content: Text(e.toString()),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('OK'),
+                ),
+              ],
+            ),
+      );
     }
   }
 

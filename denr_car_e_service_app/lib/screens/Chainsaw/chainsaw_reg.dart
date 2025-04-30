@@ -271,96 +271,103 @@ class _ChainsawRegState extends State<ChainsawReg> {
 
   // Submit all files
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
+
     if (dulyAccomplishForm != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Upload'),
-            content: const Text(
-              'Are you sure you want to upload attached files?',
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {
-          'Duly Accomplish Application Form': dulyAccomplishForm!,
-          'Reciept of Chainsaw Purchase': chainsawReciept!,
-        };
+      filesToUpload['Duly Accomplish Application Form'] = dulyAccomplishForm!;
+    }
+    if (chainsawReciept != null) {
+      filesToUpload['Reciept of Chainsaw Purchase'] = chainsawReciept!;
+    }
 
-        if (spa != null) {
-          filesToUpload['SPA'] = spa!;
-        }
-        if (chainsawSpec != null) {
-          filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
-        }
-        if (deedofSale != null) {
-          filesToUpload['Deed of Sale'] = deedofSale!;
-        }
-        if (regChainsaw != null) {
-          filesToUpload['Chainsaw Registration'] = regChainsaw!;
-        }
-        if (forestTenure != null) {
-          filesToUpload['Forest Tenure Agreement'] = forestTenure!;
-        }
-        if (businessPermit != null) {
-          filesToUpload['Business Permit'] = businessPermit!;
-        }
-        if (certRegistration != null) {
-          filesToUpload['Certificate of Registration'] = certRegistration!;
-        }
-        if (permitAffidavit != null) {
-          filesToUpload['Affidavit or Permit from LGU'] = permitAffidavit!;
-        }
-        if (plantPermit != null) {
-          filesToUpload['Plant Permit'] = plantPermit!;
-        }
-        if (headOffice != null) {
-          filesToUpload['Certification of Head Office'] = headOffice!;
-        }
-        if (certChainsawReg != null) {
-          filesToUpload['Certificate of Chainsaw Registration'] =
-              certChainsawReg!;
-        }
+    if (spa != null) {
+      filesToUpload['SPA'] = spa!;
+    }
+    if (chainsawSpec != null) {
+      filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
+    }
+    if (deedofSale != null) {
+      filesToUpload['Deed of Sale'] = deedofSale!;
+    }
+    if (regChainsaw != null) {
+      filesToUpload['Chainsaw Registration'] = regChainsaw!;
+    }
+    if (forestTenure != null) {
+      filesToUpload['Forest Tenure Agreement'] = forestTenure!;
+    }
+    if (businessPermit != null) {
+      filesToUpload['Business Permit'] = businessPermit!;
+    }
+    if (certRegistration != null) {
+      filesToUpload['Certificate of Registration'] = certRegistration!;
+    }
+    if (permitAffidavit != null) {
+      filesToUpload['Affidavit or Permit from LGU'] = permitAffidavit!;
+    }
+    if (plantPermit != null) {
+      filesToUpload['Plant Permit'] = plantPermit!;
+    }
+    if (headOffice != null) {
+      filesToUpload['Certification of Head Office'] = headOffice!;
+    }
+    if (certChainsawReg != null) {
+      filesToUpload['Certificate of Chainsaw Registration'] = certChainsawReg!;
+    }
 
-        await _uploadFiles(filesToUpload);
-      }
-    } else {
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
+            content: const Text('Please attach at least one file.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 

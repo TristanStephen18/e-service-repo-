@@ -253,57 +253,30 @@ class _PlantationRegistrationScreenState
 
   // Submit all files
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
+
     if (letterApplication != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Upload'),
-            content: const Text(
-              'Are you sure you want to upload attached files?',
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {
-          'Letter of Application': letterApplication!,
-          'OCT or TCT': oct!,
-        };
+      filesToUpload['Letter of Application'] = letterApplication!;
+    }
+    if (oct != null) {
+      filesToUpload['OCT or TCT'] = oct!;
+    }
 
-        if (spa != null) {
-          filesToUpload['SPA'] = spa!;
-        }
-        if (numberSeed != null) {
-          filesToUpload['Number of Seed'] = numberSeed!;
-        }
+    if (spa != null) {
+      filesToUpload['SPA'] = spa!;
+    }
+    if (numberSeed != null) {
+      filesToUpload['Number of Seed'] = numberSeed!;
+    }
 
-        await _uploadFiles(filesToUpload);
-      }
-    } else {
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
+            content: const Text('Please attach at least one file.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
@@ -315,6 +288,41 @@ class _PlantationRegistrationScreenState
           );
         },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 

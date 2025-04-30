@@ -1,5 +1,5 @@
-import 'dart:convert'; // For base64 encoding/decoding
-import 'dart:typed_data'; // For typed data
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart';
@@ -24,10 +24,7 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void initState() {
     super.initState();
-
-    if (user != null) {
-      fetchImageFromFirestore();
-    }
+    if (user != null) fetchImageFromFirestore();
   }
 
   @override
@@ -39,25 +36,21 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> fetchImageFromFirestore() async {
     try {
       if (user == null) return;
-
       DocumentSnapshot doc =
           await FirebaseFirestore.instance
               .collection('mobile_users')
               .doc(user!.uid)
               .get();
 
-      if (doc.exists) {
-        String base64String = doc['photo'];
-
-        Uint8List decodedBytes = base64Decode(base64String);
-
+      if (doc.exists && doc['photo'] != null) {
+        Uint8List decodedBytes = base64Decode(doc['photo']);
         setState(() {
           imageBytes = decodedBytes;
           isImageLoading = false;
         });
       }
     } catch (e) {
-      print("Error fetching or decoding image: $e");
+      print("Error fetching image: $e");
       setState(() {
         isImageLoading = false;
       });
@@ -69,21 +62,33 @@ class _ChatScreenState extends State<ChatScreen> {
     Responsive.init(context);
 
     if (user == null) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
-          backgroundColor: Colors.green,
-        ),
-        body: const Center(child: Text('You must be logged in to chat.')),
+      return const Scaffold(
+        body: Center(child: Text('You must be logged in to chat.')),
       );
     }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
-        title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green,
         automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: const AssetImage('lib/images/logo.png'),
+              backgroundColor: Colors.white,
+              radius: Responsive.getWidthScale(18),
+            ),
+            SizedBox(width: Responsive.getWidthScale(12)),
+            Text(
+              'MeCenro',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: Responsive.getTextScale(16),
+              ),
+            ),
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -114,24 +119,18 @@ class _ChatScreenState extends State<ChatScreen> {
 
                 final messageList =
                     messages.entries.toList()..sort((a, b) {
-                      final aTimestamp = a.value['timestamp'];
-                      final bTimestamp = b.value['timestamp'];
-
                       final format = DateFormat('MM/dd/yy h:mm a');
                       DateTime aTime, bTime;
-
                       try {
-                        aTime = format.parse(aTimestamp);
+                        aTime = format.parse(a.value['timestamp']);
                       } catch (_) {
                         aTime = DateTime.fromMillisecondsSinceEpoch(0);
                       }
-
                       try {
-                        bTime = format.parse(bTimestamp);
+                        bTime = format.parse(b.value['timestamp']);
                       } catch (_) {
                         bTime = DateTime.fromMillisecondsSinceEpoch(0);
                       }
-
                       return aTime.compareTo(bTime);
                     });
 
@@ -146,8 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 return ListView.builder(
                   controller: _scrollController,
                   padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.getWidthScale(10.0),
-                    vertical: Responsive.getHeightScale(10.0),
+                    horizontal: Responsive.getWidthScale(10),
                   ),
                   itemCount: messageList.length,
                   itemBuilder: (context, index) {
@@ -162,108 +160,105 @@ class _ChatScreenState extends State<ChatScreen> {
                       dateTime = DateTime.now();
                     }
 
-                    final formattedTime = format.format(dateTime);
+                    final formattedTime = DateFormat('h:mm a').format(dateTime);
 
-                    return Padding(
-                      padding: EdgeInsets.symmetric(
-                        vertical: Responsive.getHeightScale(4.0),
+                    return Container(
+                      margin: EdgeInsets.symmetric(
+                        vertical: Responsive.getHeightScale(6),
                       ),
                       child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
                         mainAxisAlignment:
                             isMe
                                 ? MainAxisAlignment.end
                                 : MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
                           if (!isMe)
-                            Column(
-                              children: [
-                                CircleAvatar(
-                                  radius: Responsive.getWidthScale(12.0),
-                                  backgroundImage: const AssetImage(
-                                    'lib/images/logo.png',
-                                  ),
-                                  backgroundColor: Colors.transparent,
-                                ),
-                                const SizedBox(height: 4),
-                                const Text(
-                                  'Admin',
-                                  style: TextStyle(fontSize: 9),
-                                ),
-                              ],
+                            CircleAvatar(
+                              radius: Responsive.getWidthScale(10),
+                              backgroundImage: const AssetImage(
+                                'lib/images/logo.png',
+                              ),
+                              backgroundColor: Colors.white,
                             ),
-
                           if (!isMe)
-                            SizedBox(width: Responsive.getWidthScale(10.0)),
+                            SizedBox(width: Responsive.getWidthScale(8)),
                           Flexible(
-                            child: Column(
-                              crossAxisAlignment:
-                                  isMe
-                                      ? CrossAxisAlignment.end
-                                      : CrossAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: Responsive.getWidthScale(10.0),
-                                    vertical: Responsive.getHeightScale(10.0),
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: Responsive.getWidthScale(12),
+                                vertical: Responsive.getHeightScale(8),
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isMe
+                                        ? const Color(0xFF05b905)
+                                        : Colors.grey[300],
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                    Responsive.getWidthScale(15),
                                   ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        isMe
-                                            ? const Color.fromARGB(
-                                              212,
-                                              5,
-                                              185,
-                                              5,
-                                            )
-                                            : Colors.grey[300],
-                                    borderRadius: BorderRadius.only(
-                                      topLeft: const Radius.circular(14),
-                                      topRight: const Radius.circular(14),
-                                      bottomLeft: Radius.circular(
-                                        isMe ? 14 : 0,
-                                      ),
-                                      bottomRight: Radius.circular(
-                                        isMe ? 0 : 14,
-                                      ),
-                                    ),
+                                  topRight: Radius.circular(
+                                    Responsive.getWidthScale(15),
                                   ),
-                                  child: Text(
+                                  bottomLeft: Radius.circular(
+                                    isMe ? Responsive.getWidthScale(15) : 0,
+                                  ),
+                                  bottomRight: Radius.circular(
+                                    isMe ? 0 : Responsive.getWidthScale(15),
+                                  ),
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
                                     data['message'] ?? '',
                                     style: TextStyle(
                                       color:
                                           isMe ? Colors.white : Colors.black87,
-                                      fontSize: Responsive.getTextScale(12.5),
+                                      fontSize: Responsive.getTextScale(12),
                                     ),
                                   ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  formattedTime,
-                                  style: TextStyle(
-                                    fontSize: Responsive.getTextScale(9.0),
-                                    color: Colors.grey,
+                                  SizedBox(
+                                    height: Responsive.getHeightScale(4),
                                   ),
-                                ),
-                              ],
+                                  Text(
+                                    formattedTime,
+                                    style: TextStyle(
+                                      fontSize: Responsive.getTextScale(8),
+                                      color:
+                                          isMe
+                                              ? Colors.white70
+                                              : Colors.black54,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                           ),
                           if (isMe)
-                            SizedBox(width: Responsive.getWidthScale(10.0)),
+                            SizedBox(width: Responsive.getWidthScale(8)),
                           if (isMe)
                             CircleAvatar(
-                              radius: Responsive.getWidthScale(12.0),
+                              radius: Responsive.getWidthScale(10),
                               backgroundImage:
                                   isImageLoading
-                                      ? const AssetImage(
-                                        'lib/images/logo.png',
-                                      ) // Placeholder
+                                      ? const AssetImage('lib/images/logo.png')
+                                          as ImageProvider
                                       : (imageBytes != null
                                           ? MemoryImage(imageBytes!)
                                           : const AssetImage(
                                             'lib/images/user.png',
-                                          )), // User's image
-                              backgroundColor: Colors.transparent,
+                                          )),
+                              backgroundColor: Colors.white,
                             ),
                         ],
                       ),
@@ -280,65 +275,77 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 }
 
-class _MessageInputField extends StatelessWidget {
+class _MessageInputField extends StatefulWidget {
   const _MessageInputField();
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController _controller = TextEditingController();
-    final User? user = FirebaseAuth.instance.currentUser;
+  State<_MessageInputField> createState() => _MessageInputFieldState();
+}
 
-    void _sendMessage() async {
-      if (_controller.text.trim().isEmpty || user == null) return;
+class _MessageInputFieldState extends State<_MessageInputField> {
+  final TextEditingController _controller = TextEditingController();
+  final User? user = FirebaseAuth.instance.currentUser;
 
-      try {
-        final messageRef =
-            FirebaseDatabase.instance
-                .ref()
-                .child('chats')
-                .child(user.uid)
-                .push();
+  void _sendMessage() async {
+    if (_controller.text.trim().isEmpty || user == null) return;
 
-        final nowFormatted = DateFormat(
-          'MM/dd/yy h:mm a',
-        ).format(DateTime.now());
-        final indicator = FirebaseDatabase.instance.ref().child('indicator');
+    try {
+      final messageRef =
+          FirebaseDatabase.instance
+              .ref()
+              .child('chats')
+              .child(user!.uid)
+              .push();
 
-        await indicator.child(user.uid).set('sent');
+      final nowFormatted = DateFormat('MM/dd/yy h:mm a').format(DateTime.now());
 
-        await messageRef.set({
-          'senderID': user.uid,
-          'message': _controller.text.trim(),
-          'timestamp': nowFormatted,
-        });
+      await FirebaseDatabase.instance
+          .ref()
+          .child('indicator')
+          .child(user!.uid)
+          .set({'status': 'sent', 'timestamp': nowFormatted});
 
-        _controller.clear();
-      } catch (_) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
-      }
+      await messageRef.set({
+        'senderID': user!.uid,
+        'message': _controller.text.trim(),
+        'timestamp': nowFormatted,
+      });
+
+      _controller.clear();
+    } catch (e) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
     }
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(
-        horizontal: Responsive.getWidthScale(12.0),
-        vertical: Responsive.getHeightScale(10.0),
+        horizontal: Responsive.getWidthScale(8),
+        vertical: Responsive.getHeightScale(4),
       ),
       child: Row(
         children: [
           Expanded(
             child: Container(
               padding: EdgeInsets.symmetric(
-                horizontal: Responsive.getWidthScale(14.0),
+                horizontal: Responsive.getWidthScale(5),
+                vertical: Responsive.getHeightScale(1),
               ),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(25),
+                borderRadius: BorderRadius.circular(
+                  Responsive.getWidthScale(13),
+                ),
               ),
               child: TextField(
                 controller: _controller,
+                minLines: 1,
+                maxLines: 4,
+                style: TextStyle(fontSize: Responsive.getTextScale(12)),
                 decoration: const InputDecoration(
                   hintText: 'Type a message...',
                   border: InputBorder.none,
@@ -346,12 +353,16 @@ class _MessageInputField extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(width: Responsive.getWidthScale(10.0)),
+          SizedBox(width: Responsive.getWidthScale(5)),
           CircleAvatar(
             backgroundColor: Colors.green,
-            radius: Responsive.getWidthScale(20.0),
+            radius: Responsive.getWidthScale(20),
             child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white, size: 20),
+              icon: Icon(
+                Icons.send,
+                color: Colors.white,
+                size: Responsive.getWidthScale(18),
+              ),
               onPressed: _sendMessage,
             ),
           ),

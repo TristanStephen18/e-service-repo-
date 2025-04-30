@@ -274,99 +274,107 @@ class _LumberRegistrationState extends State<LumberRegistration> {
 
   // Submit all files
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
+
     if (dulyAccomplishForm != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Upload'),
-            content: const Text(
-              'Are you sure you want to upload attached files?',
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {
-          'Duly Accomplish Application Form': dulyAccomplishForm!,
-          'Pictures of Establishment': picture!,
-        };
+      filesToUpload['Duly Accomplish Application Form'] = dulyAccomplishForm!;
+    }
+    if (picture != null) {
+      filesToUpload['Pictures of Establishment'] = picture!;
+    }
 
-        if (permitEngage != null) {
-          filesToUpload['Permit to Engage'] = permitEngage!;
-        }
-        if (lumberContract != null) {
-          filesToUpload['Lumber Supply Contract'] = lumberContract!;
-        }
-        if (businessPlan != null) {
-          filesToUpload['Business Plan'] = businessPlan!;
-        }
-        if (listEmployees != null) {
-          filesToUpload['List of Employees'] = listEmployees!;
-        }
-        if (incomeTax != null) {
-          filesToUpload['Income Tax Return'] = incomeTax!;
-        }
-        if (financialStatement != null) {
-          filesToUpload['Audited Financial Statement'] = financialStatement!;
-        }
-        if (certBank != null) {
-          filesToUpload['Certificate of Bank'] = certBank!;
-        }
-        if (prevCert != null) {
-          filesToUpload['Previous Certificate of Registration'] = prevCert!;
-        }
-        if (certRegistration != null) {
-          filesToUpload['Certificate of Registration(DTI or SEC)'] =
-              certRegistration!;
-        }
-        if (certNonCoverage != null) {
-          filesToUpload['Certification of Non-Coverage'] = certNonCoverage!;
-        }
-        if (reportLumber != null) {
-          filesToUpload['Annual Report of Lumber'] = reportLumber!;
-        }
-        if (inventory != null) {
-          filesToUpload['Inventory of Lumber Stocks'] = inventory!;
-        }
+    if (permitEngage != null) {
+      filesToUpload['Permit to Engage'] = permitEngage!;
+    }
+    if (lumberContract != null) {
+      filesToUpload['Lumber Supply Contract'] = lumberContract!;
+    }
+    if (businessPlan != null) {
+      filesToUpload['Business Plan'] = businessPlan!;
+    }
+    if (listEmployees != null) {
+      filesToUpload['List of Employees'] = listEmployees!;
+    }
+    if (incomeTax != null) {
+      filesToUpload['Income Tax Return'] = incomeTax!;
+    }
+    if (financialStatement != null) {
+      filesToUpload['Audited Financial Statement'] = financialStatement!;
+    }
+    if (certBank != null) {
+      filesToUpload['Certificate of Bank'] = certBank!;
+    }
+    if (prevCert != null) {
+      filesToUpload['Previous Certificate of Registration'] = prevCert!;
+    }
+    if (certRegistration != null) {
+      filesToUpload['Certificate of Registration(DTI or SEC)'] =
+          certRegistration!;
+    }
+    if (certNonCoverage != null) {
+      filesToUpload['Certification of Non-Coverage'] = certNonCoverage!;
+    }
+    if (reportLumber != null) {
+      filesToUpload['Annual Report of Lumber'] = reportLumber!;
+    }
+    if (inventory != null) {
+      filesToUpload['Inventory of Lumber Stocks'] = inventory!;
+    }
 
-        await _uploadFiles(filesToUpload);
-      }
-    } else {
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
+            content: const Text('Please attach at least one file.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 

@@ -102,7 +102,7 @@ class _OnboardingState extends State<Onboarding> {
                   ),
                 ),
                 Positioned(
-                  bottom: Responsive.getHeightScale(16),
+                  bottom: Responsive.getHeightScale(23),
                   left: Responsive.getWidthScale(19),
                   right: Responsive.getWidthScale(19),
                   child: Row(

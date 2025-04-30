@@ -275,86 +275,92 @@ class _GovermentScreenState extends State<GovermentScreen> {
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
+
     if (applicationLetter != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Confirm Upload'),
-            content: const Text(
-              'Are you sure you want to upload attached files?',
-            ),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('Cancel'),
-                onPressed: () {
-                  Navigator.of(context).pop(false);
-                },
-              ),
-              TextButton(
-                child: const Text(
-                  'Upload',
-                  style: TextStyle(color: Colors.green),
-                ),
-                onPressed: () {
-                  Navigator.of(context).pop(true);
-                },
-              ),
-            ],
-          );
-        },
-      );
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {
-          'Duly Accomplish Application Form': applicationLetter!,
-          'LGU Endorsement or Certification': lguEndorsement!,
-        };
+      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    }
+    if (lguEndorsement != null) {
+      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    }
 
-        if (waiver != null) {
-          filesToUpload['Waiver'] = waiver!;
-        }
-        if (ecc != null) {
-          filesToUpload['ECC'] = ecc!;
-        }
-        if (siteDevelopment != null) {
-          filesToUpload['Site Development Plan'] = siteDevelopment!;
-        }
-        if (pambClearance != null) {
-          filesToUpload['PAMB Clearance'] = pambClearance!;
-        }
-        if (ncip != null) {
-          filesToUpload['NCIP Clearance'] = ncip!;
-        }
-        if (photo != null) {
-          filesToUpload['Photos of Trees'] = photo!;
-        }
+    if (waiver != null) {
+      filesToUpload['Waiver'] = waiver!;
+    }
+    if (ecc != null) {
+      filesToUpload['ECC'] = ecc!;
+    }
+    if (siteDevelopment != null) {
+      filesToUpload['Site Development Plan'] = siteDevelopment!;
+    }
+    if (pambClearance != null) {
+      filesToUpload['PAMB Clearance'] = pambClearance!;
+    }
+    if (ncip != null) {
+      filesToUpload['NCIP Clearance'] = ncip!;
+    }
+    if (photo != null) {
+      filesToUpload['Photos of Trees'] = photo!;
+    }
 
-        if (others != null) {
-          filesToUpload['Others'] = others!;
-        }
-
-        await _uploadFiles(filesToUpload);
-      }
-    } else {
+    if (others != null) {
+      filesToUpload['Others'] = others!;
+    }
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Missing Files'),
-            content: const Text('Please attach required files.'),
+            content: const Text('Please attach at least one file.'),
             actions: <Widget>[
               TextButton(
                 child: const Text('OK'),
                 onPressed: () {
-                  Navigator.of(context).pop(); // Closes the dialog
+                  Navigator.of(context).pop();
                 },
               ),
             ],
           );
         },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 

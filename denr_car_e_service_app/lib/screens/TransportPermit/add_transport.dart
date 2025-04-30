@@ -364,10 +364,22 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
                           ),
                         ),
                         const SizedBox(height: 16),
+                        if (!uploadedLabels.contains('Request Letter'))
+                          _buildFilePicker(
+                            '1. Request letter indictating the following: (1 original, 1 photocopy)\n'
+                            '\t a. Type of forest product.\n'
+                            '\t b. Species\n'
+                            '\t c. Estimated volume/quantity\n'
+                            '\t d. Type of conveyance and plate number\n'
+                            '\t e. Name and address of the consignee/destination\n'
+                            '\t f. Date of transport.',
+                            requestLetter,
+                            (file) => setState(() => requestLetter = file),
+                          ),
 
                         if (!uploadedLabels.contains('Certification'))
                           _buildFilePicker(
-                            '1. Certification that the forest products are harvested within the area of the owner (for non-timber)(1 original)',
+                            '2. Certification that the forest products are harvested within the area of the owner (for non-timber)(1 original)',
                             _certificationFile,
                             (file) => setState(() => _certificationFile = file),
                           ),
@@ -402,7 +414,7 @@ class _AddForestRequirementsFormState extends State<AddForestRequirementsForm> {
                           ),
                         if (!uploadedLabels.contains('Others'))
                           _buildFilePicker(
-                            '6. Others',
+                            '7. Others',
                             others,
                             (file) => setState(() => others = file),
                           ),

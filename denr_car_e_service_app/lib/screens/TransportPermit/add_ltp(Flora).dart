@@ -354,7 +354,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                           'Phytosanitary Certificate',
                         ))
                           _buildFilePicker(
-                            '2. Duly Accomplished Application Form ;',
+                            '3. Phytosanitary Certificate from concerned DA Office.',
                             phytosanitaryCert,
                             (file) => setState(() => phytosanitaryCert = file),
                           ),

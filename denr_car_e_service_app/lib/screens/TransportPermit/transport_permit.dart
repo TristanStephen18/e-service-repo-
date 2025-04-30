@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -230,107 +229,83 @@ class _ForestRequirementsFormState extends State<ForestRequirementsForm> {
     }
   }
 
+  // Submit all files
   Future<void> _submitFiles() async {
+    Map<String, File> filesToUpload = {};
+
+    if (_certificationFile != null) {
+      filesToUpload['Certification'] = _certificationFile!;
+    }
+    if (_orCrFile != null) {
+      filesToUpload['OR CR'] = _orCrFile!;
+    }
+    if (_treeCuttingPermitFile != null) {
+      filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
+    }
+    if (_transportAgreementFile != null) {
+      filesToUpload['Transport Agreement'] = _transportAgreementFile!;
+    }
+    if (_spaFile != null) {
+      filesToUpload['SPA'] = _spaFile!;
+    }
     if (requestLetter != null) {
-      bool? confirmed = await showDialog<bool>(
-        context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text('Confirm Upload'),
-              content: const Text(
-                'Are you sure you want to upload attached files?',
-              ),
-              actions: [
-                TextButton(
-                  child: const Text('Cancel'),
-                  onPressed: () => Navigator.of(context).pop(false),
-                ),
-                TextButton(
-                  child: const Text(
-                    'Upload',
-                    style: TextStyle(color: Colors.green),
-                  ),
-                  onPressed: () => Navigator.of(context).pop(true),
-                ),
-              ],
-            ),
-      );
+      filesToUpload['Request Letter'] = requestLetter!;
+    }
 
-      if (confirmed == true) {
-        Map<String, File> filesToUpload = {};
-
-        if (_certificationFile != null) {
-          filesToUpload['Certification'] = _certificationFile!;
-        }
-        if (_orCrFile != null) {
-          filesToUpload['OR CR'] = _orCrFile!;
-        }
-        if (_treeCuttingPermitFile != null) {
-          filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
-        }
-        if (_transportAgreementFile != null) {
-          filesToUpload['Transport Agreement'] = _transportAgreementFile!;
-        }
-        if (_spaFile != null) {
-          filesToUpload['SPA'] = _spaFile!;
-        }
-        if (requestLetter != null) {
-          filesToUpload['Request Letter'] = requestLetter!;
-        }
-
-        String? documentId = await _uploadFiles(filesToUpload);
-
-        if (documentId != null) {
-          showDialog(
-            context: context,
-            builder:
-                (_) => AlertDialog(
-                  title: Row(
-                    children: const [
-                      Icon(Icons.check_circle, color: Colors.green),
-                      SizedBox(width: 10),
-                      Text('Success'),
-                    ],
-                  ),
-                  content: const Text('Application Submitted Successfully!'),
-                  actions: [
-                    TextButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                        Navigator.of(context).push(
-                          CupertinoPageRoute(
-                            builder:
-                                (_) => Homepage(
-                                  userid:
-                                      FirebaseAuth.instance.currentUser!.uid,
-                                ),
-                          ),
-                        );
-                      },
-                      child: const Text('OK'),
-                    ),
-                  ],
-                ),
-          );
-        }
-      }
-    } else {
+    if (filesToUpload.isEmpty) {
+      // Show alert if no files attached
       showDialog(
         context: context,
-        builder:
-            (_) => AlertDialog(
-              title: const Text('Missing Files'),
-              content: const Text(
-                'Please attach at least one file before submitting.',
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Missing Files'),
+            content: const Text('Please attach at least one file.'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
               ),
-              actions: [
-                TextButton(
-                  child: const Text('OK'),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
+            ],
+          );
+        },
       );
+      return;
+    }
+
+    // Confirm upload dialog
+    bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Upload'),
+          content: const Text(
+            'Are you sure you want to upload attached files?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text(
+                'Upload',
+                style: TextStyle(color: Colors.green),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop(true);
+              },
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _uploadFiles(filesToUpload);
     }
   }
 
