@@ -13,6 +13,7 @@ void main() async {
 
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await Firebase.initializeApp();
+
   await NotifService.instance.initialize();
 
   runApp(Eservices());

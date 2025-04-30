@@ -1,190 +1,274 @@
+import 'dart:convert'; // For base64 encoding/decoding
+import 'dart:typed_data'; // For typed data
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:intl/intl.dart'; // For date formatting
+import 'package:firebase_database/firebase_database.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:denr_car_e_service_app/model/responsive.dart';
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
   @override
+  _ChatScreenState createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  final ScrollController _scrollController = ScrollController();
+  final User? user = FirebaseAuth.instance.currentUser;
+
+  Uint8List? imageBytes;
+  bool isImageLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (user != null) {
+      fetchImageFromFirestore();
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  Future<void> fetchImageFromFirestore() async {
+    try {
+      if (user == null) return;
+
+      DocumentSnapshot doc =
+          await FirebaseFirestore.instance
+              .collection('mobile_users')
+              .doc(user!.uid)
+              .get();
+
+      if (doc.exists) {
+        String base64String = doc['photo'];
+
+        Uint8List decodedBytes = base64Decode(base64String);
+
+        setState(() {
+          imageBytes = decodedBytes;
+          isImageLoading = false;
+        });
+      }
+    } catch (e) {
+      print("Error fetching or decoding image: $e");
+      setState(() {
+        isImageLoading = false;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Initialize Responsive class
     Responsive.init(context);
 
-    User? user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
+          backgroundColor: Colors.green,
+        ),
+        body: const Center(child: Text('You must be logged in to chat.')),
+      );
+    }
 
     return Scaffold(
       backgroundColor: Colors.grey[100],
       appBar: AppBar(
         title: const Text('Mecenro', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.green,
-        elevation: 0,
         automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
           Expanded(
-            child: StreamBuilder<QuerySnapshot>(
+            child: StreamBuilder<DatabaseEvent>(
               stream:
-                  FirebaseFirestore.instance
-                      .collection('chats')
-                      .doc(user?.uid) // Use the user UID to find the document.
-                      .collection('messages') // Subcollection for messages.
-                      .orderBy('timestamp', descending: true)
-                      .snapshots(),
+                  FirebaseDatabase.instance
+                      .ref()
+                      .child('chats')
+                      .child(user!.uid)
+                      .onValue,
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                if (snapshot.hasError) {
+                  return const Center(child: Text('Error loading messages.'));
+                }
+
+                if (!snapshot.hasData ||
+                    snapshot.data!.snapshot.value == null) {
                   return const Center(child: Text('No messages yet.'));
                 }
 
-                return ListView(
-                  reverse: true,
+                Map<dynamic, dynamic> messages =
+                    snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+
+                final messageList =
+                    messages.entries.toList()..sort((a, b) {
+                      final aTimestamp = a.value['timestamp'];
+                      final bTimestamp = b.value['timestamp'];
+
+                      final format = DateFormat('MM/dd/yy h:mm a');
+                      DateTime aTime, bTime;
+
+                      try {
+                        aTime = format.parse(aTimestamp);
+                      } catch (_) {
+                        aTime = DateTime.fromMillisecondsSinceEpoch(0);
+                      }
+
+                      try {
+                        bTime = format.parse(bTimestamp);
+                      } catch (_) {
+                        bTime = DateTime.fromMillisecondsSinceEpoch(0);
+                      }
+
+                      return aTime.compareTo(bTime);
+                    });
+
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (_scrollController.hasClients) {
+                    _scrollController.jumpTo(
+                      _scrollController.position.maxScrollExtent,
+                    );
+                  }
+                });
+
+                return ListView.builder(
+                  controller: _scrollController,
                   padding: EdgeInsets.symmetric(
-                    horizontal: Responsive.getWidthScale(
-                      12.0,
-                    ), // Responsive padding
-                    vertical: Responsive.getHeightScale(
-                      10.0,
-                    ), // Responsive padding
+                    horizontal: Responsive.getWidthScale(10.0),
+                    vertical: Responsive.getHeightScale(10.0),
                   ),
-                  children:
-                      snapshot.data!.docs.map((doc) {
-                        final data = doc.data() as Map<String, dynamic>;
-                        final isMe = data['senderId'] == user?.uid;
-                        final timestamp = data['timestamp'] as Timestamp?;
+                  itemCount: messageList.length,
+                  itemBuilder: (context, index) {
+                    final data = messageList[index].value;
+                    final isMe = data['senderID'] == user!.uid;
 
-                        // Formatting the date and time
-                        final formattedDate =
-                            timestamp != null
-                                ? DateFormat('MMM dd').format(
-                                  timestamp.toDate(),
-                                ) // Month and day
-                                : '';
-                        final formattedTime =
-                            timestamp != null
-                                ? DateFormat('HH:mm').format(
-                                  timestamp.toDate(),
-                                ) // Hour and minute
-                                : '';
+                    DateTime dateTime;
+                    final format = DateFormat('MM/dd/yy h:mm a');
+                    try {
+                      dateTime = format.parse(data['timestamp']);
+                    } catch (_) {
+                      dateTime = DateTime.now();
+                    }
 
-                        // Get the image URL from Firestore if available
-                        final imageUrl =
-                            data['imageUrl']; // Assuming Firestore contains the image URL
+                    final formattedTime = format.format(dateTime);
 
-                        return Align(
-                          alignment:
-                              isMe
-                                  ? Alignment.centerRight
-                                  : Alignment.centerLeft,
-                          child: Column(
-                            crossAxisAlignment:
-                                isMe
-                                    ? CrossAxisAlignment.end
-                                    : CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.symmetric(
-                                  vertical: Responsive.getHeightScale(6.0),
-                                ), // Responsive margin
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: Responsive.getWidthScale(
-                                    14.0,
-                                  ), // Responsive padding
-                                  vertical: Responsive.getHeightScale(
-                                    10.0,
-                                  ), // Responsive padding
+                    return Padding(
+                      padding: EdgeInsets.symmetric(
+                        vertical: Responsive.getHeightScale(4.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment:
+                            isMe
+                                ? MainAxisAlignment.end
+                                : MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          if (!isMe)
+                            Column(
+                              children: [
+                                CircleAvatar(
+                                  radius: Responsive.getWidthScale(12.0),
+                                  backgroundImage: const AssetImage(
+                                    'lib/images/logo.png',
+                                  ),
+                                  backgroundColor: Colors.transparent,
                                 ),
-                                constraints: BoxConstraints(
-                                  maxWidth:
-                                      MediaQuery.of(context).size.width * 0.75,
+                                const SizedBox(height: 4),
+                                const Text(
+                                  'Admin',
+                                  style: TextStyle(fontSize: 9),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: isMe ? Colors.blue : Colors.grey[300],
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: const Radius.circular(16),
-                                    topRight: const Radius.circular(16),
-                                    bottomLeft: Radius.circular(isMe ? 16 : 0),
-                                    bottomRight: Radius.circular(isMe ? 0 : 16),
+                              ],
+                            ),
+
+                          if (!isMe)
+                            SizedBox(width: Responsive.getWidthScale(10.0)),
+                          Flexible(
+                            child: Column(
+                              crossAxisAlignment:
+                                  isMe
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: Responsive.getWidthScale(10.0),
+                                    vertical: Responsive.getHeightScale(10.0),
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isMe
+                                            ? const Color.fromARGB(
+                                              212,
+                                              5,
+                                              185,
+                                              5,
+                                            )
+                                            : Colors.grey[300],
+                                    borderRadius: BorderRadius.only(
+                                      topLeft: const Radius.circular(14),
+                                      topRight: const Radius.circular(14),
+                                      bottomLeft: Radius.circular(
+                                        isMe ? 14 : 0,
+                                      ),
+                                      bottomRight: Radius.circular(
+                                        isMe ? 0 : 14,
+                                      ),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    data['message'] ?? '',
+                                    style: TextStyle(
+                                      color:
+                                          isMe ? Colors.white : Colors.black87,
+                                      fontSize: Responsive.getTextScale(12.5),
+                                    ),
                                   ),
                                 ),
-                                child: Text(
-                                  data['message'] ?? '',
+                                const SizedBox(height: 6),
+                                Text(
+                                  formattedTime,
                                   style: TextStyle(
-                                    color: isMe ? Colors.white : Colors.black87,
-                                    fontSize: Responsive.getTextScale(
-                                      16.0,
-                                    ), // Responsive font size
+                                    fontSize: Responsive.getTextScale(9.0),
+                                    color: Colors.grey,
                                   ),
                                 ),
-                              ),
-                              if (imageUrl != null && imageUrl.isNotEmpty)
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: Responsive.getHeightScale(
-                                      4.0,
-                                    ), // Responsive padding
-                                  ),
-                                  child: Image.network(
-                                    imageUrl,
-                                    width: Responsive.getWidthScale(
-                                      200.0,
-                                    ), // Responsive width
-                                    height: Responsive.getHeightScale(
-                                      200.0,
-                                    ), // Responsive height
-                                    fit: BoxFit.cover,
-                                  ),
-                                )
-                              else
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: Responsive.getHeightScale(
-                                      4.0,
-                                    ), // Responsive padding
-                                  ),
-                                  child: Image.asset(
-                                    'lib/images/logo.png', // Use a default local image
-                                    width: Responsive.getWidthScale(
-                                      15.0,
-                                    ), // Responsive width
-                                    height: Responsive.getHeightScale(
-                                      15.0,
-                                    ), // Responsive height
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-
-                              // Displaying formatted date and time in a single line
-                              Text(
-                                '$formattedDate, $formattedTime',
-                                style: TextStyle(
-                                  fontSize: Responsive.getTextScale(
-                                    12.0,
-                                  ), // Responsive font size
-                                  color: Colors.black54,
-                                ),
-                              ),
-                              // Displaying Sent/Delivered status
-                              Text(
-                                isMe
-                                    ? 'Sent'
-                                    : 'Seen', // Sent for the current user, Delivered for others
-                                style: TextStyle(
-                                  fontSize: Responsive.getTextScale(
-                                    12.0,
-                                  ), // Responsive font size
-                                  color: Colors.black54,
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        );
-                      }).toList(),
+                          if (isMe)
+                            SizedBox(width: Responsive.getWidthScale(10.0)),
+                          if (isMe)
+                            CircleAvatar(
+                              radius: Responsive.getWidthScale(12.0),
+                              backgroundImage:
+                                  isImageLoading
+                                      ? const AssetImage(
+                                        'lib/images/logo.png',
+                                      ) // Placeholder
+                                      : (imageBytes != null
+                                          ? MemoryImage(imageBytes!)
+                                          : const AssetImage(
+                                            'lib/images/user.png',
+                                          )), // User's image
+                              backgroundColor: Colors.transparent,
+                            ),
+                        ],
+                      ),
+                    );
+                  },
                 );
               },
             ),
@@ -196,50 +280,51 @@ class ChatScreen extends StatelessWidget {
   }
 }
 
-class _MessageInputField extends StatefulWidget {
+class _MessageInputField extends StatelessWidget {
   const _MessageInputField();
 
   @override
-  State<_MessageInputField> createState() => _MessageInputFieldState();
-}
-
-class _MessageInputFieldState extends State<_MessageInputField> {
-  final TextEditingController _controller = TextEditingController();
-  final User? user = FirebaseAuth.instance.currentUser;
-
-  void _sendMessage() async {
-    if (_controller.text.trim().isEmpty) return;
-
-    try {
-      await FirebaseFirestore.instance
-          .collection('chats')
-          .doc(user?.uid) // User document ID
-          .collection('messages') // Subcollection for messages
-          .add({
-            'senderId': user?.uid,
-            'receiverId':
-                'mPZ4nMNESZfxTtxkXHj2sHnAdYm1', // replace with actual admin UID if available
-            'message': _controller.text.trim(),
-            'timestamp': FieldValue.serverTimestamp(),
-            'imageUrl':
-                '', // Optional: If you want to send an image URL, use this field.
-          });
-
-      _controller.clear();
-    } catch (e) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final TextEditingController _controller = TextEditingController();
+    final User? user = FirebaseAuth.instance.currentUser;
+
+    void _sendMessage() async {
+      if (_controller.text.trim().isEmpty || user == null) return;
+
+      try {
+        final messageRef =
+            FirebaseDatabase.instance
+                .ref()
+                .child('chats')
+                .child(user.uid)
+                .push();
+
+        final nowFormatted = DateFormat(
+          'MM/dd/yy h:mm a',
+        ).format(DateTime.now());
+        final indicator = FirebaseDatabase.instance.ref().child('indicator');
+
+        await indicator.child(user.uid).set('sent');
+
+        await messageRef.set({
+          'senderID': user.uid,
+          'message': _controller.text.trim(),
+          'timestamp': nowFormatted,
+        });
+
+        _controller.clear();
+      } catch (_) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Failed to send message')));
+      }
+    }
+
     return Container(
       color: Colors.white,
       padding: EdgeInsets.symmetric(
-        horizontal: Responsive.getWidthScale(12.0), // Responsive padding
-        vertical: Responsive.getHeightScale(10.0), // Responsive padding
+        horizontal: Responsive.getWidthScale(12.0),
+        vertical: Responsive.getHeightScale(10.0),
       ),
       child: Row(
         children: [
@@ -247,7 +332,7 @@ class _MessageInputFieldState extends State<_MessageInputField> {
             child: Container(
               padding: EdgeInsets.symmetric(
                 horizontal: Responsive.getWidthScale(14.0),
-              ), // Responsive padding
+              ),
               decoration: BoxDecoration(
                 color: Colors.grey[200],
                 borderRadius: BorderRadius.circular(25),
@@ -261,10 +346,10 @@ class _MessageInputFieldState extends State<_MessageInputField> {
               ),
             ),
           ),
-          SizedBox(width: Responsive.getWidthScale(10.0)), // Responsive gap
+          SizedBox(width: Responsive.getWidthScale(10.0)),
           CircleAvatar(
             backgroundColor: Colors.green,
-            radius: Responsive.getWidthScale(20.0), // Responsive radius
+            radius: Responsive.getWidthScale(20.0),
             child: IconButton(
               icon: const Icon(Icons.send, color: Colors.white, size: 20),
               onPressed: _sendMessage,

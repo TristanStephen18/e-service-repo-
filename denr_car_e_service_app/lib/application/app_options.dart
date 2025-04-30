@@ -1,21 +1,31 @@
-import 'package:denr_car_e_service_app/map/map.dart';
+import 'package:denr_car_e_service_app/application/set_date.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
+import 'package:denr_car_e_service_app/application/inspection_date.dart';
+import 'package:denr_car_e_service_app/application/order_of_payment.dart';
+import 'package:denr_car_e_service_app/application/view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class TreeCuttingChoices extends StatelessWidget {
-  TreeCuttingChoices({super.key});
+class OptionScreen extends StatelessWidget {
+  final String applicationId;
+  final String appType;
+  final String status;
+  OptionScreen({
+    super.key,
+    required this.applicationId,
+    required this.appType,
+    required this.status,
+  });
 
   @override
   Widget build(BuildContext context) {
-    // Initialize the responsive values when the widget is built
     Responsive.init(context);
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Tree Cutting Type',
+          'Application',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(
@@ -48,9 +58,9 @@ class TreeCuttingChoices extends StatelessWidget {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.public, color: Colors.green),
+                  leading: Icon(Icons.file_copy, color: Colors.green),
                   title: Text(
-                    "Public Safety Permit",
+                    "View Requirements",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(
@@ -61,18 +71,11 @@ class TreeCuttingChoices extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => MapScreen(type: 'PSP'),
+                        builder: (ctx) => Display(applicationId: applicationId),
                       ),
                     );
                   },
-                  subtitle: Text(
-                    "For removal of trees in public places.",
-                    style: TextStyle(
-                      fontSize: Responsive.getTextScale(
-                        12,
-                      ), // Responsive text size
-                    ),
-                  ),
+
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
@@ -91,9 +94,9 @@ class TreeCuttingChoices extends StatelessWidget {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.landscape, color: Colors.green),
+                  leading: Icon(Icons.payment, color: Colors.green),
                   title: Text(
-                    "Private Land Timber Permit",
+                    "View Order of Payment",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(
@@ -104,18 +107,14 @@ class TreeCuttingChoices extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => MapScreen(type: 'PLTP'),
+                        builder:
+                            (ctx) => OrderOfPaymentScreen(
+                              applicationId: applicationId,
+                            ),
                       ),
                     );
                   },
-                  subtitle: Text(
-                    "For trees within private lands",
-                    style: TextStyle(
-                      fontSize: Responsive.getTextScale(
-                        12,
-                      ), // Responsive text size
-                    ),
-                  ),
+
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
@@ -134,9 +133,9 @@ class TreeCuttingChoices extends StatelessWidget {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.security, color: Colors.green),
+                  leading: Icon(Icons.date_range, color: Colors.green),
                   title: Text(
-                    "National Government Agencies Permit",
+                    "View Date of Inspection",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(
@@ -147,21 +146,58 @@ class TreeCuttingChoices extends StatelessWidget {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => MapScreen(type: 'NGA'),
+                        builder:
+                            (ctx) => InspectionDateScreen(
+                              applicationId: applicationId,
+                            ),
                       ),
                     );
                   },
-                  subtitle: Text(
-                    "For trees affected by national government agency projects.",
-                    style: TextStyle(
-                      fontSize: Responsive.getTextScale(
-                        12,
-                      ), // Responsive text size
-                    ),
-                  ),
+
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
               ),
+
+              if (appType == "TC" &&
+                  status == "Approved for Implementation") ...[
+                Gap(Responsive.getHeightScale(15)),
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.2),
+                        blurRadius: 5,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  child: ListTile(
+                    leading: Icon(Icons.date_range, color: Colors.green),
+                    title: Text(
+                      "Set Inspection Date",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: Responsive.getTextScale(14),
+                      ),
+                    ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        CupertinoPageRoute(
+                          builder:
+                              (ctx) =>
+                                  SetDateScreen(applicationId: applicationId),
+                        ),
+                      );
+                    },
+                    trailing: Icon(
+                      Icons.arrow_forward_ios,
+                      color: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ),

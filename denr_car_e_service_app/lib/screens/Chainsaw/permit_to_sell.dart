@@ -252,7 +252,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && _proofOfOwnership != null) {
+    if (dulyAccomplishForm != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

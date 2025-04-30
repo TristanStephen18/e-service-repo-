@@ -102,48 +102,67 @@ class _OnboardingState extends State<Onboarding> {
                   ),
                 ),
                 Positioned(
-                  bottom: Responsive.getHeightScale(70),
-                  left: 0,
-                  right: 0,
+                  bottom: Responsive.getHeightScale(16),
+                  left: Responsive.getWidthScale(19),
+                  right: Responsive.getWidthScale(19),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: _buildPageIndicator(),
-                  ),
-                ),
-                Positioned(
-                  bottom: Responsive.getHeightScale(15),
-                  left: Responsive.getWidthScale(60),
-                  right: Responsive.getWidthScale(60),
-                  child: SizedBox(
-                    height: Responsive.getHeightScale(40),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        if (_currentPage == _titles.length - 1) {
-                          _skipToLogin();
-                        } else {
-                          _pageController.nextPage(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Previous Button
+                      GestureDetector(
+                        onTap: () {
+                          if (_currentPage > 0) {
+                            _pageController.previousPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        child: Text(
+                          _currentPage > 0 ? '< Previous' : '',
+                          style: TextStyle(
+                            fontSize: Responsive.getTextScale(12),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                          ),
                         ),
                       ),
-                      child: Text(
-                        _currentPage == _titles.length - 1
-                            ? 'Get Started'
-                            : 'Next',
-                        style: TextStyle(
-                          fontSize: Responsive.getTextScale(16),
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
+
+                      // Centered Page Indicators
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: _buildPageIndicator(),
+                      ),
+
+                      // Next / Get Started
+                      GestureDetector(
+                        onTap: () {
+                          if (_currentPage == _titles.length - 1) {
+                            _skipToLogin();
+                          } else {
+                            _pageController.nextPage(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeInOut,
+                            );
+                          }
+                        },
+                        child: Text(
+                          _currentPage == _titles.length - 1
+                              ? 'Login'
+                              : 'Next >',
+                          style: TextStyle(
+                            fontSize: Responsive.getTextScale(
+                              _currentPage == _titles.length - 1 ? 15.0 : 12.0,
+                            ),
+                            fontWeight: FontWeight.bold,
+                            color: Colors.green,
+                            height: 1.2,
+                            letterSpacing: 0.2,
+                          ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ],
@@ -158,15 +177,15 @@ class _OnboardingState extends State<Onboarding> {
     return List<Widget>.generate(_titles.length, (i) {
       return AnimatedContainer(
         duration: const Duration(milliseconds: 250),
-        margin: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(6)),
-        height: Responsive.getHeightScale(8),
+        margin: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(4)),
+        height: Responsive.getHeightScale(6),
         width:
             _currentPage == i
-                ? Responsive.getWidthScale(20)
-                : Responsive.getWidthScale(8),
+                ? Responsive.getWidthScale(16)
+                : Responsive.getWidthScale(6),
         decoration: BoxDecoration(
           color: _currentPage == i ? Colors.green : Colors.grey.shade400,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(10),
         ),
       );
     });
@@ -192,7 +211,6 @@ class OnboardingPage extends StatelessWidget {
     Responsive.init(context);
 
     final screenHeight = MediaQuery.of(context).size.height;
-
     double imageHeight = index == 0 ? screenHeight * 0.30 : screenHeight * 0.45;
 
     return Padding(

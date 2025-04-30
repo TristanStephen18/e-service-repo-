@@ -274,7 +274,7 @@ class _LumberRegistrationState extends State<LumberRegistration> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && picture != null) {
+    if (dulyAccomplishForm != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

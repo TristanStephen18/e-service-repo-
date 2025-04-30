@@ -268,9 +268,7 @@ class _LtpFloraState extends State<LtpFlora> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (legalPossession != null &&
-        intentLetter != null &&
-        phytosanitaryCert != null) {
+    if (intentLetter != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

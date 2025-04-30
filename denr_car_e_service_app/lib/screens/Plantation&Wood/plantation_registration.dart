@@ -253,7 +253,7 @@ class _PlantationRegistrationScreenState
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (letterApplication != null && oct != null && numberSeed != null) {
+    if (letterApplication != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

@@ -275,7 +275,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (applicationLetter != null && lguEndorsement != null) {
+    if (applicationLetter != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

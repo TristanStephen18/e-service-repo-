@@ -64,7 +64,6 @@ class Services extends StatelessWidget {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Use the responsive method for consistent spacing and scaling
                       _buildServiceTile(
                         context,
                         icon: Icons.carpenter,

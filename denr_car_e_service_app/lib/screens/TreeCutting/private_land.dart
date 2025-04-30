@@ -303,10 +303,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
   }
 
   Future<void> _submitFiles() async {
-    if (applicationLetter != null &&
-        lguEndorsement != null &&
-        ecc != null &&
-        landTitle != null) {
+    if (applicationLetter != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

@@ -41,6 +41,7 @@ android {
 
 dependencies {
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4") // ✅ FIXED
+    implementation("com.google.firebase:firebase-database:20.0.3")
 
     // Add other dependencies here if needed
 }

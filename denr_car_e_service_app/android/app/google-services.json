@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "18324395869",
+    "firebase_url": "https://denr-car-e-services-project-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "denr-car-e-services-project",
     "storage_bucket": "denr-car-e-services-project.firebasestorage.app"
   },

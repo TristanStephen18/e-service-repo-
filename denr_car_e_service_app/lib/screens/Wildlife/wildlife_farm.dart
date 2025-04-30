@@ -253,13 +253,7 @@ class _WildlifeFarmScreenState extends State<WildlifeFarmScreen> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null &&
-        intentLetter != null &&
-        certRegistration != null &&
-        scientificExpertise != null &&
-        financialPlan != null &&
-        letterCommitment != null &&
-        priorClearance != null) {
+    if (dulyAccomplishForm != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

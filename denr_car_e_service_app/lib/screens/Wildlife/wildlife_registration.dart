@@ -249,7 +249,7 @@ class _WildlifeRegistrationScreenState
   }
 
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null && intentLetter != null) {
+    if (dulyAccomplishForm != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

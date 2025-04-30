@@ -51,7 +51,6 @@ class _LtpFaunaState extends State<LtpFauna> {
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -273,11 +272,7 @@ class _LtpFaunaState extends State<LtpFauna> {
 
   // Submit all files
   Future<void> _submitFiles() async {
-    if (dulyAccomplishForm != null &&
-        intentLetter != null &&
-        legalPossession != null &&
-        inspection != null &&
-        quarantineCert != null) {
+    if (dulyAccomplishForm != null) {
       bool? confirmed = await showDialog<bool>(
         context: context,
         builder: (BuildContext context) {

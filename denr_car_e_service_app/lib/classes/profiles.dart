@@ -3,8 +3,8 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:denr_car_e_service_app/changepass.dart';
-import 'package:denr_car_e_service_app/help.dart';
+import 'package:denr_car_e_service_app/profiles/changepass.dart';
+import 'package:denr_car_e_service_app/profiles/help.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/LogIn/login.dart';
 import 'package:file_picker/file_picker.dart';

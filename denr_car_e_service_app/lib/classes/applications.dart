@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/app_options.dart';
+import 'package:denr_car_e_service_app/application/app_options.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -233,7 +233,11 @@ class _ApplicationsState extends State<Applications> {
                             Navigator.of(context).push(
                               CupertinoPageRoute(
                                 builder:
-                                    (ctx) => OptionScreen(applicationId: docId),
+                                    (ctx) => OptionScreen(
+                                      applicationId: docId,
+                                      appType: prefix,
+                                      status: status,
+                                    ),
                               ),
                             );
                           },
