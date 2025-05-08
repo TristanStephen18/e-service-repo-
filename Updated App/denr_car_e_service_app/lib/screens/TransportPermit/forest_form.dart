@@ -1,108 +1,66 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:denr_car_e_service_app/screens/TransportPermit/cert_timber.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/charcoal.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/cov.dart';
+import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-class WildlifeForm extends StatefulWidget {
+class ForestForm extends StatefulWidget {
+  final LatLng startLocation;
+  final LatLng destinationLocation;
+  final String startAddress;
+  final String destinationAddress;
+  final String polygonName;
   final String type;
-  const WildlifeForm({super.key, required this.type});
+  final String legal;
+
+  const ForestForm({
+    super.key,
+    required this.type,
+    required this.startAddress,
+    required this.destinationAddress,
+    required this.startLocation,
+    required this.destinationLocation,
+    required this.polygonName,
+    required this.legal,
+  });
 
   @override
-  State<WildlifeForm> createState() => _ChainsawRegState();
+  State<ForestForm> createState() => _ForestFormState();
 }
 
-class _ChainsawRegState extends State<WildlifeForm> {
+class _ForestFormState extends State<ForestForm> {
   final _formKey = GlobalKey<FormState>();
 
-  String serialNumber = '';
-  String brand = '';
-  String model = '';
-  String engineCapacity = '';
-  String guideBar = '';
-  String countryOfOrigin = '';
-  String purposeOfUse = '';
-  String nameOfDealer = '';
-  DateTime? dateOfPurchase;
+  String name = '';
+  String description = '';
+  String weight = '';
+  String quantity = '';
+  String volume = '';
+  String nameofLoading = '';
+  String conveyance = '';
+  String nameofConsignee = '';
+  String source = '';
 
-  Future<void> saveChainsawDetails(String documentId) async {
-    try {
-      // Ensure the documentId is valid and we have a user logged in
-      if (FirebaseAuth.instance.currentUser != null) {
-        // Prepare data to be stored
-        Map<String, dynamic> chainsawDetails = {
-          'Serial Number': serialNumber,
-          'Brand': brand,
-          'Model': model,
-          'Engine Capacity': engineCapacity,
-          'Guide Bar': guideBar,
-          'Country of Origin': countryOfOrigin,
-          'Purpose of Use': purposeOfUse,
-          'Name of Dealer': nameOfDealer,
-          'Date of Purchase':
-              dateOfPurchase != null
-                  ? Timestamp.fromDate(dateOfPurchase!)
-                  : Timestamp.now(), // Use current timestamp if null
-        };
-
-        // Save to Firestore
-        await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('Chainsaw Details')
-            .set(chainsawDetails);
-
-        await FirebaseFirestore.instance
-            .collection('chainsaw')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('Chainsaw Details')
-            .set(chainsawDetails);
-
-        // Optionally, show a confirmation message or feedback
-        print('Chainsaw details saved successfully!');
-      } else {
-        print('User is not logged in');
-      }
-    } catch (e) {
-      // Handle errors gracefully
-      print('Error saving chainsaw details: $e');
-    }
-  }
-
-  // Submit all files
   Future<void> _submitFiles() async {
-    // Confirm upload dialog
+    if (!_formKey.currentState!.validate()) return;
+
     bool? confirmed = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Confirm Upload'),
-          content: const Text(
-            'Are you sure you want to upload attached files?',
-          ),
-          actions: <Widget>[
+          title: const Text('Confirm Submission'),
+          content: const Text('Are you sure you want to submit this form?'),
+          actions: [
             TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
               child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
             ),
             TextButton(
-              child: const Text(
-                'Upload',
-                style: TextStyle(color: Colors.green),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Yes', style: TextStyle(color: Colors.green)),
             ),
           ],
         );
@@ -110,212 +68,249 @@ class _ChainsawRegState extends State<WildlifeForm> {
     );
 
     if (confirmed == true) {
-      //  Navigator.of(context).push(
-      //                 CupertinoPageRoute(
-      //                   builder: (ctx) => TransportMap(type: 'Flora'),
-      //                 ),
-      //               );
+      if (widget.type == 'Timber or Lumber' || widget.type == 'Non-Timber') {
+        if (widget.legal == 'Certification or Permit from LGU' ||
+            widget.legal == 'Tree Cutting Permit') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => CertificateOfVerification(
+                    startLocation: widget.startLocation,
+                    destinationLocation: widget.destinationLocation,
+                    startAddress: widget.startAddress,
+                    destinationAddress: widget.destinationAddress,
+                    polygonName: widget.polygonName,
+                    name: name,
+                    description: description,
+                    weight: weight,
+                    quantity: quantity,
+                    volume: volume,
+                    nameofLoading: nameofLoading,
+                    nameofConsignee: nameofConsignee,
+                    source: source,
+                    legal: widget.legal,
+                    conveyance: conveyance,
+                  ),
+            ),
+          );
+        }
+      } else if (widget.type == 'Timber or Lumber') {
+        if (widget.legal == 'Wood Processing Plant Permit' ||
+            widget.legal == 'Certificate of Registration as Lumber Dealer') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => CertificateofTimber(
+                    startLocation: widget.startLocation,
+                    destinationLocation: widget.destinationLocation,
+                    startAddress: widget.startAddress,
+                    destinationAddress: widget.destinationAddress,
+                    polygonName: widget.polygonName,
+                    name: name,
+                    description: description,
+                    weight: weight,
+                    quantity: quantity,
+                    volume: volume,
+                    nameofLoading: nameofLoading,
+                    nameofConsignee: nameofConsignee,
+                    source: source,
+                    legal: widget.legal,
+                    conveyance: conveyance,
+                  ),
+            ),
+          );
+        }
+      } else if (widget.type == 'Charcoal') {
+        if (widget.legal == 'Wood Charcoal Permit') {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder:
+                  (context) => Charcoal(
+                    startLocation: widget.startLocation,
+                    destinationLocation: widget.destinationLocation,
+                    startAddress: widget.startAddress,
+                    destinationAddress: widget.destinationAddress,
+                    polygonName: widget.polygonName,
+                    name: name,
+                    description: description,
+                    weight: weight,
+                    quantity: quantity,
+                    volume: volume,
+                    nameofLoading: nameofLoading,
+                    nameofConsignee: nameofConsignee,
+                    source: source,
+                    legal: widget.legal,
+                    conveyance: conveyance,
+                  ),
+            ),
+          );
+        }
+      } else {}
     }
+  }
+
+  Widget _buildTextField({
+    required String label,
+    required Function(String) onChanged,
+    IconData? icon,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Responsive.getHeightScale(8)),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: Responsive.getTextScale(14)),
+          prefixIcon:
+              icon != null
+                  ? Icon(
+                    icon,
+                    color: Colors.green,
+                    size: Responsive.getTextScale(17),
+                  )
+                  : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Responsive.getWidthScale(12)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: Colors.green, width: 2),
+            borderRadius: BorderRadius.circular(Responsive.getWidthScale(12)),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: Responsive.getHeightScale(12),
+            horizontal: Responsive.getWidthScale(14),
+          ),
+        ),
+        onChanged: onChanged,
+        validator:
+            validator ??
+            (value) =>
+                value == null || value.isEmpty
+                    ? 'This field is required'
+                    : null,
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
+    Responsive.init(context); // Initialize responsive metrics
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Wildlife Form',
+          'Forest Products Transport Form',
           style: TextStyle(
             color: Colors.white,
-            fontSize: Responsive.getTextScale(17), // Scale text size
+            fontSize: Responsive.getTextScale(15),
           ),
         ),
         backgroundColor: Colors.green,
-        leading: BackButton(color: Colors.white),
+        leading: const BackButton(color: Colors.white),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 14),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(Responsive.getWidthScale(16)),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Product Details',
+                style: TextStyle(
+                  fontSize: Responsive.getTextScale(14),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              _buildTextField(
+                label: 'Name of Species',
+                icon: Icons.grass,
+                onChanged: (v) => name = v,
+              ),
+              _buildTextField(
+                label: 'Description (e.g., Lumber, Timber)',
+                icon: Icons.description,
+                onChanged: (v) => description = v,
+              ),
+              _buildTextField(
+                label: 'Unit Weight Measure / Dimension',
+                icon: Icons.straighten,
+                onChanged: (v) => weight = v,
+              ),
+              _buildTextField(
+                label: 'Quantity',
+                icon: Icons.numbers,
+                onChanged: (v) => quantity = v,
+              ),
+              _buildTextField(
+                label: 'Estimated Volume',
+                icon: Icons.line_weight,
+                onChanged: (v) => volume = v,
+              ),
 
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Name of Species',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => serialNumber = value,
+              SizedBox(height: Responsive.getHeightScale(15)),
+              Text(
+                'Transport Details',
+                style: TextStyle(
+                  fontSize: Responsive.getTextScale(14),
+                  fontWeight: FontWeight.bold,
                 ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Description',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => brand = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Unit Weight Measure',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => model = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Quantity',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => engineCapacity = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Mode of Acquisition',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => guideBar = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Country of Origin',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => countryOfOrigin = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Purpose of Use',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => purposeOfUse = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Name of Dealer',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => nameOfDealer = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Date of Purchase',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onTap: () async {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    DateTime? selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: dateOfPurchase ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-                    if (selectedDate != null) {
-                      setState(() {
-                        dateOfPurchase = selectedDate;
-                      });
-                    }
-                  },
-                  controller: TextEditingController(
-                    text:
-                        dateOfPurchase != null
-                            ? '${dateOfPurchase!.toLocal()}'.split(' ')[0]
-                            : '',
-                  ),
-                ),
+              ),
+              _buildTextField(
+                label: 'Name and Place of Loading',
+                icon: Icons.local_shipping,
+                onChanged: (v) => nameofLoading = v,
+              ),
+              _buildTextField(
+                label: 'Type of Conveyance and Plate No.',
+                icon: Icons.directions_car,
+                onChanged: (v) => conveyance = v,
+              ),
+              _buildTextField(
+                label: 'Name and Address of Consignee',
+                icon: Icons.person_pin,
+                onChanged: (v) => nameofConsignee = v,
+              ),
+              _buildTextField(
+                label: 'Source of Forest Products',
+                icon: Icons.source,
+                onChanged: (v) => source = v,
+              ),
 
-                Center(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 80,
-                        vertical: 12,
+              SizedBox(height: Responsive.getHeightScale(20)),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
+                    size: Responsive.getTextScale(15),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    padding: EdgeInsets.symmetric(
+                      vertical: Responsive.getHeightScale(12),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        Responsive.getWidthScale(12),
                       ),
                     ),
-                    onPressed: _submitFiles,
-
-                    child: const Text(
-                      'Submit',
-                      style: TextStyle(color: Colors.white),
+                  ),
+                  onPressed: _submitFiles,
+                  label: Text(
+                    'Proceed',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: Responsive.getTextScale(15),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

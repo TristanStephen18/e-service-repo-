@@ -61,128 +61,153 @@ class _WildlifeFormState extends State<WildlifeForm> {
     );
 
     if (confirmed == true) {
-      if (widget.type == 'Fauna') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => LtpFauna(
-                  startLocation: widget.startLocation,
-                  destinationLocation: widget.destinationLocation,
-                  startAddress: widget.startAddress,
-                  destinationAddress: widget.destinationAddress,
-                  polygonName: widget.polygonName,
-                  name: name,
-                  description: description,
-                  weight: weight,
-                  quantity: quantity,
-                  acquisition: acquisition,
-                ),
-          ),
-        );
-      } else if (widget.type == 'Flora') {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder:
-                (context) => LtpFlora(
-                  startLocation: widget.startLocation,
-                  destinationLocation: widget.destinationLocation,
-                  startAddress: widget.startAddress,
-                  destinationAddress: widget.destinationAddress,
-                  polygonName: widget.polygonName,
-                  name: name,
-                  description: description,
-                  weight: weight,
-                  quantity: quantity,
-                  acquisition: acquisition,
-                ),
-          ),
-        );
-      }
+      final screen =
+          widget.type == 'Fauna'
+              ? LtpFauna(
+                startLocation: widget.startLocation,
+                destinationLocation: widget.destinationLocation,
+                startAddress: widget.startAddress,
+                destinationAddress: widget.destinationAddress,
+                polygonName: widget.polygonName,
+                name: name,
+                description: description,
+                weight: weight,
+                quantity: quantity,
+                acquisition: acquisition,
+              )
+              : LtpFlora(
+                startLocation: widget.startLocation,
+                destinationLocation: widget.destinationLocation,
+                startAddress: widget.startAddress,
+                destinationAddress: widget.destinationAddress,
+                polygonName: widget.polygonName,
+                name: name,
+                description: description,
+                weight: weight,
+                quantity: quantity,
+                acquisition: acquisition,
+              );
+
+      Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     }
   }
 
   Widget _buildTextField({
     required String label,
+    required IconData icon,
     required Function(String) onChanged,
     String? Function(String?)? validator,
   }) {
-    return TextFormField(
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-        focusedBorder: const OutlineInputBorder(
-          borderSide: BorderSide(color: Colors.green, width: 2),
+    return Padding(
+      padding: EdgeInsets.only(bottom: Responsive.getHeightScale(14)),
+      child: TextFormField(
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: TextStyle(fontSize: Responsive.getTextScale(13)),
+          prefixIcon: Icon(
+            icon,
+            color: Colors.green,
+            size: Responsive.getTextScale(20),
+          ),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(Responsive.getWidthScale(12)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(color: Colors.green, width: 2),
+            borderRadius: BorderRadius.circular(Responsive.getWidthScale(12)),
+          ),
+          contentPadding: EdgeInsets.symmetric(
+            vertical: Responsive.getHeightScale(12),
+            horizontal: Responsive.getWidthScale(14),
+          ),
         ),
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 14,
-          horizontal: 16,
-        ),
+        onChanged: onChanged,
+        validator:
+            validator ??
+            (value) =>
+                value == null || value.isEmpty
+                    ? 'This field is required'
+                    : null,
       ),
-      onChanged: onChanged,
-      validator:
-          validator ??
-          (value) =>
-              value == null || value.isEmpty ? 'This field is required' : null,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final textScale = Responsive.getTextScale(17);
+    Responsive.init(context); // Initialize responsive values
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           'Wildlife Transport Form',
-          style: TextStyle(color: Colors.white, fontSize: textScale),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: Responsive.getTextScale(15),
+          ),
         ),
         backgroundColor: Colors.green,
         leading: const BackButton(color: Colors.white),
+        elevation: 4,
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(Responsive.getWidthScale(15)),
         child: Form(
           key: _formKey,
           child: Column(
             children: [
+              SizedBox(height: Responsive.getHeightScale(20)),
               _buildTextField(
                 label: 'Name of Species',
+                icon: Icons.pets,
                 onChanged: (v) => name = v,
               ),
-              const SizedBox(height: 12),
               _buildTextField(
                 label: 'Description',
+                icon: Icons.description,
                 onChanged: (v) => description = v,
               ),
-              const SizedBox(height: 12),
               _buildTextField(
                 label: 'Unit Weight Measure',
+                icon: Icons.line_weight,
                 onChanged: (v) => weight = v,
               ),
-              const SizedBox(height: 12),
               _buildTextField(
                 label: 'Quantity',
+                icon: Icons.numbers,
                 onChanged: (v) => quantity = v,
               ),
-              const SizedBox(height: 12),
               _buildTextField(
                 label: 'Mode of Acquisition',
+                icon: Icons.info_outline,
                 onChanged: (v) => acquisition = v,
               ),
-              const SizedBox(height: 20),
+              SizedBox(height: Responsive.getHeightScale(20)),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
+                child: ElevatedButton.icon(
+                  icon: Icon(
+                    Icons.arrow_forward,
+                    color: Colors.white,
+                    size: Responsive.getTextScale(15),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.green,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    padding: EdgeInsets.symmetric(
+                      vertical: Responsive.getHeightScale(14),
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(
+                        Responsive.getWidthScale(12),
+                      ),
+                    ),
                   ),
                   onPressed: _submitFiles,
-                  child: const Text(
-                    'Proceed',
-                    style: TextStyle(color: Colors.white),
+                  label: Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontSize: Responsive.getTextScale(15),
+                      color: Colors.white,
+                    ),
                   ),
                 ),
               ),

@@ -24,7 +24,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
   File? dulyAccomplishForm;
   File? chainsawReciept;
   File? spa;
-  File? chainsawSpec;
+
   File? deedofSale;
   File? regChainsaw;
 
@@ -139,7 +139,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
         'Reciept of Chainsaw Purchase': 'Reciept of Chainsaw Purchase',
         'SPA': 'SPA',
-        'Specification of Chainsaw': 'Specification of Chainsaw',
+
         'Deed of Sale': 'Deed of Sale',
         'Chainsaw': 'Chainsaw',
         'Forest Tenure Agreement': 'Forest Tenure Agreement',
@@ -184,6 +184,22 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
+            });
+        await FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('applications')
+            .doc(documentId)
+            .update({'status': 'Pending'});
+
+        // Set root metadata
+        await FirebaseFirestore.instance
+            .collection('chainsaw')
+            .doc(documentId)
+            .update({
+              'status': 'Pending',
+
+              'current_location': 'RPU - For Evaluation',
             });
       }
 
@@ -236,9 +252,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
     if (spa != null) {
       filesToUpload['SPA'] = spa!;
     }
-    if (chainsawSpec != null) {
-      filesToUpload['Specification of Chainsaw'] = chainsawSpec!;
-    }
+
     if (deedofSale != null) {
       filesToUpload['Deed of Sale'] = deedofSale!;
     }
@@ -364,7 +378,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                       'Duly Accomplish Application Form',
                       'Reciept of Chainsaw Purchase',
                       'SPA',
-                      'Specification of Chainsaw',
+
                       'Deed of Sale',
                       'Chainsaw',
                       'Forest Tenure Agreement',
@@ -426,37 +440,30 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                             spa,
                             (file) => setState(() => spa = file),
                           ),
-                        if (!uploadedLabels.contains(
-                          'Specification of Chainsaw',
-                        ))
-                          _buildFilePicker(
-                            '4. Detailed Specification of Chainsaw (e.g. brand, model, engine capacity, etc.);',
-                            chainsawSpec,
-                            (file) => setState(() => chainsawSpec = file),
-                          ),
+
                         if (!uploadedLabels.contains('Deed of Sale'))
                           _buildFilePicker(
-                            '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
+                            '4. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
                             deedofSale,
                             (file) => setState(() => deedofSale = file),
                           ),
 
                         if (!uploadedLabels.contains('Chainsaw'))
                           _buildFilePicker(
-                            '6. Chainsaw to be registered',
+                            '5. Chainsaw to be registered',
                             regChainsaw,
                             (file) => setState(() => regChainsaw = file),
                           ),
 
                         if (!uploadedLabels.contains('Forest Tenure Agreement'))
                           _buildFilePicker(
-                            '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
+                            '6. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
                             forestTenure,
                             (file) => setState(() => forestTenure = file),
                           ),
                         if (!uploadedLabels.contains('Business Permit'))
                           _buildFilePicker(
-                            '8. Business Permit (1 photocopy), if business owner;',
+                            '7. Business Permit (1 photocopy), if business owner;',
                             businessPermit,
                             (file) => setState(() => businessPermit = file),
                           ),
@@ -464,7 +471,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                           'Certificate of Registration',
                         ))
                           _buildFilePicker(
-                            '9. Certificate of Registration, if registered as PTPR;',
+                            '8. Certificate of Registration, if registered as PTPR;',
                             deedofSale,
                             (file) => setState(() => deedofSale = file),
                           ),
@@ -473,7 +480,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                           'Affidavit or Permit from LGU',
                         ))
                           _buildFilePicker(
-                            '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
+                            '9. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
                             ' and will be used for legal purpose (1 photocopy);',
                             permitAffidavit,
                             (file) => setState(() => permitAffidavit = file),
@@ -481,7 +488,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
 
                         if (!uploadedLabels.contains('Plant Permit'))
                           _buildFilePicker(
-                            '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
+                            '10. Wood processing plant permit (1 photocopy), if licensed wood processor;',
                             plantPermit,
                             (file) => setState(() => plantPermit = file),
                           ),
@@ -489,7 +496,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                           'Certification of Head Office',
                         ))
                           _buildFilePicker(
-                            '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
+                            '11. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
                             ' by the office and use for legal purposes (specify), if government and GOCC;',
                             headOffice,
                             (file) => setState(() => headOffice = file),
@@ -498,7 +505,7 @@ class _AddChainsawRegState extends State<AddChainsawReg> {
                           'Certificate of Chainsaw Registration',
                         ))
                           _buildFilePicker(
-                            '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
+                            '12. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
                             certChainsawReg,
                             (file) => setState(() => certChainsawReg = file),
                           ),

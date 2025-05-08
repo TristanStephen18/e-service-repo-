@@ -1,46 +1,72 @@
+// ignore_for_file: use_build_context_synchronously, use_key_in_widget_constructors, library_private_types_in_public_api
+
 import 'dart:convert';
 import 'dart:io';
-
-import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
-class ChainsawLease extends StatefulWidget {
+class CertificateOfVerification extends StatefulWidget {
+  final LatLng startLocation;
+  final LatLng destinationLocation;
+  final String startAddress;
+  final String destinationAddress;
+  final String polygonName;
   final String name;
+  final String description;
+  final String weight;
+  final String quantity;
 
-  final String location;
-  final String period;
-  final String purpose;
+  final String volume;
+  final String nameofLoading;
+  final String nameofConsignee;
+  final String source;
+  final String legal;
+  final String conveyance;
 
-  const ChainsawLease({
+  const CertificateOfVerification({
     super.key,
-
-    required this.location,
-
-    required this.period,
-
+    required this.startAddress,
+    required this.destinationAddress,
+    required this.startLocation,
+    required this.destinationLocation,
+    required this.polygonName,
     required this.name,
-    required this.purpose,
+    required this.description,
+    required this.weight,
+    required this.quantity,
+
+    required this.volume,
+    required this.nameofLoading,
+    required this.nameofConsignee,
+    required this.source,
+    required this.conveyance,
+    required this.legal,
   });
 
   @override
-  State<ChainsawLease> createState() => _ChainsawLeaseState();
+  _CertificateOfVerificationState createState() =>
+      _CertificateOfVerificationState();
 }
 
-class _ChainsawLeaseState extends State<ChainsawLease> {
+class _CertificateOfVerificationState extends State<CertificateOfVerification> {
   final _formKey = GlobalKey<FormState>();
+  File? requestLetter;
+  File? _certificationFile;
+  File? _orCrFile;
+  File? _treeCuttingPermitFile;
+  File? _transportAgreementFile;
+  File? _spaFile;
 
-  File? letterRequest;
+  final double certificationFee = 50.00;
+  final double oathFee = 36.00;
+  final double inventoryFee = 360.00;
 
-  File? contract;
-  File? chainsawReg;
-
-  final double permitFee = 500.00;
+  double get totalFee => certificationFee + oathFee + inventoryFee;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -53,7 +79,6 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
       File pickedFile = File(result.files.single.path!);
       int fileSize = await pickedFile.length();
 
-      // File size validation: max 749 KB (in bytes = 749 * 1024)
       if (fileSize > 749 * 1024) {
         showDialog(
           context: context,
@@ -78,52 +103,51 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
     }
   }
 
-  // Convert file to Base64
   Future<String> _convertFileToBase64(File file) async {
-    try {
-      List<int> fileBytes = await file.readAsBytes();
-      return base64Encode(fileBytes);
-    } catch (e) {
-      throw Exception("Failed to convert file to Base64: $e");
-    }
+    List<int> fileBytes = await file.readAsBytes();
+    return base64Encode(fileBytes);
   }
 
-  // Generate Document ID
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('chainsaw')
-            .orderBy('uploadedAt', descending: true) // Get latest uploads first
-            .limit(1) // Only check the latest document
+            .collection('transport_permit')
+            .orderBy('uploadedAt', descending: true)
+            .limit(1)
             .get();
 
     int latestNumber = 0;
 
     if (querySnapshot.docs.isNotEmpty) {
       String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'CH-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'TP-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
         latestNumber = int.parse(match.group(1)!);
       }
     }
 
-    String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
+    String today = DateTime.now().toString().split(' ')[0];
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
-    return 'CH-$today-$newNumber';
+    return 'TP-$today-$newNumber';
   }
 
-  Future<void> saveChainsawDetails(String documentId) async {
+  Future<void> savewildlifeDetails(String documentId) async {
     try {
       // Ensure the documentId is valid and we have a user logged in
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
-        Map<String, dynamic> chainsawDetails = {
-          'Name': widget.name,
-          'Location': widget.location,
-          'Period': widget.period,
-          'Purpose': widget.purpose,
+        Map<String, dynamic> wildlifeDetails = {
+          'Name of Species': widget.name,
+          'Description': widget.description,
+          'Unit Weight Measure': widget.weight,
+          'Quantity': widget.quantity,
+          'Volume': widget.volume,
+          'Name of Loading': widget.nameofLoading,
+          'Name of Consignee': widget.nameofConsignee,
+          'Source of Forest Products': widget.source,
+          'Type of Conveyance': widget.conveyance,
         };
 
         // Save to Firestore
@@ -133,18 +157,15 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
             .collection('applications')
             .doc(documentId)
             .collection('requirements')
-            .doc('Chainsaw Details')
-            .set(chainsawDetails);
+            .doc('Forest Products')
+            .set(wildlifeDetails);
 
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('transport')
             .doc(documentId)
             .collection('requirements')
-            .doc('Chainsaw Details')
-            .set(chainsawDetails);
-
-        // Optionally, show a confirmation message or feedback
-        print('Chainsaw details saved successfully!');
+            .doc('Forest Products')
+            .set(wildlifeDetails);
       } else {
         print('User is not logged in');
       }
@@ -154,24 +175,22 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
     }
   }
 
-  // Upload all files to Firestore
-  Future<void> _uploadFiles(Map<String, File> files) async {
+  Future<String?> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (BuildContext context) {
-        return const AlertDialog(
-          content: Row(
-            children: [
-              CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
-              ),
-              SizedBox(width: 16),
-              Text('Uploading files...'),
-            ],
+      builder:
+          (_) => const AlertDialog(
+            content: Row(
+              children: [
+                CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.green),
+                ),
+                SizedBox(width: 16),
+                Text('Uploading files...'),
+              ],
+            ),
           ),
-        );
-      },
     );
 
     try {
@@ -182,48 +201,52 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
               .doc(userId)
               .get();
 
-      Map<String, dynamic>? data = userSnapshot.data() as Map<String, dynamic>?;
-
-      String clientName =
-          (data != null && data.containsKey('name'))
-              ? data['name']
-              : data?['representative'] ?? 'No Name';
+      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
-      // Define descriptive labels for fileName field
       final Map<String, String> fileLabelMap = {
-        'Letter Request': 'Letter Request',
-
-        'Contract': 'Contract',
-        'Chainsaw Registration': 'Chainsaw Registration',
+        'Request Letter': 'Request Letter',
+        'Certification': 'Certification',
+        'Tree Cutting Permit': 'Tree Cutting Permit',
+        'OR CR': 'OR CR',
+        'Transport Agreement': 'Transport Agreement',
+        'SPA': 'SPA',
       };
 
-      // Save root metadata
       await FirebaseFirestore.instance
-          .collection('chainsaw')
+          .collection('transport_permit')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
-            'type': 'Authority To Lease',
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'client': clientName,
-            'address': clientAddress,
+            'userID': userId,
             'status': 'Pending',
+            'client': clientName,
             'current_location': 'RPU - For Evaluation',
+            'address': clientAddress,
+            'from': widget.startAddress,
+            'to': widget.destinationAddress,
+            'from_coordinates': GeoPoint(
+              widget.startLocation.latitude,
+              widget.startLocation.longitude,
+            ),
+            'to_coordinates': GeoPoint(
+              widget.destinationLocation.latitude,
+              widget.destinationLocation.longitude,
+            ),
+            'type': 'Forest Product',
+            'legalSource': widget.legal,
           });
 
-      // Upload to mobile_users > applications > requirements
       for (var entry in files.entries) {
         String label = entry.key;
         File file = entry.value;
-
         String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
             .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .doc(userId)
             .collection('applications')
             .doc(documentId)
             .collection('requirements')
@@ -234,31 +257,9 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
-      }
-
-      // Set application info in mobile_users
-      await FirebaseFirestore.instance
-          .collection('mobile_users')
-          .doc(FirebaseAuth.instance.currentUser!.uid)
-          .collection('applications')
-          .doc(documentId)
-          .set({
-            'uploadedAt': Timestamp.now(),
-            'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Authority To Lease',
-            'status': 'Pending',
-          });
-
-      // Upload to chainsaw > requirements
-      for (var entry in files.entries) {
-        String label = entry.key;
-        File file = entry.value;
-
-        String fileExtension = path.extension(file.path).toLowerCase();
-        String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('chainsaw')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -269,61 +270,53 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
               'uploadedAt': Timestamp.now(),
             });
       }
-      saveChainsawDetails(documentId);
 
-      Navigator.of(context).pop();
+      await FirebaseFirestore.instance
+          .collection('mobile_users')
+          .doc(userId)
+          .collection('applications')
+          .doc(documentId)
+          .set({
+            'uploadedAt': Timestamp.now(),
+            'userID': userId,
+            'status': 'Pending',
+            'type': 'Forest Product',
+          });
 
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Row(
-              children: const [
-                Icon(Icons.check_circle, color: Colors.green),
-                SizedBox(width: 10),
-                Text('Success'),
-              ],
-            ),
-            content: const Text('Application Submitted Successfully!'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).push(
-                    CupertinoPageRoute(
-                      builder:
-                          (ctx) => Homepage(
-                            userid: FirebaseAuth.instance.currentUser!.uid,
-                          ),
-                    ),
-                  );
-                },
-                child: const Text('OK'),
-              ),
-            ],
-          );
-        },
-      );
+      savewildlifeDetails(documentId);
+
+      Navigator.of(context).pop(); // close loader
+      return documentId;
     } catch (e) {
-      Navigator.of(context).pop(); // close loading dialog
+      Navigator.of(context).pop(); // close loader
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error during file upload.')),
       );
+      return null;
     }
   }
 
+  // Submit all files
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
 
-    if (letterRequest != null) {
-      filesToUpload['Letter Request'] = letterRequest!;
+    if (_certificationFile != null) {
+      filesToUpload['Certification'] = _certificationFile!;
     }
-
-    if (contract != null) {
-      filesToUpload['Contract'] = contract!;
+    if (_orCrFile != null) {
+      filesToUpload['OR CR'] = _orCrFile!;
     }
-    if (chainsawReg != null) {
-      filesToUpload['Chainsaw Registration'] = chainsawReg!;
+    if (_treeCuttingPermitFile != null) {
+      filesToUpload['Tree Cutting Permit'] = _treeCuttingPermitFile!;
+    }
+    if (_transportAgreementFile != null) {
+      filesToUpload['Transport Agreement'] = _transportAgreementFile!;
+    }
+    if (_spaFile != null) {
+      filesToUpload['SPA'] = _spaFile!;
+    }
+    if (requestLetter != null) {
+      filesToUpload['Request Letter'] = requestLetter!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -383,7 +376,6 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
     }
   }
 
-  // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
     File? file,
@@ -411,19 +403,43 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
     );
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Authority to Lease',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: Responsive.getTextScale(17), // Scale text size
-          ),
+        title: const Text(
+          'Transport Permit',
+          style: TextStyle(color: Colors.white),
         ),
+        leading: const BackButton(color: Colors.white),
         backgroundColor: Colors.green,
-        leading: BackButton(color: Colors.white),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -439,41 +455,67 @@ class _ChainsawLeaseState extends State<ChainsawLease> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Letter Request',
-                  letterRequest,
-                  (file) => setState(() => letterRequest = file),
-                ),
-
-                _buildFilePicker(
-                  '2. Contract or lease,rent and lending',
-                  contract,
-                  (file) => setState(() => contract = file),
+                  '1. Request letter indictating the following: (1 original, 1 photocopy)',
+                  requestLetter,
+                  (file) => setState(() => requestLetter = file),
                 ),
                 _buildFilePicker(
-                  '3. Copy of Chainsaw Registration',
-                  chainsawReg,
-                  (file) => setState(() => chainsawReg = file),
+                  '2. Certification that the forest products are harvested within the area of the owner (for non-timber)(1 original)',
+                  _certificationFile,
+                  (file) => setState(() => _certificationFile = file),
                 ),
-
-                const SizedBox(height: 20),
+                _buildFilePicker(
+                  '3. Approved Tree Cutting Permit for timber (1 photocopy)',
+                  _treeCuttingPermitFile,
+                  (file) => setState(() => _treeCuttingPermitFile = file),
+                ),
+                _buildFilePicker(
+                  '4. OR/CR of conveyance and Driver’s License (1 photocopy)',
+                  _orCrFile,
+                  (file) => setState(() => _orCrFile = file),
+                ),
+                const SizedBox(height: 15),
                 const Text(
-                  'No Fees to be Paid',
+                  'Additional Requirement',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                _buildFilePicker(
+                  '5. Certificate of Transport Agreement (1 original)',
+                  _transportAgreementFile,
+                  (file) => setState(() => _transportAgreementFile = file),
+                ),
+                _buildFilePicker(
+                  '6. Special Power of Attorney (SPA) (1 original)',
+                  _spaFile,
+                  (file) => setState(() => _spaFile = file),
+                ),
+                const SizedBox(height: 25),
+                const Text(
+                  'Fees to be Paid',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-
+                const SizedBox(height: 16),
+                _buildFeeRow('Verification Fee', certificationFee),
+                _buildFeeRow('Oath Fee', oathFee),
+                _buildFeeRow('Inspection Fee', inventoryFee),
+                const Divider(thickness: 1.2),
+                _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),
                 Center(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-
                       padding: const EdgeInsets.symmetric(
                         horizontal: 80,
                         vertical: 12,
                       ),
                     ),
                     onPressed: _submitFiles,
-
                     child: const Text(
                       'Submit',
                       style: TextStyle(color: Colors.white),

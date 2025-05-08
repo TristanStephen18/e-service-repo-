@@ -10,28 +10,22 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddPrivateLandScreen extends StatefulWidget {
+class AddLease extends StatefulWidget {
   final String applicationId;
 
-  const AddPrivateLandScreen({super.key, required this.applicationId});
+  const AddLease({super.key, required this.applicationId});
 
   @override
-  _AddPrivateLandScreenState createState() => _AddPrivateLandScreenState();
+  _AddLeaseState createState() => _AddLeaseState();
 }
 
-class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
+class _AddLeaseState extends State<AddLease> {
   final _formKey = GlobalKey<FormState>();
-  File? applicationLetter;
-  File? lguEndorsement;
-  File? ecc;
-  File? landTitle;
 
-  File? utiPlan;
-  File? pambClearance;
-  File? larEndorsement;
-  File? ptaRes;
-  File? spa;
-  File? photo;
+  File? letterRequest;
+  File? contract;
+
+  File? chainsawReg;
 
   Set<String> uploadedLabels = {};
 
@@ -133,16 +127,10 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement or Certification': 'LGU Endorsement or Certification',
-        'Utilization Plan': 'Utilization Plan',
-        'ECC': 'ECC',
-        'Land Title': 'Land Title',
-        'PAMB Clearance': 'PAMB Clearance',
-        'SPA': 'SPA',
-        'Photos of Trees': 'Photos of Trees',
-        'Local Agrarian Endorsement': 'Local Agrarian Endorsement',
-        'PTA Resolution': 'PTA Resolution',
+        'Letter Request': 'Letter Request',
+
+        'Contract': 'Contract',
+        'Chainsaw Registration': 'Chainsaw Registration',
       };
 
       if (!applicationSnapshot.exists) {
@@ -168,7 +156,7 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
         });
 
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('chainsaw')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -187,7 +175,7 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
 
         // Set root metadata
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('chainsaw')
             .doc(documentId)
             .update({
               'status': 'Pending',
@@ -236,37 +224,15 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (applicationLetter != null) {
-      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
-    }
-    if (lguEndorsement != null) {
-      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
+    if (letterRequest != null) {
+      filesToUpload['Letter Request'] = letterRequest!;
     }
 
-    if (utiPlan != null) {
-      filesToUpload['Utilization Plan'] = utiPlan!;
+    if (contract != null) {
+      filesToUpload['Contract'] = contract!;
     }
-    if (ecc != null) {
-      filesToUpload['ECC'] = ecc!;
-    }
-    if (landTitle != null) {
-      filesToUpload['Land Title'] = landTitle!;
-    }
-    if (pambClearance != null) {
-      filesToUpload['PAMB Clearance'] = pambClearance!;
-    }
-    if (spa != null) {
-      filesToUpload['SPA'] = spa!;
-    }
-    if (photo != null) {
-      filesToUpload['Photos of Trees'] = photo!;
-    }
-
-    if (ptaRes != null) {
-      filesToUpload['PTA Resolution'] = ptaRes!;
-    }
-    if (larEndorsement != null) {
-      filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
+    if (chainsawReg != null) {
+      filesToUpload['Chainsaw Registration'] = chainsawReg!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -350,7 +316,7 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Private Land Timber',
+          'Permit to Sell',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -363,16 +329,10 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Duly Accomplish Application Form',
-                      'LGU Endorsement or Certification',
-                      'Utilization Plan',
-                      'ECC',
-                      'Land Title',
-                      'PAMB Clearance',
-                      'SPA',
-                      'Photos of Trees',
-                      'Local Agrarian Endorsement',
-                      'PTA Resolution',
+                      'Letter Request',
+
+                      'Contract',
+                      'Chainsaw Registration',
                     ])
                     ? const Center(
                       child: Padding(
@@ -400,99 +360,27 @@ class _AddPrivateLandScreenState extends State<AddPrivateLandScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains(
-                          'Duly Accomplish Application Form',
-                        ))
+                        if (!uploadedLabels.contains('Letter Request'))
                           _buildFilePicker(
-                            '1. Application Letter (1 original Copy)\n'
-                            '\t\t\t Address: Engr. Leandro L. De Jesus\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
-                            '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
-                            applicationLetter,
-                            (file) => setState(() => applicationLetter = file),
+                            '1. Letter Request',
+                            letterRequest,
+                            (file) => setState(() => letterRequest = file),
                           ),
 
-                        if (!uploadedLabels.contains(
-                          'LGU Endorsement or Certification',
-                        ))
+                        if (!uploadedLabels.contains('Contract'))
                           _buildFilePicker(
-                            '2. LGU Endorsement / Certification of No Objection / utiPlan (1 original) - interposing no objection to the cutting of trees under the following conditions: (1 original)\n'
-                            '\t\t\ta. If the trees to be cut falls within one barangay, an\n'
-                            '\t\t\t  endorsement from Barangay Captain shall be\n'
-                            '\t\t\t  secured\n'
-                            '\t\t\tb. If the trees to be cut falls within more than one\n'
-                            '\t\t\t  barangay, endorsement shall be secured either from\n'
-                            '\t\t\t  the Municipal/City Mayor or all the Barangay\n'
-                            '\t\t\t  Captains concerned\n'
-                            '\t\t\tc. If the trees to be cut falls within more than one\n'
-                            '\t\t\t  municipality/city, endorsement shall be secured\n'
-                            '\t\t\t  either from the Provincial Governor or all the\n'
-                            '\t\t\t  Municipal/City Mayors concerned\n'
-                            '\t\t\td. If within Baguio City, Clearance from the City\n'
-                            '\t\t\t  Environment and Parks Management Office\n'
-                            '\t\t\t  (CEPMO)',
-
-                            lguEndorsement,
-                            (file) => setState(() => lguEndorsement = file),
-                          ),
-                        if (!uploadedLabels.contains('Land Title'))
-                          _buildFilePicker(
-                            '3. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable',
-                            landTitle,
-                            (file) => setState(() => landTitle = file),
+                            '2. Contract or lease,rent and lending',
+                            contract,
+                            (file) => setState(() => contract = file),
                           ),
 
-                        if (!uploadedLabels.contains('ECC'))
+                        if (!uploadedLabels.contains('Chainsaw Registration'))
                           _buildFilePicker(
-                            '4. Environmental Compliance Certificate (ECC) / Certificate of Non-Coverage (CNC), whichever is applicable, issued by EMB (1certified true copy);',
-                            ecc,
-                            (file) => setState(() => ecc = file),
-                          ),
-                        if (!uploadedLabels.contains('PAMB Clearance'))
-                          _buildFilePicker(
-                            '5. Protected Area Management Board (PAMB) Clearance/Certification\n'
-                            '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
-                            '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
-                            '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
-                            '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
-                            pambClearance,
-                            (file) => setState(() => pambClearance = file),
+                            '3. Copy of Chainsaw Registration',
+                            chainsawReg,
+                            (file) => setState(() => chainsawReg = file),
                           ),
 
-                        if (!uploadedLabels.contains('Utilization Plan'))
-                          _buildFilePicker(
-                            '6. Utilization Plan with at least 50% of the area covered with forest trees(1 original), if the applicaton covers 10 hectares or larger;',
-                            utiPlan,
-                            (file) => setState(() => utiPlan = file),
-                          ),
-
-                        if (!uploadedLabels.contains(
-                          'Local Agrarian Endorsement',
-                        ))
-                          _buildFilePicker(
-                            '7. Endorsement by local agrarian reform officer interposing No Objection (1 original), if covered by CLOA, Municipal/City Agrarian Reform Office;',
-                            larEndorsement,
-                            (file) => setState(() => larEndorsement = file),
-                          ),
-                        if (!uploadedLabels.contains('PTA Resolution'))
-                          _buildFilePicker(
-                            '8. PTA Resolution or Resolution from any organized group of No Objection and reason for cutting (1 original), if School/Organization;',
-                            spa,
-                            (file) => setState(() => spa = file),
-                          ),
-
-                        if (!uploadedLabels.contains('SPA'))
-                          _buildFilePicker(
-                            '9. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
-                            spa,
-                            (file) => setState(() => spa = file),
-                          ),
-                        if (!uploadedLabels.contains('Photos of Trees'))
-                          _buildFilePicker(
-                            '10. Photos of the trees to be cut',
-                            photo,
-                            (file) => setState(() => photo = file),
-                          ),
                         const SizedBox(height: 15),
 
                         Center(

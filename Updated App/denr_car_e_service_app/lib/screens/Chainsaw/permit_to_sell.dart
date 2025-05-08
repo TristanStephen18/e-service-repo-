@@ -10,7 +10,26 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class PermitToSellScrenn extends StatefulWidget {
-  const PermitToSellScrenn({super.key});
+  final String serialNumber;
+
+  final String brand;
+  final String model;
+  final String engineCapacity;
+  final String guideBar;
+  final String countryOfOrigin;
+
+  const PermitToSellScrenn({
+    super.key,
+
+    required this.brand,
+    required this.countryOfOrigin,
+
+    required this.engineCapacity,
+    required this.guideBar,
+    required this.model,
+
+    required this.serialNumber,
+  });
 
   @override
   State<PermitToSellScrenn> createState() => _PermitToSellScrennState();
@@ -23,13 +42,6 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
   File? _proofOfOwnership;
   File? bussinesReg;
   File? bussinessPermit;
-
-  String serialNumber = '';
-  String brand = '';
-  String model = '';
-  String engineCapacity = '';
-  String guideBar = '';
-  String countryOfOrigin = '';
 
   final double permitFee = 500.00;
 
@@ -111,12 +123,12 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
         Map<String, dynamic> chainsawDetails = {
-          'Serial Number': serialNumber,
-          'Brand': brand,
-          'Model': model,
-          'Engine Capacity': engineCapacity,
-          'Guide Bar': guideBar,
-          'Country of Origin': countryOfOrigin,
+          'Serial Number': widget.serialNumber,
+          'Brand': widget.brand,
+          'Model': widget.model,
+          'Engine Capacity': widget.engineCapacity,
+          'Guide Bar': widget.guideBar,
+          'Country of Origin': widget.countryOfOrigin,
         };
 
         // Save to Firestore
@@ -462,105 +474,11 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Duly Accomplish Application Form, with number and specifications of chainsaws to be sold.',
+                  '1. Duly Accomplish Application Form',
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
-                // Add the additional fields for Chainsaw details here
-                const Text(
-                  'Chainsaw Details',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Serial Number',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => serialNumber = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Brand',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => brand = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Model',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => model = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Engine Capacity',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => engineCapacity = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Guide Bar',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => guideBar = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Country of Origin',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => countryOfOrigin = value,
-                ),
-                SizedBox(height: 10),
+
                 _buildFilePicker(
                   '2. Proof of ownership of chainsaws (sales invoice, deed of sale, etc).',
                   _proofOfOwnership,

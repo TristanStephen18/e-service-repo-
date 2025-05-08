@@ -10,16 +10,16 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddPublicSafetyScreen extends StatefulWidget {
+class AddSpecial extends StatefulWidget {
   final String applicationId;
 
-  const AddPublicSafetyScreen({super.key, required this.applicationId});
+  const AddSpecial({super.key, required this.applicationId});
 
   @override
-  _AddPublicSafetyScreenState createState() => _AddPublicSafetyScreenState();
+  _AddSpecialState createState() => _AddSpecialState();
 }
 
-class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
+class _AddSpecialState extends State<AddSpecial> {
   final _formKey = GlobalKey<FormState>();
   File? applicationLetter;
   File? report;
@@ -173,6 +173,22 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
+        await FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('applications')
+            .doc(documentId)
+            .update({'status': 'Pending'});
+
+        // Set root metadata
+        await FirebaseFirestore.instance
+            .collection('tree_cutting')
+            .doc(documentId)
+            .update({
+              'status': 'Pending',
+
+              'current_location': 'RPU - For Evaluation',
+            });
       }
 
       Navigator.of(context).pop();
@@ -319,7 +335,7 @@ class _AddPublicSafetyScreenState extends State<AddPublicSafetyScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Public Safety',
+          'Special Tree Cutting',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),

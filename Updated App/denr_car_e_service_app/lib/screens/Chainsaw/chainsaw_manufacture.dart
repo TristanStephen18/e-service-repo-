@@ -10,7 +10,20 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class ChainsawManufacture extends StatefulWidget {
-  const ChainsawManufacture({super.key});
+  final String numberofChainsaw;
+
+  final String type;
+  final String source;
+
+  const ChainsawManufacture({
+    super.key,
+
+    required this.type,
+
+    required this.source,
+
+    required this.numberofChainsaw,
+  });
 
   @override
   State<ChainsawManufacture> createState() => _ChainsawManufactureState();
@@ -23,9 +36,6 @@ class _ChainsawManufactureState extends State<ChainsawManufacture> {
 
   File? businessName;
   File? bussinessPermit;
-  String numberofchainsaw = '';
-  String brand = '';
-  String source = '';
 
   final double permitFee = 500.00;
 
@@ -81,9 +91,9 @@ class _ChainsawManufactureState extends State<ChainsawManufacture> {
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
         Map<String, dynamic> chainsawDetails = {
-          'Number of Chainsaw': numberofchainsaw,
-          'Type': brand,
-          'Source of Materials': source,
+          'Number of Chainsaw': widget.numberofChainsaw,
+          'Type': widget.type,
+          'Source of Materials': widget.source,
         };
 
         // Save to Firestore
@@ -455,54 +465,6 @@ class _ChainsawManufactureState extends State<ChainsawManufacture> {
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
-                const Text('Chainsaw Specifications'),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Number of Chainsaw',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => numberofchainsaw = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Type of Chainsaw',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => brand = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Source of materials',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => source = value,
-                ),
-                SizedBox(height: 10),
 
                 _buildFilePicker(
                   '2. Business name registration of applicant from DTI,SEC registration or CDA registration',
@@ -510,7 +472,7 @@ class _ChainsawManufactureState extends State<ChainsawManufacture> {
                   (file) => setState(() => businessName = file),
                 ),
                 _buildFilePicker(
-                  '4. Business Permit form LGU (1 photocopy), if business owner;',
+                  '3. Business Permit form LGU (1 photocopy), if business owner;',
                   bussinessPermit,
                   (file) => setState(() => bussinessPermit = file),
                 ),

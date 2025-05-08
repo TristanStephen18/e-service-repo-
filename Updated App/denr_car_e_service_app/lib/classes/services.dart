@@ -2,7 +2,7 @@ import 'package:denr_car_e_service_app/map/map.dart';
 import 'package:denr_car_e_service_app/screens/Lumber/lumber_registration.dart';
 
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_selection.dart';
-import 'package:denr_car_e_service_app/screens/Resaw/resaw_permit.dart';
+
 import 'package:denr_car_e_service_app/screens/TransportPermit/transport_type.dart';
 
 import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_type.dart';
@@ -68,7 +68,7 @@ class Services extends StatelessWidget {
                       _buildServiceTile(
                         context,
                         icon: Icons.carpenter,
-                        title: "Chainsaw",
+                        title: "Chainsaw Registrations and Permits",
                         subtitle: "Apply Now!",
                         onTap:
                             () => Navigator.of(context).push(
@@ -81,7 +81,7 @@ class Services extends StatelessWidget {
                       _buildServiceTile(
                         context,
                         icon: Icons.forest,
-                        title: "Tree Cutting",
+                        title: "Tree Cutting Permit",
                         subtitle: "Apply Now!",
                         onTap:
                             () => Navigator.of(context).push(
@@ -92,7 +92,7 @@ class Services extends StatelessWidget {
                       _buildServiceTile(
                         context,
                         icon: Icons.car_crash,
-                        title: "Transport",
+                        title: "Transport Permit",
                         subtitle: "Apply Now!",
                         onTap:
                             () => Navigator.of(context).push(
@@ -105,7 +105,8 @@ class Services extends StatelessWidget {
                       _buildServiceTile(
                         context,
                         icon: Icons.grass,
-                        title: "Private Tree Plantation",
+                        title:
+                            "Plantation and Non-Timber Forest Products Registration and Permits, including Rattan, Bamboo and Charcoal",
                         subtitle: "Apply Now!",
                         onTap:
                             () => Navigator.of(context).push(
@@ -130,24 +131,12 @@ class Services extends StatelessWidget {
                       _buildServiceTile(
                         context,
                         icon: Icons.park,
-                        title: "Certificate of Lumber Registration",
+                        title: "Processing / Dealership of Forest Products",
                         subtitle: "Apply Now!",
                         onTap:
                             () => Navigator.of(context).push(
                               CupertinoPageRoute(
                                 builder: (ctx) => LumberRegistration(),
-                              ),
-                            ),
-                      ),
-                      _buildServiceTile(
-                        context,
-                        icon: Icons.carpenter,
-                        title: "Issuance of Resaw Permit",
-                        subtitle: "Apply Now!",
-                        onTap:
-                            () => Navigator.of(context).push(
-                              CupertinoPageRoute(
-                                builder: (ctx) => ResawPermit(),
                               ),
                             ),
                       ),

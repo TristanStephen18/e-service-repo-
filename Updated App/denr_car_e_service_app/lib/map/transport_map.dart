@@ -2,18 +2,18 @@ import 'package:denr_car_e_service_app/map/api.dart';
 
 import 'package:denr_car_e_service_app/map/transport_const.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/forest_form.dart';
 
 import 'package:denr_car_e_service_app/screens/TransportPermit/wildlife_form.dart';
-
-import 'package:denr_car_e_service_app/screens/transportPermit/transport_permit.dart';
 
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:vector_math/vector_math.dart' as vector_math;
 
 class TransportMap extends StatefulWidget {
+  final String legal;
   final String type;
-  TransportMap({required this.type});
+  TransportMap({required this.type, required this.legal});
   @override
   _TransportMapState createState() => _TransportMapState();
 }
@@ -400,17 +400,21 @@ class _TransportMapState extends State<TransportMap> {
                             ),
                       ),
                     );
-                  } else if (widget.type == 'Transport') {
+                  } else if (widget.type == 'Timber or Lumber' ||
+                      widget.type == 'Non-Timber' ||
+                      widget.type == 'Charcoal') {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder:
-                            (context) => ForestRequirementsForm(
+                            (context) => ForestForm(
                               startLocation: _startLocation!,
                               destinationLocation: _destinationLocation!,
                               startAddress: _startAddress!,
                               destinationAddress: _destinationAddress!,
                               polygonName: polygonName,
+                              type: widget.type,
+                              legal: widget.legal,
                             ),
                       ),
                     );

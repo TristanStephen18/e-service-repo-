@@ -1,5 +1,5 @@
-import 'package:denr_car_e_service_app/map/transport_map.dart';
 import 'package:denr_car_e_service_app/model/responsive.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/legal_source.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -71,8 +71,7 @@ class _TransportProductsState extends State<TransportProducts> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder:
-                            (ctx) => TransportMap(type: 'Timber or Lumber'),
+                        builder: (ctx) => LegalSource(type: 'Timber or Lumber'),
                       ),
                     );
                   },
@@ -105,7 +104,7 @@ class _TransportProductsState extends State<TransportProducts> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => TransportMap(type: 'Non-Timber'),
+                        builder: (ctx) => LegalSource(type: 'Non-Timber'),
                       ),
                     );
                   },
@@ -127,7 +126,10 @@ class _TransportProductsState extends State<TransportProducts> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.car_crash, color: Colors.green),
+                  leading: Icon(
+                    Icons.local_fire_department,
+                    color: Colors.green,
+                  ),
                   title: Text(
                     "Charcoal",
                     style: TextStyle(
@@ -138,43 +140,7 @@ class _TransportProductsState extends State<TransportProducts> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => TransportMap(type: 'Charcoal'),
-                      ),
-                    );
-                  },
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-              Gap(Responsive.getHeightScale(15)),
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.oil_barrel, color: Colors.green),
-                  title: Text(
-                    "Gums, Resins, Oils and Exudates",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Responsive.getTextScale(14), // Scale text size
-                    ),
-                  ),
-                  onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder:
-                            (ctx) => TransportMap(
-                              type: 'Gums, Resins, Oils and Exudates',
-                            ),
+                        builder: (ctx) => LegalSource(type: 'Charcoal'),
                       ),
                     );
                   },

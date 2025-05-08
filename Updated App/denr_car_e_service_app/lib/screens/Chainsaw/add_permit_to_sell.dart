@@ -165,6 +165,22 @@ class _AddPermitToSellState extends State<AddPermitToSell> {
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
+        await FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('applications')
+            .doc(documentId)
+            .update({'status': 'Pending'});
+
+        // Set root metadata
+        await FirebaseFirestore.instance
+            .collection('chainsaw')
+            .doc(documentId)
+            .update({
+              'status': 'Pending',
+
+              'current_location': 'RPU - For Evaluation',
+            });
       }
 
       Navigator.of(context).pop();

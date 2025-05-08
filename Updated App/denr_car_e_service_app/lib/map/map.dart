@@ -217,19 +217,22 @@ class _MapScreenState extends State<MapScreen> {
       return;
     }
 
-    // Format the matched polygons
-    String combinedPolygonNames = matchedPolygons
-        .map((id) => _getFriendlyPolygonName(id))
-        .join(', ');
+    // Convert to a map with a maximum of 2 entries and incrementing keys
+    Map<String, String> combinedPolygonMap = {};
+    for (int i = 0; i < matchedPolygons.length && i < 2; i++) {
+      String key = 'polygon${i + 1}';
+      String friendlyName = _getFriendlyPolygonName(matchedPolygons[i]);
+      combinedPolygonMap[key] = friendlyName;
+    }
 
     setState(() {
       _selectedLocation = position;
       _selectedAddress = address;
       _updateMarker(position);
-      print("Matched Polygons: $combinedPolygonNames");
+      print("Matched Polygons Map: $combinedPolygonMap");
     });
 
-    _showLocationDetails(combinedPolygonNames, isInsideAnyPolygon);
+    _showLocationDetails(combinedPolygonMap, isInsideAnyPolygon);
   }
 
   void _updateMarker(LatLng position) {
@@ -242,7 +245,7 @@ class _MapScreenState extends State<MapScreen> {
     });
   }
 
-  void _showLocationDetails(String polygonName, bool isInsideAnyPolygon) {
+  void _showLocationDetails(var polygonName, bool isInsideAnyPolygon) {
     showModalBottomSheet(
       context: context,
       builder: (context) {

@@ -1,8 +1,5 @@
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_reg.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_renewal.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_transfer.dart';
-
+import 'package:denr_car_e_service_app/screens/Chainsaw/chaisaw_registration_form.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -73,7 +70,7 @@ class _ChainsawOptionsState extends State<ChainsawOptions> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => ChainsawReg(type: 'New'),
+                        builder: (ctx) => RegistrationForm(type: 'New'),
                       ),
                     );
                   },
@@ -107,7 +104,7 @@ class _ChainsawOptionsState extends State<ChainsawOptions> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => ChainsawRenewal(type: 'Renewal'),
+                        builder: (ctx) => RegistrationForm(type: 'Renewal'),
                       ),
                     );
                   },
@@ -143,7 +140,7 @@ class _ChainsawOptionsState extends State<ChainsawOptions> {
                       CupertinoPageRoute(
                         builder:
                             (ctx) =>
-                                ChainsawTransfer(type: 'Transfer of Ownership'),
+                                RegistrationForm(type: 'Transfer of Ownership'),
                       ),
                     );
                   },

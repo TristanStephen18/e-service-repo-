@@ -1,10 +1,11 @@
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_lease.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_manufacture.dart';
-import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_options.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/authority_form.dart';
 
-import 'package:denr_car_e_service_app/screens/Chainsaw/permit_to_purchase.dart';
-import 'package:denr_car_e_service_app/screens/chainsaw/permit_to_sell.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_manufacture_form.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_options.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_purchase_form.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/chainsaw_sell_form.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
@@ -108,9 +109,7 @@ class _ChainsawRegistrationScreenState
                   ),
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder: (ctx) => PermitToSellScrenn(),
-                      ),
+                      CupertinoPageRoute(builder: (ctx) => ChainsawSellForm()),
                     );
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
@@ -142,7 +141,9 @@ class _ChainsawRegistrationScreenState
                   ),
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (ctx) => PermitToPurchase()),
+                      CupertinoPageRoute(
+                        builder: (ctx) => ChainsawPurchaseForm(),
+                      ),
                     );
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
@@ -175,7 +176,7 @@ class _ChainsawRegistrationScreenState
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => ChainsawManufacture(),
+                        builder: (ctx) => ChainsawManufactureForm(),
                       ),
                     );
                   },
@@ -208,7 +209,7 @@ class _ChainsawRegistrationScreenState
                   ),
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (ctx) => ChainsawLease()),
+                      CupertinoPageRoute(builder: (ctx) => AuthorityForm()),
                     );
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),

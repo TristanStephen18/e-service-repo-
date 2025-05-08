@@ -71,7 +71,8 @@ class _TransportWildlifeState extends State<TransportWildlife> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => TransportMap(type: 'Flora'),
+                        builder:
+                            (ctx) => TransportMap(type: 'Flora', legal: ''),
                       ),
                     );
                   },
@@ -104,7 +105,8 @@ class _TransportWildlifeState extends State<TransportWildlife> {
                   onTap: () {
                     Navigator.of(context).push(
                       CupertinoPageRoute(
-                        builder: (ctx) => TransportMap(type: 'Fauna'),
+                        builder:
+                            (ctx) => TransportMap(type: 'Fauna', legal: ''),
                       ),
                     );
                   },

@@ -11,7 +11,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart'; // Assuming this 
 class TreeCuttingForm extends StatefulWidget {
   final LatLng geoP;
   final String address;
-  final String polygonName;
+  final Map<String, dynamic> polygonName;
   final String inside;
   const TreeCuttingForm({
     super.key,

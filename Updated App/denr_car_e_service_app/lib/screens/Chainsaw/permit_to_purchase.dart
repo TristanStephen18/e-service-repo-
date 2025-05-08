@@ -11,7 +11,20 @@ import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path;
 
 class PermitToPurchase extends StatefulWidget {
-  const PermitToPurchase({super.key});
+  final String serialNumber;
+
+  final String brand;
+  final String model;
+
+  const PermitToPurchase({
+    super.key,
+
+    required this.brand,
+
+    required this.model,
+
+    required this.serialNumber,
+  });
 
   @override
   State<PermitToPurchase> createState() => _PermitToPurchaseState();
@@ -25,10 +38,6 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
   File? affidavit;
   File? bussinessPermit;
   File? purchaseOrder;
-
-  String numberofchainsaw = '';
-  String brand = '';
-  String model = '';
 
   final double permitFee = 500.00;
 
@@ -110,9 +119,9 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
         Map<String, dynamic> chainsawDetails = {
-          'Serial Number': numberofchainsaw,
-          'Brand': brand,
-          'Model': model,
+          'Serial Number': widget.serialNumber,
+          'Brand': widget.brand,
+          'Model': widget.model,
         };
 
         // Save to Firestore
@@ -472,53 +481,7 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
-                const Text('Chainsaw Specifications'),
-                const SizedBox(height: 14),
 
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Number of Chainsaw Units',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => numberofchainsaw = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Brand',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => brand = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Model',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => model = value,
-                ),
                 SizedBox(height: 10),
                 _buildFilePicker(
                   '2. Business name registration of applicant from DTI, SEC registration or CDA registration',

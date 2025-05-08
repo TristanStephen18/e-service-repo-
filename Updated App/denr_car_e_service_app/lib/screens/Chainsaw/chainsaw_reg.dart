@@ -12,8 +12,29 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class ChainsawReg extends StatefulWidget {
+  final String serialNumber;
   final String type;
-  const ChainsawReg({super.key, required this.type});
+  final String brand;
+  final String model;
+  final String engineCapacity;
+  final String guideBar;
+  final String countryOfOrigin;
+  final String purposeOfUse;
+  final String nameOfDealer;
+  final DateTime? dateOfPurchase;
+  const ChainsawReg({
+    super.key,
+    required this.type,
+    required this.brand,
+    required this.countryOfOrigin,
+    required this.dateOfPurchase,
+    required this.engineCapacity,
+    required this.guideBar,
+    required this.model,
+    required this.nameOfDealer,
+    required this.purposeOfUse,
+    required this.serialNumber,
+  });
 
   @override
   State<ChainsawReg> createState() => _ChainsawRegState();
@@ -38,16 +59,6 @@ class _ChainsawRegState extends State<ChainsawReg> {
   File? certChainsawReg;
 
   File? certChainsawRenewal;
-
-  String serialNumber = '';
-  String brand = '';
-  String model = '';
-  String engineCapacity = '';
-  String guideBar = '';
-  String countryOfOrigin = '';
-  String purposeOfUse = '';
-  String nameOfDealer = '';
-  DateTime? dateOfPurchase;
 
   final double registrationFee = 500.00;
 
@@ -129,17 +140,17 @@ class _ChainsawRegState extends State<ChainsawReg> {
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
         Map<String, dynamic> chainsawDetails = {
-          'Serial Number': serialNumber,
-          'Brand': brand,
-          'Model': model,
-          'Engine Capacity': engineCapacity,
-          'Guide Bar': guideBar,
-          'Country of Origin': countryOfOrigin,
-          'Purpose of Use': purposeOfUse,
-          'Name of Dealer': nameOfDealer,
+          'Serial Number': widget.serialNumber,
+          'Brand': widget.brand,
+          'Model': widget.model,
+          'Engine Capacity': widget.engineCapacity,
+          'Guide Bar': widget.guideBar,
+          'Country of Origin': widget.countryOfOrigin,
+          'Purpose of Use': widget.purposeOfUse,
+          'Name of Dealer': widget.nameOfDealer,
           'Date of Purchase':
-              dateOfPurchase != null
-                  ? Timestamp.fromDate(dateOfPurchase!)
+              widget.dateOfPurchase != null
+                  ? Timestamp.fromDate(widget.dateOfPurchase!)
                   : Timestamp.now(), // Use current timestamp if null
         };
 
@@ -505,7 +516,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'New',
+          widget.type,
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(17), // Scale text size
@@ -544,170 +555,13 @@ class _ChainsawRegState extends State<ChainsawReg> {
                   (file) => setState(() => spa = file),
                 ),
 
-                const Text('4. Chainsaw Specifications'),
-                const SizedBox(height: 14),
-
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Serial Number',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => serialNumber = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Brand',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => brand = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Model',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => model = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Engine Capacity',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => engineCapacity = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Guide Bar',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => guideBar = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Country of Origin',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => countryOfOrigin = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Purpose of Use',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => purposeOfUse = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Name of Dealer',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onChanged: (value) => nameOfDealer = value,
-                ),
-                const SizedBox(height: 12),
-                TextFormField(
-                  decoration: const InputDecoration(
-                    labelText: 'Date of Purchase',
-                    border: OutlineInputBorder(),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.green, width: 2),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      vertical: 14,
-                      horizontal: 16,
-                    ),
-                  ),
-                  onTap: () async {
-                    FocusScope.of(context).requestFocus(FocusNode());
-                    DateTime? selectedDate = await showDatePicker(
-                      context: context,
-                      initialDate: dateOfPurchase ?? DateTime.now(),
-                      firstDate: DateTime(2000),
-                      lastDate: DateTime(2101),
-                    );
-                    if (selectedDate != null) {
-                      setState(() {
-                        dateOfPurchase = selectedDate;
-                      });
-                    }
-                  },
-                  controller: TextEditingController(
-                    text:
-                        dateOfPurchase != null
-                            ? '${dateOfPurchase!.toLocal()}'.split(' ')[0]
-                            : '',
-                  ),
-                ),
-                const SizedBox(height: 10),
                 _buildFilePicker(
-                  '5. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
+                  '4. Notarized Deed of Absolute Sale, if transfer of ownership (1 original);',
                   deedofSale,
                   (file) => setState(() => deedofSale = file),
                 ),
                 _buildFilePicker(
-                  '6. Chainsaw to be registered',
+                  '5. Chainsaw to be registered',
                   regChainsaw,
                   (file) => setState(() => regChainsaw = file),
                 ),
@@ -722,39 +576,39 @@ class _ChainsawRegState extends State<ChainsawReg> {
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
-                  '7. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
+                  '6. Certified True Copy of Forest Tenure Agreement, if Tenure Instrument Holder;',
                   forestTenure,
                   (file) => setState(() => forestTenure = file),
                 ),
                 _buildFilePicker(
-                  '8. Business Permit (1 photocopy), if business owner;',
+                  '7. Business Permit (1 photocopy), if business owner;',
                   businessPermit,
                   (file) => setState(() => businessPermit = file),
                 ),
                 _buildFilePicker(
-                  '9. Certificate of Registration, if registered as PTPR;',
+                  '8. Certificate of Registration, if registered as PTPR;',
                   certRegistration,
                   (file) => setState(() => certRegistration = file),
                 ),
                 _buildFilePicker(
-                  '10. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
+                  '9. Business Permit from LGU or affidavit that the chainsaw is needed in applications/profession/work'
                   ' and will be used for legal purpose (1 photocopy);',
                   permitAffidavit,
                   (file) => setState(() => permitAffidavit = file),
                 ),
                 _buildFilePicker(
-                  '11. Wood processing plant permit (1 photocopy), if licensed wood processor;',
+                  '10. Wood processing plant permit (1 photocopy), if licensed wood processor;',
                   plantPermit,
                   (file) => setState(() => plantPermit = file),
                 ),
                 _buildFilePicker(
-                  '12. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
+                  '11. Certification from the Head of Office or his/her authorized representative that chainsaws are owned/possessed'
                   ' by the office and use for legal purposes (specify), if government and GOCC;',
                   headOffice,
                   (file) => setState(() => headOffice = file),
                 ),
                 _buildFilePicker(
-                  '13. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
+                  '12. Latest Certificate of Chainsaw Registration (1 photocopy), if renewal of registration',
                   certChainsawRenewal,
                   (file) => setState(() => certChainsawRenewal = file),
                 ),

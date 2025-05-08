@@ -1,5 +1,9 @@
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:denr_car_e_service_app/screens/Chainsaw/add_lease.dart';
+import 'package:denr_car_e_service_app/screens/Chainsaw/add_manufacture.dart';
+import 'package:denr_car_e_service_app/screens/TreeCutting/add_prunning.dart';
+import 'package:denr_car_e_service_app/screens/TreeCutting/add_special.dart';
 import 'package:intl/intl.dart'; // Add this at the top of your file
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -246,6 +250,25 @@ class _DisplayState extends State<Display> {
                     ),
               ),
             );
+          } else if (widget.applicationId.startsWith("CH-") &&
+              applicationType == 'Permit To Manufacture') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddManufacture(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("CH-") &&
+              applicationType == 'Authority To Lease') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddLease(applicationId: widget.applicationId),
+              ),
+            );
           } else if (widget.applicationId.startsWith("TP-") &&
               applicationType == 'Forest Product') {
             Navigator.push(
@@ -278,7 +301,7 @@ class _DisplayState extends State<Display> {
               ),
             );
           } else if (widget.applicationId.startsWith("TC-") &&
-              applicationType == 'Private Land Timber Permit') {
+              applicationType == 'Private Land Timber') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -289,7 +312,7 @@ class _DisplayState extends State<Display> {
               ),
             );
           } else if (widget.applicationId.startsWith("TC-") &&
-              applicationType == 'Public Safety Permit') {
+              applicationType == 'Public Safety') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -307,6 +330,26 @@ class _DisplayState extends State<Display> {
                 builder:
                     (context) =>
                         AddGovermentScreen(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TC-") &&
+              applicationType == 'Prunning') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddPrunning(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TC-") &&
+              applicationType == 'Special Tree Cutting') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddSpecial(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("PTP-")) {

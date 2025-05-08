@@ -15,7 +15,7 @@ import 'package:path/path.dart' as path;
 class PrivateLandScreen extends StatefulWidget {
   final LatLng geoP;
   final String address;
-  final String polygonName;
+  final Map<String, dynamic> polygonName;
   final String purpose;
   final String landStatus;
   final String treeCategory;

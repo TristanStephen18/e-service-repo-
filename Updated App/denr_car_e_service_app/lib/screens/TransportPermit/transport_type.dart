@@ -1,4 +1,5 @@
 import 'package:denr_car_e_service_app/model/responsive.dart';
+
 import 'package:denr_car_e_service_app/screens/TransportPermit/transport_products.dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/transport_wildlife.dart';
 
@@ -63,7 +64,7 @@ class _TransportTypeState extends State<TransportType> {
                 child: ListTile(
                   leading: Icon(Icons.car_crash, color: Colors.green),
                   title: Text(
-                    "Local Transport Permit",
+                    "Local Transport Permit (Wildlife)",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14),
