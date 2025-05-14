@@ -1,5 +1,4 @@
 import 'package:denr_car_e_service_app/map/map.dart';
-import 'package:denr_car_e_service_app/screens/Lumber/lumber_registration.dart';
 
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/plantation_selection.dart';
 
@@ -7,6 +6,8 @@ import 'package:denr_car_e_service_app/screens/TransportPermit/transport_type.da
 
 import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_type.dart';
 import 'package:denr_car_e_service_app/screens/chainsaw/chainsaw_registration.dart';
+import 'package:denr_car_e_service_app/screens/others/others.dart';
+import 'package:denr_car_e_service_app/screens/processing/processing_type.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,14 +31,13 @@ class Services extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
-                    decoration: const BoxDecoration(shape: BoxShape.circle),
-                    child: const CircleAvatar(
-                      radius: 24,
-                      backgroundImage: ExactAssetImage('lib/images/logo.png'),
-                    ),
+                  const CircleAvatar(
+                    radius: 25,
+                    backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                    backgroundColor: Colors.transparent,
                   ),
-                  SizedBox(width: Responsive.getWidthScale(12)),
+
+                  SizedBox(width: Responsive.getWidthScale(10)),
                   const Text(
                     'DENR-CAR CENRO',
                     style: TextStyle(
@@ -136,8 +136,19 @@ class Services extends StatelessWidget {
                         onTap:
                             () => Navigator.of(context).push(
                               CupertinoPageRoute(
-                                builder: (ctx) => LumberRegistration(),
+                                builder: (ctx) => ProcessingType(),
                               ),
+                            ),
+                      ),
+
+                      _buildServiceTile(
+                        context,
+                        icon: Icons.file_copy,
+                        title: "Other Permits",
+                        subtitle: "Apply Now!",
+                        onTap:
+                            () => Navigator.of(context).push(
+                              CupertinoPageRoute(builder: (ctx) => Others()),
                             ),
                       ),
                     ],

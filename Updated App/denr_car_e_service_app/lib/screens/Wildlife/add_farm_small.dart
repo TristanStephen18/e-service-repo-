@@ -10,22 +10,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddRegistration extends StatefulWidget {
+class AddFarmSmall extends StatefulWidget {
   final String applicationId;
 
-  const AddRegistration({super.key, required this.applicationId});
+  const AddFarmSmall({super.key, required this.applicationId});
 
   @override
-  _AddRegistrationState createState() => _AddRegistrationState();
+  _AddFarmSmallState createState() => _AddFarmSmallState();
 }
 
-class _AddRegistrationState extends State<AddRegistration> {
+class _AddFarmSmallState extends State<AddFarmSmall> {
   final _formKey = GlobalKey<FormState>();
   File? dulyAccomplishForm;
-
-  File? proofAcquisition;
-  File? inventory;
-
+  File? certRegistration;
+  File? scientificExpertise;
+  File? financialPlan;
+  File? design;
+  File? priorClearance;
+  File? indigenous;
   Set<String> uploadedLabels = {};
 
   @override
@@ -126,10 +128,13 @@ class _AddRegistrationState extends State<AddRegistration> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Inventory': 'Inventory',
         'Application Form': 'Application Form',
-
-        'Proof of Acquisition': 'Proof of Acquisition',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Scientific Expertise': 'Scientific Expertise',
+        'Financial Plan': 'Financial Plan',
+        'Design': 'Design',
+        'Prior Clearance': 'Prior Clearance',
+        'Indigenous': 'Indigenous',
       };
 
       if (!applicationSnapshot.exists) {
@@ -207,16 +212,27 @@ class _AddRegistrationState extends State<AddRegistration> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-
     if (dulyAccomplishForm != null) {
       filesToUpload['Application Form'] = dulyAccomplishForm!;
     }
-    if (inventory != null) {
-      filesToUpload['Inventory'] = inventory!;
-    }
 
-    if (proofAcquisition != null) {
-      filesToUpload['Proof of Acquisition'] = proofAcquisition!;
+    if (certRegistration != null) {
+      filesToUpload['Certificate of Registration'] = certRegistration!;
+    }
+    if (scientificExpertise != null) {
+      filesToUpload['Scientific Expertise'] = scientificExpertise!;
+    }
+    if (financialPlan != null) {
+      filesToUpload['Financial Plan'] = financialPlan!;
+    }
+    if (design != null) {
+      filesToUpload['Design'] = design!;
+    }
+    if (indigenous != null) {
+      filesToUpload['Indigenous'] = indigenous!;
+    }
+    if (priorClearance != null) {
+      filesToUpload['Prior Clearance'] = priorClearance!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -300,7 +316,7 @@ class _AddRegistrationState extends State<AddRegistration> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Wildlife Registration',
+          'Farm Permit (Small)',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -313,10 +329,13 @@ class _AddRegistrationState extends State<AddRegistration> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Inventory',
                       'Application Form',
-
-                      'Proof of Acquisition',
+                      'Certificate of Registration',
+                      'Scientific Expertise',
+                      'Financial Plan',
+                      'Design',
+                      'Prior Clearance',
+                      'Indigenous',
                     ])
                     ? const Center(
                       child: Padding(
@@ -346,23 +365,53 @@ class _AddRegistrationState extends State<AddRegistration> {
 
                         if (!uploadedLabels.contains('Application Form'))
                           _buildFilePicker(
-                            '1. Duly Accomplished Application Form (Notarized);',
+                            '1. Duly Accomplished Application Form with two (2) recent 2x2 photo of applicant;',
                             dulyAccomplishForm,
                             (file) => setState(() => dulyAccomplishForm = file),
                           ),
-                        if (!uploadedLabels.contains('Proof of Acquisition'))
+
+                        if (!uploadedLabels.contains(
+                          'Certificate of Registration',
+                        ))
                           _buildFilePicker(
-                            '2. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
-                            'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
-                            proofAcquisition,
-                            (file) => setState(() => proofAcquisition = file),
+                            '2. Copy of the Certificate of Registration from the appropriate Govenrment Agencies such as the Security and Exchange Commision (SEC), Cooperative Development Authority (CDA), etc;',
+                            certRegistration,
+                            (file) => setState(() => certRegistration = file),
                           ),
-                        if (!uploadedLabels.contains('Inventory'))
+
+                        if (!uploadedLabels.contains('Scientific Expertise'))
                           _buildFilePicker(
-                            '3. Inventory list of Wildlife',
-                            inventory,
-                            (file) => setState(() => inventory = file),
+                            '3. Proof of Scientific expertise (list and qualifications of manpower):',
+                            scientificExpertise,
+                            (file) =>
+                                setState(() => scientificExpertise = file),
                           ),
+
+                        if (!uploadedLabels.contains('Financial Plan'))
+                          _buildFilePicker(
+                            '4. Financial Plan showing financial capability to go into breeding;',
+                            financialPlan,
+                            (file) => setState(() => financialPlan = file),
+                          ),
+                        if (!uploadedLabels.contains('Design'))
+                          _buildFilePicker(
+                            '5. Proposed facility design',
+                            design,
+                            (file) => setState(() => design = file),
+                          ),
+                        if (!uploadedLabels.contains('Indigenous'))
+                          _buildFilePicker(
+                            '6. In case of indigenous threatened species, letter of commitment to simultaneously undertake conservation breeding and propose measures on rehabilitation and / or protection of habitat, where appropriate, as may be determined by the RWMC',
+                            indigenous,
+                            (file) => setState(() => indigenous = file),
+                          ),
+                        if (!uploadedLabels.contains('Prior Clearance'))
+                          _buildFilePicker(
+                            '7. Prior Clearance from the affected communities (Concerned LGUs, Recognized head of Indigenous people in accordance with RA 8371, or Protected Area Management Board; and)',
+                            priorClearance,
+                            (file) => setState(() => priorClearance = file),
+                          ),
+
                         const SizedBox(height: 15),
 
                         Center(

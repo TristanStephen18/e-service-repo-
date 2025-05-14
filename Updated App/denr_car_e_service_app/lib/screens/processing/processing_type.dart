@@ -1,19 +1,20 @@
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/Wildlife/farm_permit_type.dart';
-import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_form.dart';
+
+import 'package:denr_car_e_service_app/screens/processing/lumber_type.dart';
+import 'package:denr_car_e_service_app/screens/processing/wood_type.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class WildlifeType extends StatefulWidget {
-  const WildlifeType({super.key});
+class ProcessingType extends StatefulWidget {
+  const ProcessingType({super.key});
 
   @override
-  State<WildlifeType> createState() => _WildlifeTypeState();
+  State<ProcessingType> createState() => _ProcessingTypeState();
 }
 
-class _WildlifeTypeState extends State<WildlifeType> {
+class _ProcessingTypeState extends State<ProcessingType> {
   @override
   void initState() {
     super.initState();
@@ -28,7 +29,7 @@ class _WildlifeTypeState extends State<WildlifeType> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Wildlife Type',
+          'Processing/Dealership Type',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(17), // Scale text size
@@ -63,16 +64,16 @@ class _WildlifeTypeState extends State<WildlifeType> {
                 child: ListTile(
                   leading: Icon(Icons.home, color: Colors.green),
                   title: Text(
-                    "Wildlife Farm Permit",
+                    "Lumber Dealership Permit",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14),
                     ),
                   ),
                   onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (ctx) => FarmPermitType()),
-                    );
+                    Navigator.of(
+                      context,
+                    ).push(CupertinoPageRoute(builder: (ctx) => LumberType()));
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),
@@ -95,21 +96,16 @@ class _WildlifeTypeState extends State<WildlifeType> {
                 child: ListTile(
                   leading: Icon(Icons.pets, color: Colors.green),
                   title: Text(
-                    "Certificate of Wildlife Registration",
+                    "Wood Processing Plant, including sawmill, mini-sawmill, re-saw permit, plywood/veneer plants, blockboards / fiberboard / particle board and other wood based panel plants and wood treating plants",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14), // Scale text size
                     ),
                   ),
                   onTap: () {
-                    Navigator.of(context).push(
-                      CupertinoPageRoute(
-                        builder:
-                            (ctx) => WildlifeForms(
-                              type: 'Certificate of Wildlife Registration',
-                            ),
-                      ),
-                    );
+                    Navigator.of(
+                      context,
+                    ).push(CupertinoPageRoute(builder: (ctx) => WoodType()));
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
                 ),

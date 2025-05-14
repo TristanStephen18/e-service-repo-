@@ -131,7 +131,7 @@ class _BambooPlantationState extends State<BambooPlantation> {
 
       // Define descriptive labels for fileName field
       final Map<String, String> fileLabelMap = {
-        'Letter of Application': 'Letter of Application',
+        'Registration Form': 'Registration Form',
         'Bamboo Plantation': 'Bamboo Plantation',
         'Ancestral Lands': 'Ancestral Lands',
         'National Greening': 'National Greening',
@@ -261,7 +261,7 @@ class _BambooPlantationState extends State<BambooPlantation> {
     Map<String, File> filesToUpload = {};
 
     if (letterApplication != null) {
-      filesToUpload['Letter of Application'] = letterApplication!;
+      filesToUpload['Registration Form'] = letterApplication!;
     }
     if (bambooPlantation != null) {
       filesToUpload['Bamboo Plantation'] = bambooPlantation!;
@@ -411,7 +411,7 @@ class _BambooPlantationState extends State<BambooPlantation> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Letter of Application (1 original, 1 photocopy)',
+                  '1. Duly accomplished registration form',
                   letterApplication,
                   (file) => setState(() => letterApplication = file),
                 ),
@@ -449,7 +449,7 @@ class _BambooPlantationState extends State<BambooPlantation> {
                 ),
                 const SizedBox(height: 16),
                 _buildFeeRow('Registration Fee', registration),
-                _buildFeeRow('Authentication', oathFee),
+                _buildFeeRow('Authentication/Per Page', oathFee),
 
                 const Divider(thickness: 1.2),
                 _buildFeeRow('TOTAL', totalFee, isTotal: true),

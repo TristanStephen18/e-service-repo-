@@ -232,10 +232,10 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    padding: EdgeInsets.all(Responsive.getWidthScale(15)),
+                    padding: EdgeInsets.all(Responsive.getWidthScale(1)),
                     child: Image.asset(
                       "lib/images/logo.png",
-                      height: Responsive.getHeightScale(120),
+                      height: Responsive.getHeightScale(150),
                     ),
                   ),
                   Text(

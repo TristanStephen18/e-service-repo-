@@ -10,21 +10,25 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddRegistration extends StatefulWidget {
+class AddFarmLarge extends StatefulWidget {
   final String applicationId;
 
-  const AddRegistration({super.key, required this.applicationId});
+  const AddFarmLarge({super.key, required this.applicationId});
 
   @override
-  _AddRegistrationState createState() => _AddRegistrationState();
+  _AddFarmLargeState createState() => _AddFarmLargeState();
 }
 
-class _AddRegistrationState extends State<AddRegistration> {
+class _AddFarmLargeState extends State<AddFarmLarge> {
   final _formKey = GlobalKey<FormState>();
+  File? intentLetter;
   File? dulyAccomplishForm;
-
-  File? proofAcquisition;
-  File? inventory;
+  File? certRegistration;
+  File? scientificExpertise;
+  File? financialPlan;
+  File? letterCommitment;
+  File? priorClearance;
+  File? paymentFee;
 
   Set<String> uploadedLabels = {};
 
@@ -126,10 +130,14 @@ class _AddRegistrationState extends State<AddRegistration> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Inventory': 'Inventory',
+        'Letter of Intent': 'Letter of Intent',
         'Application Form': 'Application Form',
-
-        'Proof of Acquisition': 'Proof of Acquisition',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Scientific Expertise': 'Scientific Expertise',
+        'Financial Plan': 'Financial Plan',
+        'Letter of Commitment': 'Letter of Commitment',
+        'Prior Clearance': 'Prior Clearance',
+        'Payment Fee': 'Payment Fee',
       };
 
       if (!applicationSnapshot.exists) {
@@ -207,16 +215,32 @@ class _AddRegistrationState extends State<AddRegistration> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-
     if (dulyAccomplishForm != null) {
       filesToUpload['Application Form'] = dulyAccomplishForm!;
     }
-    if (inventory != null) {
-      filesToUpload['Inventory'] = inventory!;
+    if (intentLetter != null) {
+      filesToUpload['Letter of Intent'] = intentLetter!;
     }
 
-    if (proofAcquisition != null) {
-      filesToUpload['Proof of Acquisition'] = proofAcquisition!;
+    if (certRegistration != null) {
+      filesToUpload['Certificate of Registration'] = certRegistration!;
+    }
+    if (scientificExpertise != null) {
+      filesToUpload['Scientific Expertise'] = scientificExpertise!;
+    }
+
+    if (financialPlan != null) {
+      filesToUpload['Financial Plan'] = financialPlan!;
+    }
+    if (letterCommitment != null) {
+      filesToUpload['Letter of Commitment'] = letterCommitment!;
+    }
+    if (paymentFee != null) {
+      filesToUpload['Payment Fee'] = paymentFee!;
+    }
+
+    if (priorClearance != null) {
+      filesToUpload['Prior Clearance'] = priorClearance!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -300,7 +324,7 @@ class _AddRegistrationState extends State<AddRegistration> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Wildlife Registration',
+          'Farm Permit (Large)',
           style: TextStyle(color: Colors.white),
         ),
         leading: BackButton(color: Colors.white),
@@ -313,10 +337,14 @@ class _AddRegistrationState extends State<AddRegistration> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Inventory',
+                      'Letter of Intent',
                       'Application Form',
-
-                      'Proof of Acquisition',
+                      'Certificate of Registration',
+                      'Scientific Expertise',
+                      'Financial Plan',
+                      'Letter of Commitment',
+                      'Prior Clearance',
+                      'Payment Fee',
                     ])
                     ? const Center(
                       child: Padding(
@@ -344,25 +372,61 @@ class _AddRegistrationState extends State<AddRegistration> {
                         ),
                         const SizedBox(height: 16),
 
+                        if (!uploadedLabels.contains('Letter of Intent'))
+                          _buildFilePicker(
+                            '1. Letter of Intent Addressed to the Regional Executive Director;',
+                            intentLetter,
+                            (file) => setState(() => intentLetter = file),
+                          ),
+
                         if (!uploadedLabels.contains('Application Form'))
                           _buildFilePicker(
-                            '1. Duly Accomplished Application Form (Notarized);',
+                            '2. Duly Accomplished Application Form with two (2) recent 2x2 photo of applicant;',
                             dulyAccomplishForm,
                             (file) => setState(() => dulyAccomplishForm = file),
                           ),
-                        if (!uploadedLabels.contains('Proof of Acquisition'))
+
+                        if (!uploadedLabels.contains(
+                          'Certificate of Registration',
+                        ))
                           _buildFilePicker(
-                            '2. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
-                            'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
-                            proofAcquisition,
-                            (file) => setState(() => proofAcquisition = file),
+                            '3. Copy of the Certificate of Registration from the appropriate Govenrment Agencies such as the Security and Exchange Commision (SEC), Cooperative Development Authority (CDA), etc;',
+                            certRegistration,
+                            (file) => setState(() => certRegistration = file),
                           ),
-                        if (!uploadedLabels.contains('Inventory'))
+
+                        if (!uploadedLabels.contains('Scientific Expertise'))
                           _buildFilePicker(
-                            '3. Inventory list of Wildlife',
-                            inventory,
-                            (file) => setState(() => inventory = file),
+                            '4. Proof of Scientific expertise (list and qualifications of manpower):',
+                            scientificExpertise,
+                            (file) =>
+                                setState(() => scientificExpertise = file),
                           ),
+                        if (!uploadedLabels.contains('Financial Plan'))
+                          _buildFilePicker(
+                            '5. Financial Plan showing financial capability to go into breeding;',
+                            financialPlan,
+                            (file) => setState(() => financialPlan = file),
+                          ),
+                        if (!uploadedLabels.contains('Letter of Commitment'))
+                          _buildFilePicker(
+                            '6. Letter of commitment to simultaenously undertake conservation breeding and purpose mesaures on rehabilitation and/or protection of habitat, where appropriate, as may be determined by the RWMC (if in case of Indigenous Threatened Species);',
+                            letterCommitment,
+                            (file) => setState(() => letterCommitment = file),
+                          ),
+                        if (!uploadedLabels.contains('Prior Clearance'))
+                          _buildFilePicker(
+                            '7. Prior Clearance from the affected communities (Concerned LGUs, Recognized head of Indigenous people in accordance with RA 8371, or Protected Area Management Board; and)',
+                            priorClearance,
+                            (file) => setState(() => priorClearance = file),
+                          ),
+                        if (!uploadedLabels.contains('Payment Fee'))
+                          _buildFilePicker(
+                            '8. Payment Fee',
+                            paymentFee,
+                            (file) => setState(() => paymentFee = file),
+                          ),
+
                         const SizedBox(height: 15),
 
                         Center(

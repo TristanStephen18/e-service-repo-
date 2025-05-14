@@ -1,34 +1,23 @@
 // ignore_for_file: use_build_context_synchronously
 
-import 'package:denr_car_e_service_app/screens/TransportPermit/ltp(Fauna).dart';
-import 'package:denr_car_e_service_app/screens/TransportPermit/ltp(Flora).dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_farm_large.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_farm_small.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_registration.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:denr_car_e_service_app/model/responsive.dart';
 
-class WildlifeForm extends StatefulWidget {
-  final LatLng startLocation;
-  final LatLng destinationLocation;
-  final String startAddress;
-  final String destinationAddress;
-  final String polygonName;
+class WildlifeForms extends StatefulWidget {
   final String type;
 
-  const WildlifeForm({
-    super.key,
-    required this.type,
-    required this.startAddress,
-    required this.destinationAddress,
-    required this.startLocation,
-    required this.destinationLocation,
-    required this.polygonName,
-  });
+  const WildlifeForms({super.key, required this.type});
 
   @override
-  State<WildlifeForm> createState() => _WildlifeFormState();
+  State<WildlifeForms> createState() => _WildlifeFormsState();
 }
 
-class _WildlifeFormState extends State<WildlifeForm> {
+class _WildlifeFormsState extends State<WildlifeForms> {
   final _formKey = GlobalKey<FormState>();
 
   String name = '';
@@ -37,7 +26,7 @@ class _WildlifeFormState extends State<WildlifeForm> {
   String weight = '';
   String quantity = '';
   String acquisition = '';
-  String destination = '';
+
   String scienficName = '';
 
   Future<void> _submitFiles() async {
@@ -65,37 +54,44 @@ class _WildlifeFormState extends State<WildlifeForm> {
 
     if (confirmed == true) {
       final screen =
-          widget.type == 'Fauna'
-              ? LtpFauna(
-                startLocation: widget.startLocation,
-                destinationLocation: widget.destinationLocation,
-                startAddress: widget.startAddress,
-                destinationAddress: widget.destinationAddress,
-                polygonName: widget.polygonName,
+          widget.type == 'Small Scale Farming'
+              ? WildlifeFarmScreen(
+                type: widget.type,
                 name: name,
                 scienficName: scienficName,
-                destination: destination,
+
                 description: description,
                 weight: weight,
                 quantity: quantity,
                 acquisition: acquisition,
               )
-              : LtpFlora(
-                startLocation: widget.startLocation,
-                destinationLocation: widget.destinationLocation,
-                startAddress: widget.startAddress,
-                destinationAddress: widget.destinationAddress,
-                polygonName: widget.polygonName,
+              : WildlifeFarmLarge(
+                type: widget.type,
                 name: name,
                 description: description,
                 weight: weight,
                 quantity: quantity,
                 acquisition: acquisition,
                 scienficName: scienficName,
-                destination: destination,
               );
 
       Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
+
+      if (widget.type == 'Certificate of Wildlife Registration') {
+        Navigator.of(context).push(
+          CupertinoPageRoute(
+            builder:
+                (ctx) => WildlifeRegistrationScreen(
+                  name: name,
+                  description: description,
+                  weight: weight,
+                  quantity: quantity,
+                  acquisition: acquisition,
+                  scienficName: scienficName,
+                ),
+          ),
+        );
+      }
     }
   }
 
@@ -146,7 +142,7 @@ class _WildlifeFormState extends State<WildlifeForm> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Wildlife Transport Form',
+          'Wildlife Form',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(15),
@@ -194,11 +190,7 @@ class _WildlifeFormState extends State<WildlifeForm> {
                 icon: Icons.info_outline,
                 onChanged: (v) => acquisition = v,
               ),
-              _buildTextField(
-                label: 'Destination',
-                icon: Icons.location_city,
-                onChanged: (v) => acquisition = v,
-              ),
+
               SizedBox(height: Responsive.getHeightScale(20)),
               SizedBox(
                 width: double.infinity,

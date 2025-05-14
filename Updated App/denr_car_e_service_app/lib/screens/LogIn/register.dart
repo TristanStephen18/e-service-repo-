@@ -31,9 +31,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController office = TextEditingController();
   final TextEditingController representative = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _showInfoDialog();
+  }
+
   void _togglePasswordVisibility() {
     setState(() {
       _obscurePassword = !_obscurePassword;
+    });
+  }
+
+  void _showInfoDialog() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:
+            (context) => AlertDialog(
+              title: Text("Important Notice"),
+              content: Text(
+                "Names and information to be given should be the information of the permit applicant.",
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  child: Text("Got it"),
+                ),
+              ],
+            ),
+      );
     });
   }
 
@@ -208,9 +236,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
               children: [
                 Image.asset(
                   "lib/images/logo.png",
-                  height: Responsive.getHeightScale(100),
+                  height: Responsive.getHeightScale(130),
                 ),
-                SizedBox(height: Responsive.getHeightScale(10)),
+                SizedBox(height: Responsive.getHeightScale(5)),
                 Text(
                   "Create Your Account",
                   style: TextStyle(

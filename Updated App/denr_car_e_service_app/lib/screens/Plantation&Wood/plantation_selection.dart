@@ -86,7 +86,7 @@ class PlantationSelection extends StatelessWidget {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.landscape, color: Colors.green),
+                  leading: Icon(Icons.nature, color: Colors.green),
                   title: Text(
                     "Bamboo Plantation",
                     style: TextStyle(
@@ -120,7 +120,10 @@ class PlantationSelection extends StatelessWidget {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.security, color: Colors.green),
+                  leading: Icon(
+                    Icons.local_fire_department,
+                    color: Colors.green,
+                  ),
                   title: Text(
                     "Wood Charcoal Production",
                     style: TextStyle(
@@ -134,115 +137,6 @@ class PlantationSelection extends StatelessWidget {
                     Navigator.of(context).push(
                       CupertinoPageRoute(builder: (ctx) => WoodCharcoal()),
                     );
-                  },
-
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-
-              Gap(Responsive.getHeightScale(15)), // Responsive gap
-              // Transport Permit Service
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.security, color: Colors.green),
-                  title: Text(
-                    "Ordinary Minor Forest Products(within forestlands)",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Responsive.getTextScale(
-                        14,
-                      ), // Responsive text size
-                    ),
-                  ),
-                  onTap: () {
-                    // Navigator.of(context).push(
-                    //   CupertinoPageRoute(
-                    //     builder: (ctx) => MapScreen(type: 'NGA'),
-                    //   ),
-                    // );
-                  },
-
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-              Gap(Responsive.getHeightScale(15)), // Responsive gap
-              // Transport Permit Service
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.security, color: Colors.green),
-                  title: Text(
-                    "Rattan Cutting",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Responsive.getTextScale(
-                        14,
-                      ), // Responsive text size
-                    ),
-                  ),
-                  onTap: () {
-                    // Navigator.of(context).push(
-                    //   CupertinoPageRoute(
-                    //     builder: (ctx) => MapScreen(type: 'NGA'),
-                    //   ),
-                    // );
-                  },
-
-                  trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
-                ),
-              ),
-              Gap(Responsive.getHeightScale(15)), // Responsive gap
-              // Transport Permit Service
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.grey.withOpacity(0.2),
-                      blurRadius: 5,
-                      spreadRadius: 1,
-                    ),
-                  ],
-                ),
-                child: ListTile(
-                  leading: Icon(Icons.security, color: Colors.green),
-                  title: Text(
-                    "Trapping, Extraction and Collection",
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: Responsive.getTextScale(
-                        14,
-                      ), // Responsive text size
-                    ),
-                  ),
-                  onTap: () {
-                    // Navigator.of(context).push(
-                    //   CupertinoPageRoute(
-                    //     builder: (ctx) => MapScreen(type: 'NGA'),
-                    //   ),
-                    // );
                   },
 
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),

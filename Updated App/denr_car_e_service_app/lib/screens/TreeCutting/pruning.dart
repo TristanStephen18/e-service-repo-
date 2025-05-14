@@ -217,6 +217,7 @@ class _PruningState extends State<Pruning> {
             'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
             'tcp_location': widget.address,
             'pamb': widget.polygonName,
+            'Authority': widget.authority,
           });
 
       // Upload each file
@@ -280,7 +281,6 @@ class _PruningState extends State<Pruning> {
           'Tree Category': widget.treeCategory,
           'Tree Count': widget.treeCount,
           'Tree Species': widget.treeSpecies,
-          'Authority': widget.authority,
         };
 
         await FirebaseFirestore.instance

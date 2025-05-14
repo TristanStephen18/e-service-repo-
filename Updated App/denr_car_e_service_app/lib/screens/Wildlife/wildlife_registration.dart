@@ -12,6 +12,25 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
 class WildlifeRegistrationScreen extends StatefulWidget {
+  final String name;
+  final String description;
+  final String weight;
+  final String quantity;
+  final String acquisition;
+
+  final String scienficName;
+
+  const WildlifeRegistrationScreen({
+    super.key,
+
+    required this.name,
+    required this.description,
+    required this.weight,
+    required this.quantity,
+    required this.acquisition,
+
+    required this.scienficName,
+  });
   @override
   _WildlifeRegistrationScreenState createState() =>
       _WildlifeRegistrationScreenState();
@@ -22,10 +41,9 @@ class _WildlifeRegistrationScreenState
   final _formKey = GlobalKey<FormState>();
 
   File? dulyAccomplishForm;
-  File? financialCapability;
+
   File? proofAcquisition;
-  File? intentLetter;
-  File? others;
+  File? inventory;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -99,6 +117,43 @@ class _WildlifeRegistrationScreenState
     return 'WR-$today-$newNumber';
   }
 
+  Future<void> savewildlifeDetails(String documentId) async {
+    try {
+      // Ensure the documentId is valid and we have a user logged in
+      if (FirebaseAuth.instance.currentUser != null) {
+        // Prepare data to be stored
+        Map<String, dynamic> wildlifeDetails = {
+          'Common Name of Species': widget.name,
+          "Scientific Name of Species": widget.scienficName,
+
+          'Description': widget.description,
+          'Unit Weight Measure': widget.weight,
+          'Quantity': widget.quantity,
+          'Mode of Acquisition': widget.acquisition,
+        };
+
+        // Save to Firestore
+        await FirebaseFirestore.instance
+            .collection('mobile_users')
+            .doc(FirebaseAuth.instance.currentUser!.uid)
+            .collection('applications')
+            .doc(documentId)
+            .collection('requirements')
+            .doc('wildlife Details')
+            .set(wildlifeDetails);
+
+        await FirebaseFirestore.instance
+            .collection('wildlife')
+            .doc(documentId)
+            .collection('requirements')
+            .doc('Wildlife Details')
+            .set(wildlifeDetails);
+      } else {}
+    } catch (e) {
+      // Handle errors gracefully
+    }
+  }
+
   // Upload all files to Firestore
   Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
@@ -126,17 +181,21 @@ class _WildlifeRegistrationScreenState
               .doc(userId)
               .get();
 
-      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
+      Map<String, dynamic>? data = userSnapshot.data() as Map<String, dynamic>?;
+
+      String clientName =
+          (data != null && data.containsKey('name'))
+              ? data['name']
+              : data?['representative'] ?? 'No Name';
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
 
       String documentId = await _generateDocumentId();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
+        'Inventory': 'Inventory',
         'Application Form': 'Application Form',
-        'Financial Capability': 'Financial Capability',
+
         'Proof of Acquisition': 'Proof of Acquisition',
-        'Others': 'Others',
       };
 
       // Set root metadata
@@ -209,6 +268,7 @@ class _WildlifeRegistrationScreenState
               'uploadedAt': Timestamp.now(),
             });
       }
+      savewildlifeDetails(documentId);
       Navigator.of(context).pop();
 
       showDialog(
@@ -254,16 +314,10 @@ class _WildlifeRegistrationScreenState
     if (dulyAccomplishForm != null) {
       filesToUpload['Application Form'] = dulyAccomplishForm!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
+    if (inventory != null) {
+      filesToUpload['Inventory'] = inventory!;
     }
 
-    if (financialCapability != null) {
-      filesToUpload['Financial Capability'] = financialCapability!;
-    }
-    if (others != null) {
-      filesToUpload['Others'] = others!;
-    }
     if (proofAcquisition != null) {
       filesToUpload['Proof of Acquisition'] = proofAcquisition!;
     }
@@ -353,6 +407,33 @@ class _WildlifeRegistrationScreenState
     );
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -377,43 +458,40 @@ class _WildlifeRegistrationScreenState
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
+
                 _buildFilePicker(
-                  '1. Letter of Intent Addressed to this Office;',
-                  intentLetter,
-                  (file) => setState(() => intentLetter = file),
-                ),
-                _buildFilePicker(
-                  '2. Duly Accomplished Application Form (Notarized);',
+                  '1. Duly Accomplished Application Form;',
                   dulyAccomplishForm,
                   (file) => setState(() => dulyAccomplishForm = file),
                 ),
-                _buildFilePicker(
-                  '3. Proof of Financial Capability (Certificate of Bank Statement and/or Proof of sustainable Resources to raise wildlife);',
-                  financialCapability,
-                  (file) => setState(() => financialCapability = file),
-                ),
 
                 _buildFilePicker(
-                  '4. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
+                  '2. Proof of acquisition (e.g. Proof of Purchase from legitimate seller and/or Deed of Donation'
                   'from a holder of Wildlife Farm Permit or Certificate of Wildlife Registration)',
                   proofAcquisition,
                   (file) => setState(() => proofAcquisition = file),
                 ),
                 _buildFilePicker(
-                  '5. Others:',
-                  others,
-                  (file) => setState(() => others = file),
+                  '3. Inventory list of Wildlife',
+                  inventory,
+                  (file) => setState(() => inventory = file),
                 ),
+
+                const SizedBox(height: 15),
                 const Text(
-                  'Fees to be paid at the Regional Office',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black, // Optional: define a text color
-                  ),
-                  textAlign:
-                      TextAlign.center, // Optional: center-align the text
+                  'Fees to be Paid at the Regional Office',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  'Registration / Permit Fee',
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                ),
+                _buildFeeRow('1-50 hd', 50.00),
+                _buildFeeRow('51-100 hd', 500.00),
+                _buildFeeRow('101-200 hd', 750.00),
+                _buildFeeRow('200 and above hd', 1000.00),
+
                 const SizedBox(height: 20),
 
                 Center(

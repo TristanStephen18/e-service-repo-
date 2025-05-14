@@ -26,6 +26,7 @@ class _PlantationRegistrationScreenState
   File? oct;
   File? spa;
   File? numberSeed;
+  File? others;
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -132,6 +133,7 @@ class _PlantationRegistrationScreenState
         'OCT or TCT': 'OCT or TCT',
         'SPA': 'SPA',
         'Number of Seed': 'Number of Seed',
+        'Others': 'Others',
       };
 
       Map<String, dynamic>? data = userSnapshot.data() as Map<String, dynamic>?;
@@ -267,6 +269,9 @@ class _PlantationRegistrationScreenState
     }
     if (numberSeed != null) {
       filesToUpload['Number of Seed'] = numberSeed!;
+    }
+    if (others != null) {
+      filesToUpload['Others'] = others!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -409,6 +414,11 @@ class _PlantationRegistrationScreenState
                   '4. Special Power of Attorney (SPA) (1 original)',
                   spa,
                   (file) => setState(() => spa = file),
+                ),
+                _buildFilePicker(
+                  '5. Others',
+                  others,
+                  (file) => setState(() => others = file),
                 ),
 
                 const SizedBox(height: 15),

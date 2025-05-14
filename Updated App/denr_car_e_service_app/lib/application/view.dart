@@ -4,7 +4,8 @@ import 'package:denr_car_e_service_app/screens/Chainsaw/add_lease.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_manufacture.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_prunning.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_special.dart';
-import 'package:intl/intl.dart'; // Add this at the top of your file
+import 'package:denr_car_e_service_app/screens/Wildlife/add_farm_large.dart';
+import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -13,16 +14,16 @@ import 'package:denr_car_e_service_app/model/responsive.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_chainsaw_reg.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_permit_to_purchase.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_permit_to_sell.dart';
-import 'package:denr_car_e_service_app/screens/Lumber/add_lumber.dart';
+
 import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_plantation.dart';
-import 'package:denr_car_e_service_app/screens/Resaw/add_resaw.dart';
+
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_ltp(Fauna).dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_ltp(Flora).dart';
 import 'package:denr_car_e_service_app/screens/TransportPermit/add_transport.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_governmet.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_pltp.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_public.dart';
-import 'package:denr_car_e_service_app/screens/Wildlife/add_farm.dart';
+import 'package:denr_car_e_service_app/screens/Wildlife/add_farm_small.dart';
 import 'package:denr_car_e_service_app/screens/Wildlife/add_registration.dart';
 
 class Display extends StatefulWidget {
@@ -362,21 +363,24 @@ class _DisplayState extends State<Display> {
                     ),
               ),
             );
-          } else if (widget.applicationId.startsWith("LR-")) {
+          } else if (widget.applicationId.startsWith("WR-") &&
+              applicationType == 'Wildlife Farm Permit (Small)') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (context) => AddLumber(applicationId: widget.applicationId),
+                    (context) =>
+                        AddFarmSmall(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("WR-") &&
-              applicationType == 'Wildlife Farm Permit') {
+              applicationType == 'Wildlife Farm Permit (Large)') {
             Navigator.push(
               context,
               MaterialPageRoute(
                 builder:
-                    (context) => AddFarm(applicationId: widget.applicationId),
+                    (context) =>
+                        AddFarmLarge(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("WR-") &&
@@ -387,14 +391,6 @@ class _DisplayState extends State<Display> {
                 builder:
                     (context) =>
                         AddRegistration(applicationId: widget.applicationId),
-              ),
-            );
-          } else if (widget.applicationId.startsWith("RP-")) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => AddResaw(applicationId: widget.applicationId),
               ),
             );
           } else {

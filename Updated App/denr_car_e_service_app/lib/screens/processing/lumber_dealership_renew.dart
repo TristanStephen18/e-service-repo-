@@ -9,55 +9,39 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:path/path.dart' as path;
 
-class PrivateLandScreen extends StatefulWidget {
-  final LatLng geoP;
-  final String address;
-  final Map<String, dynamic> polygonName;
-  final String purpose;
-  final String landStatus;
-  final String treeCategory;
-  final String treeCount;
-  final String treeSpecies;
-  final String authority;
-  const PrivateLandScreen({
-    super.key,
-    required this.address,
-    required this.geoP,
-    required this.polygonName,
-    required this.purpose,
-    required this.landStatus,
-    required this.treeCategory,
-    required this.treeCount,
-    required this.treeSpecies,
-    required this.authority,
-  });
+class LumberDealershipRenew extends StatefulWidget {
+  final String type;
+  const LumberDealershipRenew({super.key, required this.type});
 
   @override
-  State<PrivateLandScreen> createState() => _PrivateLandScreenState();
+  State<LumberDealershipRenew> createState() => _LumberDealershipRenewState();
 }
 
-class _PrivateLandScreenState extends State<PrivateLandScreen> {
+class _LumberDealershipRenewState extends State<LumberDealershipRenew> {
   final _formKey = GlobalKey<FormState>();
 
-  File? applicationLetter;
-  File? lguEndorsement;
-  File? ecc;
-  File? landTitle;
+  File? dulyAccomplishForm;
+  File? registrationImport;
+  File? supplyContract;
+  File? importDocs;
+  File? forestryBonds;
+  File? partnership;
 
-  File? utiPlan;
-  File? pambClearance;
-  File? larEndorsement;
-  File? ptaRes;
-  File? spa;
-  File? photo;
-  final double certificationFee = 50.00;
+  File? businessName;
+  File? mayorsPermit;
+  File? incomeTax;
+  File? adequateCash;
+  File? permitEngage;
+  File? businessPlan;
+  File? log;
+
+  final double registrationFee = 480.00;
   final double oathFee = 36.00;
-  final double inventoryFee = 1200.00;
 
-  double get totalFee => certificationFee + oathFee + inventoryFee;
+  double get totalFee => 600.00 + registrationFee + oathFee;
+
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
@@ -108,7 +92,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('processing')
             .orderBy('uploadedAt', descending: true) // Get latest uploads first
             .limit(1) // Only check the latest document
             .get();
@@ -117,7 +101,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
     if (querySnapshot.docs.isNotEmpty) {
       String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'TC-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'PR-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
         latestNumber = int.parse(match.group(1)!);
@@ -127,34 +111,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     String today = DateTime.now().toString().split(' ')[0]; // YYYY-MM-DD
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
-    return 'TC-$today-$newNumber';
-  }
-
-  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-          Text(
-            value.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+    return 'PR-$today-$newNumber';
   }
 
   // Upload all files to Firestore
@@ -195,20 +152,26 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
 
       final Map<String, String> fileLabelMap = {
         'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
-        'LGU Endorsement or Certification': 'LGU Endorsement or Certification',
-        'Utilization Plan': 'Utilization Plan',
-        'ECC': 'ECC',
-        'Land Title': 'Land Title',
-        'PAMB Clearance': 'PAMB Clearance',
-        'SPA': 'SPA',
-        'Photos of Trees': 'Photos of Trees',
-        'Local Agrarian Endorsement': 'Local Agrarian Endorsement',
-        'PTA Resolution': 'PTA Resolution',
+        'Registration To Import': 'Registration To Import',
+        'Permit To Engage': 'Permit To Engage',
+        'Supply Contract': 'Supply Contract',
+        'Business Plan': 'Business Plan',
+        'Import Documents': 'Import Documents',
+        'Income Tax Return': 'Income Tax Return',
+
+        'Forestry Bonds': 'Forestry Bonds',
+        'Articles of Partnership': 'Articles of Partnership',
+
+        'Business Name': 'Business Name',
+
+        'Mayors Permit': 'Mayors Permit',
+        'Certification of Adequate Cash': 'Certification of Adequate Cash',
+        'Pole Supply Contract': 'Pole Supply Contract',
       };
 
       // Set root metadata
       await FirebaseFirestore.instance
-          .collection('tree_cutting')
+          .collection('processing')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -216,12 +179,8 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
             'address': clientAddress,
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Private Land Timber',
             'current_location': 'RPU - For Evaluation',
-            'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
-            'tcp_location': widget.address,
-            'pamb': widget.polygonName,
-            'Authority': widget.authority,
+            'type': 'Lumber Dealership Permit (Renewal)',
           });
 
       // Upload each file
@@ -255,7 +214,8 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
           .set({
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
-            'type': 'Private Land Timber',
+            'type': 'Lumber Dealership Permit (Renewal)',
+
             'status': 'Pending',
           });
 
@@ -268,7 +228,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
         String base64File = await _convertFileToBase64(file);
 
         await FirebaseFirestore.instance
-            .collection('tree_cutting')
+            .collection('processing')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -278,30 +238,6 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
-
-        Map<String, dynamic> formData = {
-          'Purpose': widget.purpose,
-          'Land Status': widget.landStatus,
-          'Tree Category': widget.treeCategory,
-          'Tree Count': widget.treeCount,
-          'Tree Species': widget.treeSpecies,
-        };
-
-        await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('TCP Data')
-            .set(formData);
-
-        await FirebaseFirestore.instance
-            .collection('tree_cutting')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('TCP Data')
-            .set(formData);
       }
 
       Navigator.of(context).pop();
@@ -348,37 +284,45 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
 
-    if (applicationLetter != null) {
-      filesToUpload['Duly Accomplish Application Form'] = applicationLetter!;
+    if (dulyAccomplishForm != null) {
+      filesToUpload['Duly Accomplish Application Form'] = dulyAccomplishForm!;
     }
-    if (lguEndorsement != null) {
-      filesToUpload['LGU Endorsement or Certification'] = lguEndorsement!;
-    }
-
-    if (utiPlan != null) {
-      filesToUpload['Utilization Plan'] = utiPlan!;
-    }
-    if (ecc != null) {
-      filesToUpload['ECC'] = ecc!;
-    }
-    if (landTitle != null) {
-      filesToUpload['Land Title'] = landTitle!;
-    }
-    if (pambClearance != null) {
-      filesToUpload['PAMB Clearance'] = pambClearance!;
-    }
-    if (spa != null) {
-      filesToUpload['SPA'] = spa!;
-    }
-    if (photo != null) {
-      filesToUpload['Photos of Trees'] = photo!;
+    if (registrationImport != null) {
+      filesToUpload['Registration To Import'] = registrationImport!;
     }
 
-    if (ptaRes != null) {
-      filesToUpload['PTA Resolution'] = ptaRes!;
+    if (supplyContract != null) {
+      filesToUpload['Supply Contract'] = supplyContract!;
     }
-    if (larEndorsement != null) {
-      filesToUpload['Local Agrarian Endorsement'] = larEndorsement!;
+    if (importDocs != null) {
+      filesToUpload['Import Documents'] = importDocs!;
+    }
+    if (forestryBonds != null) {
+      filesToUpload['Forestry Bonds'] = forestryBonds!;
+    }
+    if (partnership != null) {
+      filesToUpload['Articles of Partnership'] = partnership!;
+    }
+    if (businessName != null) {
+      filesToUpload['Business Name'] = businessName!;
+    }
+    if (mayorsPermit != null) {
+      filesToUpload['Mayors Permit'] = mayorsPermit!;
+    }
+    if (incomeTax != null) {
+      filesToUpload['Income Tax Return'] = incomeTax!;
+    }
+    if (adequateCash != null) {
+      filesToUpload['Certification of Adequate Cash'] = adequateCash!;
+    }
+    if (permitEngage != null) {
+      filesToUpload['Permit To Engage'] = permitEngage!;
+    }
+    if (businessPlan != null) {
+      filesToUpload['Business Plan'] = businessPlan!;
+    }
+    if (log != null) {
+      filesToUpload['Pole Supply Contract'] = log!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -438,6 +382,33 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     }
   }
 
+  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+          Text(
+            value.toStringAsFixed(2),
+            style: TextStyle(
+              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
+              fontSize: isTotal ? 18 : 16,
+              color: isTotal ? Colors.red : Colors.black,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // File Picker UI Widget
   Widget _buildFilePicker(
     String label,
@@ -471,7 +442,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Private Land Timber',
+          'Lumber Dealership (Renewal)',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(17), // Scale text size
@@ -494,99 +465,81 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildFilePicker(
-                  '1. Application Letter (1 original Copy)\n'
-                  '\t\t\t Address: Engr. Leandro L. De Jesus\n'
-                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Officer\n'
-                  '\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\t\tCENRO Baguio',
-                  applicationLetter,
-                  (file) => setState(() => applicationLetter = file),
+                  '1. Letter application or duly accomplished Application Form filled-up by the applicant',
+                  dulyAccomplishForm,
+                  (file) => setState(() => dulyAccomplishForm = file),
                 ),
                 _buildFilePicker(
-                  '2. LGU Endorsement / Certification of No Objection / utiPlan (1 original) - interposing no objection to the cutting of trees under the following conditions: (1 original)\n'
-                  '\t\t\ta. If the trees to be cut falls within one barangay, an\n'
-                  '\t\t\t  endorsement from Barangay Captain shall be\n'
-                  '\t\t\t  secured\n'
-                  '\t\t\tb. If the trees to be cut falls within more than one\n'
-                  '\t\t\t  barangay, endorsement shall be secured either from\n'
-                  '\t\t\t  the Municipal/City Mayor or all the Barangay\n'
-                  '\t\t\t  Captains concerned\n'
-                  '\t\t\tc. If the trees to be cut falls within more than one\n'
-                  '\t\t\t  municipality/city, endorsement shall be secured\n'
-                  '\t\t\t  either from the Provincial Governor or all the\n'
-                  '\t\t\t  Municipal/City Mayors concerned\n'
-                  '\t\t\td. If within Baguio City, Clearance from the City\n'
-                  '\t\t\t  Environment and Parks Management Office\n'
-                  '\t\t\t  (CEPMO)',
-
-                  lguEndorsement,
-                  (file) => setState(() => lguEndorsement = file),
+                  '2. Authenticated copy of Registration to import logs, lumber, veneer or commercial poles and piles',
+                  registrationImport,
+                  (file) => setState(() => registrationImport = file),
                 ),
                 _buildFilePicker(
-                  '3. Authenticated copy of Land Title/CLOA issued by LRA or Registry of Deeds, whichever is applicable',
-                  landTitle,
-                  (file) => setState(() => landTitle = file),
+                  '3. Authenticated copy of sales/supply contract with a foreign exporter of said wood commodities sworn to by the local importer as a binding legal instrument',
+                  supplyContract,
+                  (file) => setState(() => supplyContract = file),
                 ),
                 _buildFilePicker(
-                  '4. Environmental Compliance Certificate (ECC) / Certificate of Non-Coverage (CNC), whichever is applicable, issued by EMB (1certified true copy);',
-                  ecc,
-                  (file) => setState(() => ecc = file),
+                  '4. Authenticated copies of import documents covering the imported commodities',
+                  importDocs,
+                  (file) => setState(() => importDocs = file),
+                ),
+                _buildFilePicker(
+                  '5. Forestry Bond (Specifying permit applied for) either Cash P1000.00 or Surety Bond P1,250.00',
+                  forestryBonds,
+                  (file) => setState(() => forestryBonds = file),
+                ),
+                _buildFilePicker(
+                  '6. Articles of Partnership or Incorporation duly registered with the SEC if application is filed by partnership, corporation or association',
+                  partnership,
+                  (file) => setState(() => partnership = file),
+                ),
+                _buildFilePicker(
+                  '7. Certified copy or xerox copy of Business Name or Trade Name duly registered with the Department of Trade and Industry (DTI) if applicant is using a trade name',
+                  businessName,
+                  (file) => setState(() => businessName = file),
+                ),
+                _buildFilePicker(
+                  '8. Mayors permit together with a certification from the city or municipal treasurer stating that the operation of the intended business does not violate any existing ordinance of said municipality/city',
+                  mayorsPermit,
+                  (file) => setState(() => mayorsPermit = file),
+                ),
+                _buildFilePicker(
+                  '9. Copy of Annual Income Tax Return for the last two (2) years (Individual or Corporate Annual Income Tax Return), if applicable',
+                  forestryBonds,
+                  (file) => setState(() => forestryBonds = file),
+                ),
+                _buildFilePicker(
+                  '10. Certification of adequate cash capital deposit from a bank and affidavit of the applicant stating that said deposit shall be used solely for the intended business',
+                  adequateCash,
+                  (file) => setState(() => adequateCash = file),
+                ),
+                _buildFilePicker(
+                  '11. Permit to engage in business (if applicant is a foreigner)',
+                  permitEngage,
+                  (file) => setState(() => permitEngage = file),
+                ),
+                _buildFilePicker(
+                  '12. Business Plan',
+                  businessPlan,
+                  (file) => setState(() => businessPlan = file),
+                ),
+                _buildFilePicker(
+                  '13. Log/Lumber/Pole Supply Contract with legitimate sawmill operator/timber concessionaires',
+                  log,
+                  (file) => setState(() => log = file),
                 ),
 
                 const SizedBox(height: 20),
-                const Text(
-                  'Additional Requirements',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.blue,
-                  ),
-                ),
-                const SizedBox(height: 12),
-
-                _buildFilePicker(
-                  '5. Protected Area Management Board (PAMB) Clearance/Certification\n'
-                  '\t\t\t a. Lower Agno Watershed Forest Reserve (LAWFR)\n'
-                  '\t\t\t b. Marcos Highway Watershed Forest Reserve (MHWFR)\n'
-                  '\t\t\t c. Mount Pulag Protected Landscape (MPPL)\n'
-                  '\t\t\t d. Upper Agno River Basin Resource Reserve (UARBRR)',
-                  pambClearance,
-                  (file) => setState(() => pambClearance = file),
-                ),
-                _buildFilePicker(
-                  '6. Utilization Plan with at least 50% of the area covered with forest trees(1 original), if the applicaton covers 10 hectares or larger;',
-                  utiPlan,
-                  (file) => setState(() => utiPlan = file),
-                ),
-                _buildFilePicker(
-                  '7. Endorsement by local agrarian reform officer interposing No Objection (1 original), if covered by CLOA, Municipal/City Agrarian Reform Office;',
-                  larEndorsement,
-                  (file) => setState(() => larEndorsement = file),
-                ),
-                _buildFilePicker(
-                  '8. PTA Resolution or Resolution from any organized group of No Objection and reason for cutting (1 original), if School/Organization;',
-                  spa,
-                  (file) => setState(() => spa = file),
-                ),
-                _buildFilePicker(
-                  '9. Special Power of Attorney (SPA), if the applicant is not the owner of the title;',
-                  spa,
-                  (file) => setState(() => spa = file),
-                ),
-                _buildFilePicker(
-                  '10. Photos of the trees to be cut',
-                  photo,
-                  (file) => setState(() => photo = file),
-                ),
-
-                const SizedBox(height: 15),
                 const Text(
                   'Fees to be Paid',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildFeeRow('Certification Fee', certificationFee),
+                _buildFeeRow('Application Fee', 600.00),
+                _buildFeeRow('Registration Fee', registrationFee),
                 _buildFeeRow('Oath Fee', oathFee),
-                _buildFeeRow('Inventory Fee', inventoryFee),
+
                 const Divider(thickness: 1.2),
                 _buildFeeRow('TOTAL', totalFee, isTotal: true),
                 const SizedBox(height: 32),

@@ -22,8 +22,8 @@ class _ApplicationsState extends State<Applications> {
     'WR': 'Wildlife',
     'PTP': 'Private Tree',
     'TC': 'Tree Cutting',
-    'LR': 'Lumber',
-    'RP': 'Resaw',
+    'PR': 'Processing',
+    'OT': 'Other Permit',
   };
 
   Future<List<QueryDocumentSnapshot>> fetchUserApplications() async {
@@ -55,15 +55,14 @@ class _ApplicationsState extends State<Applications> {
             // Header
             Row(
               children: [
-                Container(
-                  decoration: const BoxDecoration(shape: BoxShape.circle),
-                  child: const CircleAvatar(
-                    radius: 24,
-                    backgroundImage: ExactAssetImage('lib/images/logo.png'),
-                  ),
+                const CircleAvatar(
+                  radius: 25,
+                  backgroundImage: ExactAssetImage('lib/images/logo.png'),
+                  backgroundColor: Colors.transparent,
                 ),
+
                 SizedBox(
-                  width: Responsive.getWidthScale(12.0),
+                  width: Responsive.getWidthScale(10.0),
                 ), // Responsive spacing
                 const Text(
                   'DENR-CAR CENRO',
@@ -164,15 +163,15 @@ class _ApplicationsState extends State<Applications> {
                       } else if (prefix == 'WR') {
                         title = 'Wildlife - ${data['type']}';
                       } else if (prefix == 'PTP') {
-                        title = 'Private Tree Plantation';
-                      } else if (prefix == 'LR') {
-                        title = 'Lumber Registration';
-                      } else if (prefix == 'RP') {
-                        title = 'Resaw Permit';
+                        title = 'Private Tree Plantation - ${data['type']}';
+                      } else if (prefix == 'PR') {
+                        title = 'Processing - ${data['type']}';
                       } else if (prefix == 'TC') {
                         title = 'Tree Cutting - ${data['type']}';
                       } else if (prefix == 'TP') {
                         title = 'Transport - ${data['type']}';
+                      } else if (prefix == 'OT') {
+                        title = 'Other Permit';
                       } else {
                         title = applicationTypeMap[prefix] ?? 'Unknown Permit';
                       }
@@ -194,14 +193,14 @@ class _ApplicationsState extends State<Applications> {
                       } else if (prefix == 'PTP') {
                         leadingIcon = Icons.grass;
                         iconColor = Colors.green;
-                      } else if (prefix == 'LR') {
+                      } else if (prefix == 'PR') {
                         leadingIcon = Icons.park;
-                        iconColor = Colors.green;
-                      } else if (prefix == 'RP') {
-                        leadingIcon = Icons.carpenter;
                         iconColor = Colors.green;
                       } else if (prefix == 'TC') {
                         leadingIcon = Icons.forest;
+                        iconColor = Colors.green;
+                      } else if (prefix == 'OT') {
+                        leadingIcon = Icons.file_copy;
                         iconColor = Colors.green;
                       } else {
                         leadingIcon = Icons.description;

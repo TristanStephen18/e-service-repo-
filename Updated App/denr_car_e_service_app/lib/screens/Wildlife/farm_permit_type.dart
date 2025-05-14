@@ -1,19 +1,19 @@
 import 'package:denr_car_e_service_app/model/responsive.dart';
-import 'package:denr_car_e_service_app/screens/Wildlife/farm_permit_type.dart';
+
 import 'package:denr_car_e_service_app/screens/Wildlife/wildlife_form.dart';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 
-class WildlifeType extends StatefulWidget {
-  const WildlifeType({super.key});
+class FarmPermitType extends StatefulWidget {
+  const FarmPermitType({super.key});
 
   @override
-  State<WildlifeType> createState() => _WildlifeTypeState();
+  State<FarmPermitType> createState() => _FarmPermitTypeState();
 }
 
-class _WildlifeTypeState extends State<WildlifeType> {
+class _FarmPermitTypeState extends State<FarmPermitType> {
   @override
   void initState() {
     super.initState();
@@ -28,7 +28,7 @@ class _WildlifeTypeState extends State<WildlifeType> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Wildlife Type',
+          'Farm Permit Type',
           style: TextStyle(
             color: Colors.white,
             fontSize: Responsive.getTextScale(17), // Scale text size
@@ -63,7 +63,7 @@ class _WildlifeTypeState extends State<WildlifeType> {
                 child: ListTile(
                   leading: Icon(Icons.home, color: Colors.green),
                   title: Text(
-                    "Wildlife Farm Permit",
+                    "Small Scale Farming (with capital of Php 1,500,000.00 and below)",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14),
@@ -71,7 +71,10 @@ class _WildlifeTypeState extends State<WildlifeType> {
                   ),
                   onTap: () {
                     Navigator.of(context).push(
-                      CupertinoPageRoute(builder: (ctx) => FarmPermitType()),
+                      CupertinoPageRoute(
+                        builder:
+                            (ctx) => WildlifeForms(type: 'Small Scale Farming'),
+                      ),
                     );
                   },
                   trailing: Icon(Icons.arrow_forward_ios, color: Colors.green),
@@ -93,9 +96,9 @@ class _WildlifeTypeState extends State<WildlifeType> {
                   ],
                 ),
                 child: ListTile(
-                  leading: Icon(Icons.pets, color: Colors.green),
+                  leading: Icon(Icons.home, color: Colors.green),
                   title: Text(
-                    "Certificate of Wildlife Registration",
+                    "Medium to Large Scale Farming (with capital more than Php 1,500,000.00)",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: Responsive.getTextScale(14), // Scale text size
@@ -106,7 +109,7 @@ class _WildlifeTypeState extends State<WildlifeType> {
                       CupertinoPageRoute(
                         builder:
                             (ctx) => WildlifeForms(
-                              type: 'Certificate of Wildlife Registration',
+                              type: 'Medium to Large Scale Farming',
                             ),
                       ),
                     );

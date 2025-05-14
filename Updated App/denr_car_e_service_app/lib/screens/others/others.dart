@@ -2,67 +2,27 @@
 
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import 'package:path/path.dart' as path;
 
-class Charcoal extends StatefulWidget {
-  final LatLng startLocation;
-  final LatLng destinationLocation;
-  final String startAddress;
-  final String destinationAddress;
-  final String polygonName;
-  final String name;
-  final String description;
-  final String weight;
-  final String quantity;
-
-  final String volume;
-  final String nameofLoading;
-  final String nameofConsignee;
-  final String source;
-  final String legal;
-  final String conveyance;
-
-  const Charcoal({
-    super.key,
-    required this.startAddress,
-    required this.destinationAddress,
-    required this.startLocation,
-    required this.destinationLocation,
-    required this.polygonName,
-    required this.name,
-    required this.description,
-    required this.weight,
-    required this.quantity,
-
-    required this.volume,
-    required this.nameofLoading,
-    required this.nameofConsignee,
-    required this.source,
-    required this.conveyance,
-    required this.legal,
-  });
+class Others extends StatefulWidget {
+  const Others({super.key});
 
   @override
-  _CharcoalState createState() => _CharcoalState();
+  _OthersState createState() => _OthersState();
 }
 
-class _CharcoalState extends State<Charcoal> {
+class _OthersState extends State<Others> {
   final _formKey = GlobalKey<FormState>();
-  File? requestLetter;
-  File? woodPermit;
 
-  final double certificationFee = 50.00;
-  final double oathFee = 36.00;
-  final double authentication = 100.00;
-
-  double get totalFee => certificationFee + oathFee + authentication;
+  List<Map<String, dynamic>> additionalAttachments = [];
 
   Future<void> _pickFile(String label, Function(File) onFilePicked) async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -107,7 +67,7 @@ class _CharcoalState extends State<Charcoal> {
   Future<String> _generateDocumentId() async {
     QuerySnapshot querySnapshot =
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('others')
             .orderBy('uploadedAt', descending: true)
             .limit(1)
             .get();
@@ -116,7 +76,7 @@ class _CharcoalState extends State<Charcoal> {
 
     if (querySnapshot.docs.isNotEmpty) {
       String lastDocId = querySnapshot.docs.first.id;
-      RegExp regExp = RegExp(r'TP-\d{4}-\d{2}-\d{2}-(\d{4})');
+      RegExp regExp = RegExp(r'OT-\d{4}-\d{2}-\d{2}-(\d{4})');
       Match? match = regExp.firstMatch(lastDocId);
       if (match != null) {
         latestNumber = int.parse(match.group(1)!);
@@ -126,49 +86,7 @@ class _CharcoalState extends State<Charcoal> {
     String today = DateTime.now().toString().split(' ')[0];
     String newNumber = (latestNumber + 1).toString().padLeft(4, '0');
 
-    return 'TP-$today-$newNumber';
-  }
-
-  Future<void> savewildlifeDetails(String documentId) async {
-    try {
-      // Ensure the documentId is valid and we have a user logged in
-      if (FirebaseAuth.instance.currentUser != null) {
-        // Prepare data to be stored
-        Map<String, dynamic> wildlifeDetails = {
-          'Name of Species': widget.name,
-          'Description': widget.description,
-          'Unit Weight Measure': widget.weight,
-          'Quantity': widget.quantity,
-          'Volume': widget.volume,
-          'Name of Loading': widget.nameofLoading,
-          'Name of Consignee': widget.nameofConsignee,
-          'Source of Forest Products': widget.source,
-          'Type of Conveyance': widget.conveyance,
-        };
-
-        // Save to Firestore
-        await FirebaseFirestore.instance
-            .collection('mobile_users')
-            .doc(FirebaseAuth.instance.currentUser!.uid)
-            .collection('applications')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('Forest Products')
-            .set(wildlifeDetails);
-
-        await FirebaseFirestore.instance
-            .collection('transport')
-            .doc(documentId)
-            .collection('requirements')
-            .doc('Forest Products')
-            .set(wildlifeDetails);
-      } else {
-        print('User is not logged in');
-      }
-    } catch (e) {
-      // Handle errors gracefully
-      print('Error saving chainsaw details: $e');
-    }
+    return 'OT-$today-$newNumber';
   }
 
   Future<void> _uploadFiles(Map<String, File> files) async {
@@ -206,13 +124,8 @@ class _CharcoalState extends State<Charcoal> {
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 
-      final Map<String, String> fileLabelMap = {
-        'Request Letter': 'Request Letter',
-        'Wood Charcoal Production Permit': 'Wood Charcoal Production Permit',
-      };
-
       await FirebaseFirestore.instance
-          .collection('transport_permit')
+          .collection('others')
           .doc(documentId)
           .set({
             'uploadedAt': Timestamp.now(),
@@ -221,25 +134,12 @@ class _CharcoalState extends State<Charcoal> {
             'client': clientName,
             'current_location': 'RPU - For Evaluation',
             'address': clientAddress,
-            'from': widget.startAddress,
-            'to': widget.destinationAddress,
-            'from_coordinates': GeoPoint(
-              widget.startLocation.latitude,
-              widget.startLocation.longitude,
-            ),
-            'to_coordinates': GeoPoint(
-              widget.destinationLocation.latitude,
-              widget.destinationLocation.longitude,
-            ),
-            'type': 'Forest Product',
-            'legalSource': widget.legal,
           });
 
       for (var entry in files.entries) {
-        String label = entry.key;
         File file = entry.value;
-        String fileExtension = path.extension(file.path).toLowerCase();
         String base64File = await _convertFileToBase64(file);
+        String extension = path.extension(file.path).toLowerCase();
 
         await FirebaseFirestore.instance
             .collection('mobile_users')
@@ -247,22 +147,22 @@ class _CharcoalState extends State<Charcoal> {
             .collection('applications')
             .doc(documentId)
             .collection('requirements')
-            .doc(label)
+            .doc(entry.key)
             .set({
-              'fileName': fileLabelMap[label] ?? label,
-              'fileExtension': fileExtension,
+              'fileName': entry.key,
+              'fileExtension': extension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
 
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('others')
             .doc(documentId)
             .collection('requirements')
-            .doc(label)
+            .doc(entry.key)
             .set({
-              'fileName': fileLabelMap[label] ?? label,
-              'fileExtension': fileExtension,
+              'fileName': entry.key,
+              'fileExtension': extension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
             });
@@ -277,12 +177,10 @@ class _CharcoalState extends State<Charcoal> {
             'uploadedAt': Timestamp.now(),
             'userID': userId,
             'status': 'Pending',
-            'type': 'Forest Product',
           });
 
-      savewildlifeDetails(documentId);
-
       Navigator.of(context).pop();
+
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -315,7 +213,7 @@ class _CharcoalState extends State<Charcoal> {
         },
       );
     } catch (e) {
-      Navigator.of(context).pop(); // close loader
+      Navigator.of(context).pop();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Error during file upload.')),
       );
@@ -323,67 +221,55 @@ class _CharcoalState extends State<Charcoal> {
     }
   }
 
-  // Submit all files
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
 
-    if (woodPermit != null) {
-      filesToUpload['Wood Charcoal Production Permit'] = woodPermit!;
-    }
-    if (requestLetter != null) {
-      filesToUpload['Request Letter'] = requestLetter!;
+    for (var attachment in additionalAttachments) {
+      if (attachment['file'] != null && attachment['label'] != null) {
+        filesToUpload[attachment['label']] = attachment['file'];
+      }
     }
 
     if (filesToUpload.isEmpty) {
-      // Show alert if no files attached
       showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: const Text('Missing Files'),
-            content: const Text('Please attach at least one file.'),
-            actions: <Widget>[
-              TextButton(
-                child: const Text('OK'),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        },
+        builder:
+            (BuildContext context) => AlertDialog(
+              title: const Text('Missing Files'),
+              content: const Text('Please attach at least one file.'),
+              actions: [
+                TextButton(
+                  child: const Text('OK'),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
       );
       return;
     }
 
-    // Confirm upload dialog
     bool? confirmed = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm Upload'),
-          content: const Text(
-            'Are you sure you want to upload attached files?',
-          ),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('Cancel'),
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
+      builder:
+          (BuildContext context) => AlertDialog(
+            title: const Text('Confirm Upload'),
+            content: const Text(
+              'Are you sure you want to upload attached files?',
             ),
-            TextButton(
-              child: const Text(
-                'Upload',
-                style: TextStyle(color: Colors.green),
+            actions: [
+              TextButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.of(context).pop(false),
               ),
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-            ),
-          ],
-        );
-      },
+              TextButton(
+                child: const Text(
+                  'Upload',
+                  style: TextStyle(color: Colors.green),
+                ),
+                onPressed: () => Navigator.of(context).pop(true),
+              ),
+            ],
+          ),
     );
 
     if (confirmed == true) {
@@ -418,31 +304,13 @@ class _CharcoalState extends State<Charcoal> {
     );
   }
 
-  Widget _buildFeeRow(String label, double value, {bool isTotal = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-          Text(
-            value.toStringAsFixed(2),
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 16,
-              color: isTotal ? Colors.red : Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
+  void _addAttachmentField() {
+    setState(() {
+      additionalAttachments.add({
+        'label': 'Attachment ${additionalAttachments.length + 1}',
+        'file': null,
+      });
+    });
   }
 
   @override
@@ -450,7 +318,7 @@ class _CharcoalState extends State<Charcoal> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Transport Permit',
+          'Other Permits',
           style: TextStyle(color: Colors.white),
         ),
         leading: const BackButton(color: Colors.white),
@@ -465,32 +333,27 @@ class _CharcoalState extends State<Charcoal> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  'Checklist of Requirements',
+                  'Attach Files',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 16),
-                _buildFilePicker(
-                  '1. Request letter',
-                  requestLetter,
-                  (file) => setState(() => requestLetter = file),
-                ),
-                _buildFilePicker(
-                  '2. Copy of the Wood Charcoal Production Permit',
-                  woodPermit,
-                  (file) => setState(() => woodPermit = file),
+                SizedBox(height: 20),
+
+                for (int i = 0; i < additionalAttachments.length; i++)
+                  _buildFilePicker(
+                    '${i + 1}. ${additionalAttachments[i]['label']}',
+                    additionalAttachments[i]['file'],
+                    (file) =>
+                        setState(() => additionalAttachments[i]['file'] = file),
+                  ),
+
+                TextButton.icon(
+                  onPressed: _addAttachmentField,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Another Attachment'),
                 ),
 
                 const SizedBox(height: 25),
-                const Text(
-                  'Fees to be Paid',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildFeeRow('Application Fee', certificationFee),
-                _buildFeeRow('Oath Fee', oathFee),
-                _buildFeeRow('Authentication Fee (per page)', authentication),
-                const Divider(thickness: 1.2),
-                _buildFeeRow('TOTAL', totalFee, isTotal: true),
+
                 const SizedBox(height: 32),
                 Center(
                   child: ElevatedButton(

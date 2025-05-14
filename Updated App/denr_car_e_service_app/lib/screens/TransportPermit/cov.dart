@@ -201,7 +201,12 @@ class _CertificateOfVerificationState extends State<CertificateOfVerification> {
               .doc(userId)
               .get();
 
-      String clientName = userSnapshot.get('name') ?? 'Unknown Client';
+      Map<String, dynamic>? data = userSnapshot.data() as Map<String, dynamic>?;
+
+      String clientName =
+          (data != null && data.containsKey('name'))
+              ? data['name']
+              : data?['representative'] ?? 'No Name';
       String clientAddress = userSnapshot.get('address') ?? 'Unknown Address';
       String documentId = await _generateDocumentId();
 

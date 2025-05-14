@@ -23,6 +23,8 @@ class LtpFauna extends StatefulWidget {
   final String weight;
   final String quantity;
   final String acquisition;
+  final String destination;
+  final String scienficName;
 
   const LtpFauna({
     super.key,
@@ -36,6 +38,8 @@ class LtpFauna extends StatefulWidget {
     required this.weight,
     required this.quantity,
     required this.acquisition,
+    required this.destination,
+    required this.scienficName,
   });
   @override
   _LtpFaunaState createState() => _LtpFaunaState();
@@ -128,7 +132,9 @@ class _LtpFaunaState extends State<LtpFauna> {
       if (FirebaseAuth.instance.currentUser != null) {
         // Prepare data to be stored
         Map<String, dynamic> wildlifeDetails = {
-          'Name of Species': widget.name,
+          'Common Name of Species': widget.name,
+          "Scientific Name of Species": widget.scienficName,
+          'Destination': widget.destination,
           'Description': widget.description,
           'Unit Weight Measure': widget.weight,
           'Quantity': widget.quantity,

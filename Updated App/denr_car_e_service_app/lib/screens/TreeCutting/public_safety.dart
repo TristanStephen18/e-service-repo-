@@ -192,6 +192,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
             'location': GeoPoint(widget.geoP.latitude, widget.geoP.longitude),
             'tcp_location': widget.address,
             'pamb': widget.polygonName,
+            'Authority': widget.authority,
           });
 
       // Upload each file
@@ -255,7 +256,6 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
           'Tree Category': widget.treeCategory,
           'Tree Count': widget.treeCount,
           'Tree Species': widget.treeSpecies,
-          'Authority': widget.authority,
         };
 
         await FirebaseFirestore.instance

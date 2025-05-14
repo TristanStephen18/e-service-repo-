@@ -27,7 +27,7 @@ class _OnboardingState extends State<Onboarding> {
   ];
 
   final List<String> _titles = [
-    'DENR-CAR CENRO E-SERVICES',
+    'DENR-CAR CENRO BAGUIO E-SERVICES',
     'Jurisdiction of CENRO Baguio',
     'Create Account',
     'Login',
@@ -41,7 +41,7 @@ class _OnboardingState extends State<Onboarding> {
 
   final List<String> _descriptions = [
     'Forest and Biodiversity Permits.',
-    'Baguio City\nBokos\nItogon\nKabayan\nLa Trinidad\nSablan\nTuba',
+    'Baguio City\nBokod\nItogon\nKabayan\nLa Trinidad\nSablan\nTuba',
     'Register an account to start using the app.',
     'Log in with your registered account.',
     'Browse and choose from available services.',
