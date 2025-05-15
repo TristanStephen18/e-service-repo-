@@ -152,10 +152,10 @@ class _LtpFaunaState extends State<LtpFauna> {
             .set(wildlifeDetails);
 
         await FirebaseFirestore.instance
-            .collection('transport')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
-            .doc('Wildlife Details')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {
         print('User is not logged in');

@@ -270,7 +270,7 @@ class _SpecialTreeState extends State<SpecialTree> {
             .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
-            .doc('TCP Data')
+            .doc('Details')
             .set(formData);
       }
 

@@ -156,7 +156,6 @@ class _ForestFormState extends State<ForestForm> {
     required String label,
     required Function(String) onChanged,
     IconData? icon,
-    String? Function(String?)? validator,
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: Responsive.getHeightScale(8)),
@@ -185,12 +184,6 @@ class _ForestFormState extends State<ForestForm> {
           ),
         ),
         onChanged: onChanged,
-        validator:
-            validator ??
-            (value) =>
-                value == null || value.isEmpty
-                    ? 'This field is required'
-                    : null,
       ),
     );
   }

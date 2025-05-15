@@ -15,7 +15,7 @@ class _OnboardingState extends State<Onboarding> {
 
   final List<String> _imagePaths = [
     'lib/images/logo.png',
-    'lib/images/logo.png',
+    'lib/images/map.jpg',
     'lib/images/register.png',
     'lib/images/login.png',
     'lib/images/services.png',
@@ -215,7 +215,7 @@ class OnboardingPage extends StatelessWidget {
 
     final screenHeight = MediaQuery.of(context).size.height;
     double imageHeight =
-        (index == 0 || index == 1) ? screenHeight * 0.30 : screenHeight * 0.45;
+        (index == 0 || index == 1) ? screenHeight * 0.36 : screenHeight * 0.45;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: Responsive.getWidthScale(24)),

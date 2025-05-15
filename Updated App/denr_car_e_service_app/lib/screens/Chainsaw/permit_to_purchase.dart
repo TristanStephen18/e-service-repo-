@@ -138,7 +138,7 @@ class _PermitToPurchaseState extends State<PermitToPurchase> {
             .collection('chainsaw')
             .doc(documentId)
             .collection('requirements')
-            .doc('Chainsaw Details')
+            .doc('Details')
             .set(chainsawDetails);
 
         // Optionally, show a confirmation message or feedback

@@ -273,7 +273,7 @@ class _GovermentScreenState extends State<GovermentScreen> {
             .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
-            .doc('TCP Data')
+            .doc('Details')
             .set(formData);
       }
 

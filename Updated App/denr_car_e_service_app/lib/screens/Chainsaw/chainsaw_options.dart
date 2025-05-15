@@ -29,7 +29,7 @@ class _ChainsawOptionsState extends State<ChainsawOptions> {
           'Chainsaw Registration',
           style: TextStyle(
             color: Colors.white,
-            fontSize: Responsive.getTextScale(17),
+            fontSize: Responsive.getTextScale(15),
           ),
         ),
         backgroundColor: Colors.green,

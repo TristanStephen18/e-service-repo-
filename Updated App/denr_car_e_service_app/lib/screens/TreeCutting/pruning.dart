@@ -296,7 +296,7 @@ class _PruningState extends State<Pruning> {
             .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
-            .doc('TCP Data')
+            .doc('Details')
             .set(formData);
       }
 

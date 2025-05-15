@@ -157,10 +157,10 @@ class _CharcoalState extends State<Charcoal> {
             .set(wildlifeDetails);
 
         await FirebaseFirestore.instance
-            .collection('transport')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
-            .doc('Forest Products')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {
         print('User is not logged in');
@@ -231,7 +231,7 @@ class _CharcoalState extends State<Charcoal> {
               widget.destinationLocation.latitude,
               widget.destinationLocation.longitude,
             ),
-            'type': 'Forest Product',
+            'type': 'Forest Product (Charcoal)',
             'legalSource': widget.legal,
           });
 
@@ -277,7 +277,7 @@ class _CharcoalState extends State<Charcoal> {
             'uploadedAt': Timestamp.now(),
             'userID': userId,
             'status': 'Pending',
-            'type': 'Forest Product',
+            'type': 'Forest Product (Charcoal)',
           });
 
       savewildlifeDetails(documentId);
@@ -449,10 +449,7 @@ class _CharcoalState extends State<Charcoal> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Transport Permit',
-          style: TextStyle(color: Colors.white),
-        ),
+        title: const Text('Charcoal', style: TextStyle(color: Colors.white)),
         leading: const BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),

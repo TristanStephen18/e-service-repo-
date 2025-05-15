@@ -271,7 +271,7 @@ class _PublicSafetyScreenState extends State<PublicSafetyScreen> {
             .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
-            .doc('TCP Data')
+            .doc('Details')
             .set(formData);
       }
 

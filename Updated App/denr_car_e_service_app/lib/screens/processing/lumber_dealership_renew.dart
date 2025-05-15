@@ -506,8 +506,8 @@ class _LumberDealershipRenewState extends State<LumberDealershipRenew> {
                 ),
                 _buildFilePicker(
                   '9. Copy of Annual Income Tax Return for the last two (2) years (Individual or Corporate Annual Income Tax Return), if applicable',
-                  forestryBonds,
-                  (file) => setState(() => forestryBonds = file),
+                  incomeTax,
+                  (file) => setState(() => incomeTax = file),
                 ),
                 _buildFilePicker(
                   '10. Certification of adequate cash capital deposit from a bank and affidavit of the applicant stating that said deposit shall be used solely for the intended business',

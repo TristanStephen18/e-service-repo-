@@ -168,7 +168,7 @@ class _ChainsawRegState extends State<ChainsawReg> {
             .collection('chainsaw')
             .doc(documentId)
             .collection('requirements')
-            .doc('Chainsaw Details')
+            .doc('Details')
             .set(chainsawDetails);
 
         // Optionally, show a confirmation message or feedback

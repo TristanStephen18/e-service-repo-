@@ -151,7 +151,7 @@ class _WildlifeFarmLargeState extends State<WildlifeFarmLarge> {
             .collection('wildlife')
             .doc(documentId)
             .collection('requirements')
-            .doc('Wildlife Details')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {}
     } catch (e) {

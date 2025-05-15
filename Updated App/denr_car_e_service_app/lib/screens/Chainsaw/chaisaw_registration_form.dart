@@ -37,7 +37,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
     required String label,
     required Function(String) onChanged,
     TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
+
     IconData? icon,
   }) {
     return TextFormField(
@@ -54,8 +54,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
         ),
       ),
       keyboardType: keyboardType,
-      validator:
-          validator ?? (val) => val == null || val.isEmpty ? 'Required' : null,
+
       onChanged: onChanged,
     );
   }
@@ -68,7 +67,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
           'Chainsaw Registration Form',
           style: TextStyle(
             color: Colors.white,
-            fontSize: Responsive.getTextScale(17),
+            fontSize: Responsive.getTextScale(15),
           ),
         ),
         backgroundColor: Colors.green,
@@ -89,6 +88,9 @@ class _RegistrationFormState extends State<RegistrationForm> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(
+                      'Please input N/A or leave it blank if not applicable',
+                    ),
                     const SizedBox(height: 12),
                     Padding(
                       padding: const EdgeInsets.all(9),

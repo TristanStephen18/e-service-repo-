@@ -300,7 +300,7 @@ class _PrivateLandScreenState extends State<PrivateLandScreen> {
             .collection('tree_cutting')
             .doc(documentId)
             .collection('requirements')
-            .doc('TCP Data')
+            .doc('Details')
             .set(formData);
       }
 

@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -160,10 +161,10 @@ class _CertificateofTimberState extends State<CertificateofTimber> {
             .set(wildlifeDetails);
 
         await FirebaseFirestore.instance
-            .collection('transport')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
-            .doc('Forest Products')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {
         print('User is not logged in');
@@ -174,7 +175,7 @@ class _CertificateofTimberState extends State<CertificateofTimber> {
     }
   }
 
-  Future<String?> _uploadFiles(Map<String, File> files) async {
+  Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -233,7 +234,7 @@ class _CertificateofTimberState extends State<CertificateofTimber> {
               widget.destinationLocation.latitude,
               widget.destinationLocation.longitude,
             ),
-            'type': 'Forest Product',
+            'type': 'Forest Product (Timber)',
             'legalSource': widget.legal,
           });
 
@@ -279,13 +280,44 @@ class _CertificateofTimberState extends State<CertificateofTimber> {
             'uploadedAt': Timestamp.now(),
             'userID': userId,
             'status': 'Pending',
-            'type': 'Forest Product',
+            'type': 'Forest Product (Timber)',
           });
 
       savewildlifeDetails(documentId);
 
-      Navigator.of(context).pop(); // close loader
-      return documentId;
+      Navigator.of(context).pop();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } catch (e) {
       Navigator.of(context).pop(); // close loader
       ScaffoldMessenger.of(context).showSnackBar(
@@ -478,12 +510,12 @@ class _CertificateofTimberState extends State<CertificateofTimber> {
                 ),
                 const SizedBox(height: 12),
                 _buildFilePicker(
-                  '5. Certificate of Transport Agreement (CTA) (1 original, 1 photocopy)',
+                  '4. Certificate of Transport Agreement (CTA) (1 original, 1 photocopy)',
                   _transportAgreementFile,
                   (file) => setState(() => _transportAgreementFile = file),
                 ),
                 _buildFilePicker(
-                  '6. Special Power of Attorney (SPA) (1 original), if the applicant is not the WPP owner',
+                  '5. Special Power of Attorney (SPA) (1 original), if the applicant is not the WPP owner',
                   _spaFile,
                   (file) => setState(() => _spaFile = file),
                 ),

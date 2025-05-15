@@ -2,6 +2,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:denr_car_e_service_app/screens/Home/homepage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -161,10 +162,10 @@ class _CertificateOfVerificationState extends State<CertificateOfVerification> {
             .set(wildlifeDetails);
 
         await FirebaseFirestore.instance
-            .collection('transport')
+            .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
-            .doc('Forest Products')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {
         print('User is not logged in');
@@ -175,7 +176,7 @@ class _CertificateOfVerificationState extends State<CertificateOfVerification> {
     }
   }
 
-  Future<String?> _uploadFiles(Map<String, File> files) async {
+  Future<void> _uploadFiles(Map<String, File> files) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -239,7 +240,7 @@ class _CertificateOfVerificationState extends State<CertificateOfVerification> {
               widget.destinationLocation.latitude,
               widget.destinationLocation.longitude,
             ),
-            'type': 'Forest Product',
+            'type': 'Forest Product (Non-Timber)',
             'legalSource': widget.legal,
           });
 
@@ -285,13 +286,43 @@ class _CertificateOfVerificationState extends State<CertificateOfVerification> {
             'uploadedAt': Timestamp.now(),
             'userID': userId,
             'status': 'Pending',
-            'type': 'Forest Product',
+            'type': 'Forest Product (Non-Timber)',
           });
 
       savewildlifeDetails(documentId);
 
-      Navigator.of(context).pop(); // close loader
-      return documentId;
+      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Row(
+              children: const [
+                Icon(Icons.check_circle, color: Colors.green),
+                SizedBox(width: 10),
+                Text('Success'),
+              ],
+            ),
+            content: const Text('Application Submitted Successfully!'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                  Navigator.of(context).push(
+                    CupertinoPageRoute(
+                      builder:
+                          (ctx) => Homepage(
+                            userid: FirebaseAuth.instance.currentUser!.uid,
+                          ),
+                    ),
+                  );
+                },
+                child: const Text('OK'),
+              ),
+            ],
+          );
+        },
+      );
     } catch (e) {
       Navigator.of(context).pop(); // close loader
       ScaffoldMessenger.of(context).showSnackBar(

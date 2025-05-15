@@ -10,20 +10,19 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddCharcoal extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddCharcoal({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddCharcoalState createState() => _AddCharcoalState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddCharcoalState extends State<AddCharcoal> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
+  File? requestLetter;
+  File? woooPermit;
 
   Set<String> uploadedLabels = {};
 
@@ -125,9 +124,8 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
+        'Request Letter': 'Request Letter',
+        'Wood Charcoal Production Permit': 'Wood Charcoal Production Permit',
       };
 
       if (!applicationSnapshot.exists) {
@@ -221,15 +219,11 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
+    if (woooPermit != null) {
+      filesToUpload['Request Letter'] = woooPermit!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
-    }
-
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    if (requestLetter != null) {
+      filesToUpload['Wood Charcoal Production Permit'] = requestLetter!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -312,7 +306,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text('Charcoal', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +317,8 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Request Letter',
+                      'Wood Charcoal Production Permit',
                     ])
                     ? const Center(
                       child: Padding(
@@ -353,28 +346,21 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        if (!uploadedLabels.contains('Request Letter'))
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
-                          ),
-                        if (!uploadedLabels.contains('Legal Possession'))
-                          _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '1. Request letter',
+                            requestLetter,
+                            (file) => setState(() => requestLetter = file),
                           ),
 
                         if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
+                          'Wood Charcoal Production Permit',
                         ))
                           _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
+                            '2. Copy of the Wood Charcoal Production Permit',
+                            woooPermit,
+                            (file) => setState(() => woooPermit = file),
                           ),
-
                         const SizedBox(height: 15),
 
                         Center(

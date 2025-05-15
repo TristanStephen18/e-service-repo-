@@ -2,9 +2,15 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_lease.dart';
 import 'package:denr_car_e_service_app/screens/Chainsaw/add_manufacture.dart';
+import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_bamboo.dart';
+import 'package:denr_car_e_service_app/screens/Plantation&Wood/add_wood_charcoal.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/add_cert_timber.dart';
+import 'package:denr_car_e_service_app/screens/TransportPermit/add_charcoal.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_prunning.dart';
 import 'package:denr_car_e_service_app/screens/TreeCutting/add_special.dart';
 import 'package:denr_car_e_service_app/screens/Wildlife/add_farm_large.dart';
+import 'package:denr_car_e_service_app/screens/others/add_others.dart';
+import 'package:denr_car_e_service_app/screens/processing/add_lumber_dealership_renewal.dart';
 import 'package:intl/intl.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -271,7 +277,7 @@ class _DisplayState extends State<Display> {
               ),
             );
           } else if (widget.applicationId.startsWith("TP-") &&
-              applicationType == 'Forest Product') {
+              applicationType == 'Forest Product (Non-Timber)') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -299,6 +305,26 @@ class _DisplayState extends State<Display> {
                 builder:
                     (context) =>
                         AddLTPFlora(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TP-") &&
+              applicationType == 'Forest Product (Timber)') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddCertTimber(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("TP-") &&
+              applicationType == 'Forest Product (Charcoal)') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddCharcoal(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("TC-") &&
@@ -353,7 +379,17 @@ class _DisplayState extends State<Display> {
                         AddSpecial(applicationId: widget.applicationId),
               ),
             );
-          } else if (widget.applicationId.startsWith("PTP-")) {
+          } else if (widget.applicationId.startsWith("PTP-") &&
+              applicationType == 'Bamboo Plantation') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddBamboo(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("PTP-") &&
+              applicationType == 'Plantation') {
             Navigator.push(
               context,
               MaterialPageRoute(
@@ -361,6 +397,16 @@ class _DisplayState extends State<Display> {
                     (context) => AddPlantationRegistrationScreen(
                       applicationId: widget.applicationId,
                     ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("PTP-") &&
+              applicationType == 'Wood Charcoal Production') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) =>
+                        AddWoodCharcoal(applicationId: widget.applicationId),
               ),
             );
           } else if (widget.applicationId.startsWith("WR-") &&
@@ -391,6 +437,25 @@ class _DisplayState extends State<Display> {
                 builder:
                     (context) =>
                         AddRegistration(applicationId: widget.applicationId),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("PR-") &&
+              applicationType == 'Lumber Dealership Permit (Renewal)') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddLumberDealershipRenewal(
+                      applicationId: widget.applicationId,
+                    ),
+              ),
+            );
+          } else if (widget.applicationId.startsWith("OT-")) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => AddOthers(applicationId: widget.applicationId),
               ),
             );
           } else {

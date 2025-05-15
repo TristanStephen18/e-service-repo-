@@ -153,7 +153,7 @@ class _LtpFloraState extends State<LtpFlora> {
             .collection('transport_permit')
             .doc(documentId)
             .collection('requirements')
-            .doc('Wildlife Details')
+            .doc('Details')
             .set(wildlifeDetails);
       } else {
         print('User is not logged in');

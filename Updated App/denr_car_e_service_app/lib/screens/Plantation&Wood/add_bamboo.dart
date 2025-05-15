@@ -10,20 +10,23 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddBamboo extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddBamboo({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddBambooState createState() => _AddBambooState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddBambooState extends State<AddBamboo> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
+
+  File? letterApplication;
+
+  File? bambooPlantation;
+  File? ancestral;
+  File? national;
 
   Set<String> uploadedLabels = {};
 
@@ -125,9 +128,10 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
+        'Registration Form': 'Registration Form',
+        'Bamboo Plantation': 'Bamboo Plantation',
+        'Ancestral Lands': 'Ancestral Lands',
+        'National Greening': 'National Greening',
       };
 
       if (!applicationSnapshot.exists) {
@@ -153,7 +157,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
         });
 
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('plantation')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -172,7 +176,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
         // Set root metadata
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('plantation')
             .doc(documentId)
             .update({
               'status': 'Pending',
@@ -221,15 +225,18 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
+    if (letterApplication != null) {
+      filesToUpload['Registration Form'] = letterApplication!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
+    if (bambooPlantation != null) {
+      filesToUpload['Bamboo Plantation'] = bambooPlantation!;
     }
 
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    if (ancestral != null) {
+      filesToUpload['Ancestral Lands'] = ancestral!;
+    }
+    if (national != null) {
+      filesToUpload['National Greening'] = national!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -312,7 +319,10 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Private Tree Plantation',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +333,10 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Registration Form',
+                      'Bamboo Plantation',
+                      'Ancestral Lands',
+                      'National Greening',
                     ])
                     ? const Center(
                       child: Padding(
@@ -353,28 +364,42 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        if (!uploadedLabels.contains('Registration Form'))
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
-                          ),
-                        if (!uploadedLabels.contains('Legal Possession'))
-                          _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '1. Duly accomplished registration form',
+                            letterApplication,
+                            (file) => setState(() => letterApplication = file),
                           ),
 
-                        if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
-                        ))
+                        if (!uploadedLabels.contains('Bamboo Plantation'))
                           _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
+                            '2. Bamboo Plantations within Agricultural Lands (Alienable and Disposable) and/or Private Titled Lands \n '
+                            '\t\t\t a. Authenticated Copy of Land Title Ownership (OCT/TCT)\n'
+                            '\t\t\t b. Certified True Copy of Tax Declaration, in case of Untitled A&D land\n'
+                            '\t\t\t c. A copy of proof of possession of the land (e.g., lease, mortgage, pledge, trust and the like), in case the applicant is not the registered owner of the land\n'
+                            '\t\t\t d. Photograph of the bamboo plantation\n'
+                            '\t\t\t e. Inventory list of bamboo plantations reflecting the species planted, total no. of clumps and total area planted',
+                            bambooPlantation,
+                            (file) => setState(() => bambooPlantation = file),
                           ),
 
+                        if (!uploadedLabels.contains('Ancestral Lands'))
+                          _buildFilePicker(
+                            '3. Bamboo Plantations within Ancestral Lands\n'
+                            '\t\t\t a. Photograph of the bamboo plantation\n'
+                            '\t\t\t b. Copy of Certificate of Ancestral Domain Title / Certificate of Ancestral Land Title (CADT / CALT)\n'
+                            '\t\t\t c. Copy of Ancestral Domain Sustainable Development and Protection Plan (ADSDPP) indicating the establishment and management of bamboo plantations',
+                            ancestral,
+                            (file) => setState(() => ancestral = file),
+                          ),
+                        if (!uploadedLabels.contains('National Greening'))
+                          _buildFilePicker(
+                            '4. Bamboo Plantations under the National Greening Program- Family Approach\n'
+                            '\t\t\t a. Copy of signed Letter of Agreement\n'
+                            '\t\t\t b. Photograph of the bamboo plantation',
+                            ancestral,
+                            (file) => setState(() => ancestral = file),
+                          ),
                         const SizedBox(height: 15),
 
                         Center(

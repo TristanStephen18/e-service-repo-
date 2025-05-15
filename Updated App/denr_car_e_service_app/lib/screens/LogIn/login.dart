@@ -222,169 +222,192 @@ class _LoginState extends State<Login> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: EdgeInsets.all(Responsive.getWidthScale(16)),
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    padding: EdgeInsets.all(Responsive.getWidthScale(1)),
-                    child: Image.asset(
-                      "lib/images/logo.png",
-                      height: Responsive.getHeightScale(150),
-                    ),
-                  ),
-                  Text(
-                    "CENRO Baguio Permits\n"
-                    "\t\t\tInformation System",
-                    style: TextStyle(fontSize: Responsive.getTextScale(18)),
-                  ),
-                  Gap(30),
-                  TextFormField(
-                    controller: username,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Required.';
-                      }
-                      if (!EmailValidator.validate(value)) {
-                        return 'Invalid email';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Email',
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green, width: 2.0),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: Responsive.getHeightScale(15)),
-                  TextFormField(
-                    controller: password,
-                    obscureText: _obscurePassword,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
-                      }
-                      return null;
-                    },
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.all(Responsive.getWidthScale(16)),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      children: <Widget>[
+                        Container(
+                          padding: EdgeInsets.all(Responsive.getWidthScale(1)),
+                          child: Image.asset(
+                            "lib/images/logo.png",
+                            height: Responsive.getHeightScale(150),
+                          ),
                         ),
-                        onPressed: _togglePasswordVisibility,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green, width: 2.0),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                    ),
-                  ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () async {
-                          String? email = await _showEmailDialog(context);
-
-                          if (email != null && email.isNotEmpty) {
-                            try {
-                              await FirebaseAuth.instance
-                                  .sendPasswordResetEmail(email: email);
-
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    'Password reset email sent to $email',
-                                  ),
-                                ),
-                              );
-                            } catch (e) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Error: $e')),
-                              );
+                        Text(
+                          "CENRO Baguio Permits\n"
+                          "\t\t\tInformation System",
+                          style: TextStyle(
+                            fontSize: Responsive.getTextScale(18),
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Gap(30),
+                        TextFormField(
+                          controller: username,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Required.';
                             }
-                          }
-                        },
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            fontSize: Responsive.getTextScale(12),
-                            color: Colors.blue,
+                            if (!EmailValidator.validate(value)) {
+                              return 'Invalid email';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Email',
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.green),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.green,
+                                width: 2.0,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-
-                  Gap(15),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _login,
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                          vertical: Responsive.getHeightScale(10),
+                        SizedBox(height: Responsive.getHeightScale(15)),
+                        TextFormField(
+                          controller: password,
+                          obscureText: _obscurePassword,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your password';
+                            }
+                            return null;
+                          },
+                          decoration: InputDecoration(
+                            labelText: 'Password',
+                            suffixIcon: IconButton(
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                              ),
+                              onPressed: _togglePasswordVisibility,
+                            ),
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.green),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(
+                                color: Colors.green,
+                                width: 2.0,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
                         ),
-                        backgroundColor: Colors.green,
-                      ),
-                      child: Text(
-                        'Login',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: Responsive.getTextScale(15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () async {
+                                String? email = await _showEmailDialog(context);
+                                if (email != null && email.isNotEmpty) {
+                                  try {
+                                    await FirebaseAuth.instance
+                                        .sendPasswordResetEmail(email: email);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          'Password reset email sent to $email',
+                                        ),
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error: $e')),
+                                    );
+                                  }
+                                }
+                              },
+                              child: Text(
+                                'Forgot Password?',
+                                style: TextStyle(
+                                  fontSize: Responsive.getTextScale(12),
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                        Gap(15),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _login,
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: Responsive.getHeightScale(10),
+                              ),
+                              backgroundColor: Colors.green,
+                            ),
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: Responsive.getTextScale(15),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Gap(15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "No Account?",
+                              style: TextStyle(
+                                fontSize: Responsive.getTextScale(12),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (ctx) => RegisterScreen(),
+                                  ),
+                                );
+                              },
+                              child: Text(
+                                "Register",
+                                style: TextStyle(
+                                  fontSize: Responsive.getTextScale(12),
+                                  color: Colors.green,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-                  Gap(15),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        "No Account?",
-                        style: TextStyle(fontSize: Responsive.getTextScale(12)),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (ctx) => RegisterScreen(),
-                            ),
-                          );
-                        },
-                        child: Text(
-                          "Register",
-                          style: TextStyle(
-                            fontSize: Responsive.getTextScale(12),
-                            color: Colors.green,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                ),
               ),
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Text(
+                'Developed by: Angelito Solis\nEmail: angelitosolis99@gmail.com',
+                style: TextStyle(
+                  fontSize: Responsive.getTextScale(10),
+                  color: Colors.grey[600],
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
         ),
       ),
     );

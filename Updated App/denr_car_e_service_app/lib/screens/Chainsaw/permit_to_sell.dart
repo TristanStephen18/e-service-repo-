@@ -145,7 +145,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
             .collection('chainsaw')
             .doc(documentId)
             .collection('requirements')
-            .doc('Chainsaw Details')
+            .doc('Details')
             .set(chainsawDetails);
 
         // Optionally, show a confirmation message or feedback
@@ -454,7 +454,7 @@ class _PermitToSellScrennState extends State<PermitToSellScrenn> {
           'Permit To Sell',
           style: TextStyle(
             color: Colors.white,
-            fontSize: Responsive.getTextScale(17), // Scale text size
+            fontSize: Responsive.getTextScale(15), // Scale text size
           ),
         ),
         backgroundColor: Colors.green,

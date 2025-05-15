@@ -10,21 +10,18 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddOthers extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddOthers({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddChainsawRegState createState() => _AddChainsawRegState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddChainsawRegState extends State<AddOthers> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
-
+  List<Map<String, dynamic>> additionalAttachments = [];
   Set<String> uploadedLabels = {};
 
   @override
@@ -124,12 +121,6 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
-      final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
-      };
-
       if (!applicationSnapshot.exists) {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(
@@ -146,19 +137,19 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
         String base64File = await _convertFileToBase64(file);
 
         await applicationRef.collection('requirements').doc(label).set({
-          'fileName': fileLabelMap[label] ?? label,
+          'fileName': entry.key,
           'fileExtension': fileExtension,
           'file': base64File,
           'uploadedAt': Timestamp.now(),
         });
 
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('others')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
             .set({
-              'fileName': fileLabelMap[label] ?? label,
+              'fileName': entry.key,
               'fileExtension': fileExtension,
               'file': base64File,
               'uploadedAt': Timestamp.now(),
@@ -172,7 +163,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
         // Set root metadata
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('others')
             .doc(documentId)
             .update({
               'status': 'Pending',
@@ -221,15 +212,11 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
-    }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
-    }
 
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    for (var attachment in additionalAttachments) {
+      if (attachment['file'] != null && attachment['label'] != null) {
+        filesToUpload[attachment['label']] = attachment['file'];
+      }
     }
 
     if (filesToUpload.isEmpty) {
@@ -308,11 +295,20 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
     );
   }
 
+  void _addAttachmentField() {
+    setState(() {
+      additionalAttachments.add({
+        'label': 'Attachment ${additionalAttachments.length + 1}',
+        'file': null,
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text('Others', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +319,19 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Duly Accomplish Application Form',
+                      'Reciept of Chainsaw Purchase',
+                      'SPA',
+
+                      'Deed of Sale',
+                      'Chainsaw',
+                      'Forest Tenure Agreement',
+                      'Business Permit',
+                      'Certificate of Registration',
+                      'Affidavit or Permit from LGU',
+                      'Plant Permit',
+                      'Certification of Head Office',
+                      'Certificate of Chainsaw Registration',
                     ])
                     ? const Center(
                       child: Padding(
@@ -345,38 +351,32 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Text(
-                          'Additional Requirements',
+                          'Attach Files',
                           style: TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 16),
+                        SizedBox(height: 20),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        for (int i = 0; i < additionalAttachments.length; i++)
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
-                          ),
-                        if (!uploadedLabels.contains('Legal Possession'))
-                          _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '${i + 1}. ${additionalAttachments[i]['label']}',
+                            additionalAttachments[i]['file'],
+                            (file) => setState(
+                              () => additionalAttachments[i]['file'] = file,
+                            ),
                           ),
 
-                        if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
-                        ))
-                          _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
-                          ),
+                        TextButton.icon(
+                          onPressed: _addAttachmentField,
+                          icon: const Icon(Icons.add),
+                          label: const Text('Add Another Attachment'),
+                        ),
 
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 25),
 
+                        const SizedBox(height: 32),
                         Center(
                           child: ElevatedButton(
                             style: ElevatedButton.styleFrom(

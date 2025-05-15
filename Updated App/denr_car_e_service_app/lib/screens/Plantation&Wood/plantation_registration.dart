@@ -156,6 +156,7 @@ class _PlantationRegistrationScreenState
             'status': 'Pending',
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'current_location': 'RPU - For Evaluation',
+            'type': 'Plantation',
           });
 
       // Upload each file
@@ -190,6 +191,7 @@ class _PlantationRegistrationScreenState
             'uploadedAt': Timestamp.now(),
             'userID': FirebaseAuth.instance.currentUser!.uid,
             'status': 'Pending',
+            'type': 'Plantation',
           });
 
       // Upload each file

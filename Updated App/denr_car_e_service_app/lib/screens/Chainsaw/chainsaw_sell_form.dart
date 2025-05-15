@@ -31,7 +31,7 @@ class _ChainsawSellFormState extends State<ChainsawSellForm> {
     required String label,
     required Function(String) onChanged,
     TextInputType keyboardType = TextInputType.text,
-    String? Function(String?)? validator,
+
     IconData? icon,
   }) {
     return TextFormField(
@@ -48,8 +48,7 @@ class _ChainsawSellFormState extends State<ChainsawSellForm> {
         ),
       ),
       keyboardType: keyboardType,
-      validator:
-          validator ?? (val) => val == null || val.isEmpty ? 'Required' : null,
+
       onChanged: onChanged,
     );
   }
@@ -62,7 +61,7 @@ class _ChainsawSellFormState extends State<ChainsawSellForm> {
           'Permit To Sell Form',
           style: TextStyle(
             color: Colors.white,
-            fontSize: Responsive.getTextScale(17),
+            fontSize: Responsive.getTextScale(15),
           ),
         ),
         backgroundColor: Colors.green,
@@ -74,7 +73,8 @@ class _ChainsawSellFormState extends State<ChainsawSellForm> {
           key: _formKey,
           child: Column(
             children: [
-              const SizedBox(height: 24),
+              Text('Please input N/A or leave it blank if not applicable'),
+              const SizedBox(height: 20),
               _buildTextField(
                 label: 'Serial Number',
                 onChanged: (v) => serialNumber = v,

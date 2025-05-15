@@ -10,20 +10,23 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddCertTimber extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddCertTimber({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddCertTimberState createState() => _AddCertTimberState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddCertTimberState extends State<AddCertTimber> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
+  File? requestLetter;
+  File? wppPermit;
+  File? supplyContract;
+
+  File? _transportAgreementFile;
+  File? _spaFile;
 
   Set<String> uploadedLabels = {};
 
@@ -125,9 +128,12 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
+        'Request Letter': 'Request Letter',
+        'Approved WPP Permit': 'Approved WPP Permit',
+        'Lumber Supply Contract': 'Lumber Supply Contract',
+
+        'Transport Agreement': 'Transport Agreement',
+        'SPA': 'SPA',
       };
 
       if (!applicationSnapshot.exists) {
@@ -221,15 +227,21 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
+    if (wppPermit != null) {
+      filesToUpload['Approved WPP Permit'] = wppPermit!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
+    if (supplyContract != null) {
+      filesToUpload['Lumber Supply Contract'] = supplyContract!;
     }
 
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    if (_transportAgreementFile != null) {
+      filesToUpload['Transport Agreement'] = _transportAgreementFile!;
+    }
+    if (_spaFile != null) {
+      filesToUpload['SPA'] = _spaFile!;
+    }
+    if (requestLetter != null) {
+      filesToUpload['Request Letter'] = requestLetter!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -312,7 +324,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text('Charcoal', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +335,12 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Request Letter',
+                      'Approved WPP Permit',
+                      'Lumber Supply Contract',
+
+                      'Transport Agreement',
+                      'SPA',
                     ])
                     ? const Center(
                       child: Padding(
@@ -353,26 +368,40 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        if (!uploadedLabels.contains('Request Letter'))
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
-                          ),
-                        if (!uploadedLabels.contains('Legal Possession'))
-                          _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '1. Request letter',
+                            requestLetter,
+                            (file) => setState(() => requestLetter = file),
                           ),
 
-                        if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
-                        ))
+                        if (!uploadedLabels.contains('Approved WPP Permit'))
                           _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
+                            '2. Approved WPP Permit or Certificate of Registration as Lumber / Timber Dealer (1 photocopy)',
+                            wppPermit,
+                            (file) => setState(() => wppPermit = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Lumber Supply Contract'))
+                          _buildFilePicker(
+                            '3. Approved Log / Lumber Supply Contract or Invoice Receipt (1 photocopy)',
+                            supplyContract,
+                            (file) => setState(() => supplyContract = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Transport Agreement'))
+                          _buildFilePicker(
+                            '4. Certificate of Transport Agreement (CTA) (1 original, 1 photocopy)',
+                            _transportAgreementFile,
+                            (file) =>
+                                setState(() => _transportAgreementFile = file),
+                          ),
+
+                        if (!uploadedLabels.contains('SPA'))
+                          _buildFilePicker(
+                            '5. Special Power of Attorney (SPA) (1 original), if the applicant is not the WPP owner',
+                            _spaFile,
+                            (file) => setState(() => _spaFile = file),
                           ),
 
                         const SizedBox(height: 15),

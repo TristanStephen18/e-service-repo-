@@ -10,20 +10,33 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddLumberDealershipRenewal extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddLumberDealershipRenewal({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddLumberDealershipRenewalState createState() =>
+      _AddLumberDealershipRenewalState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddLumberDealershipRenewalState
+    extends State<AddLumberDealershipRenewal> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
+  File? dulyAccomplishForm;
+  File? registrationImport;
+  File? supplyContract;
+  File? importDocs;
+  File? forestryBonds;
+  File? partnership;
+
+  File? businessName;
+  File? mayorsPermit;
+  File? incomeTax;
+  File? adequateCash;
+  File? permitEngage;
+  File? businessPlan;
+  File? log;
 
   Set<String> uploadedLabels = {};
 
@@ -125,9 +138,22 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
+        'Duly Accomplish Application Form': 'Duly Accomplish Application Form',
+        'Registration To Import': 'Registration To Import',
+        'Permit To Engage': 'Permit To Engage',
+        'Supply Contract': 'Supply Contract',
+        'Business Plan': 'Business Plan',
+        'Import Documents': 'Import Documents',
+        'Income Tax Return': 'Income Tax Return',
+
+        'Forestry Bonds': 'Forestry Bonds',
+        'Articles of Partnership': 'Articles of Partnership',
+
+        'Business Name': 'Business Name',
+
+        'Mayors Permit': 'Mayors Permit',
+        'Certification of Adequate Cash': 'Certification of Adequate Cash',
+        'Pole Supply Contract': 'Pole Supply Contract',
       };
 
       if (!applicationSnapshot.exists) {
@@ -153,7 +179,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
         });
 
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('processing')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -172,7 +198,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
         // Set root metadata
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('processing')
             .doc(documentId)
             .update({
               'status': 'Pending',
@@ -221,15 +247,45 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
+    if (dulyAccomplishForm != null) {
+      filesToUpload['Duly Accomplish Application Form'] = dulyAccomplishForm!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
+    if (registrationImport != null) {
+      filesToUpload['Registration To Import'] = registrationImport!;
     }
 
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    if (supplyContract != null) {
+      filesToUpload['Supply Contract'] = supplyContract!;
+    }
+    if (importDocs != null) {
+      filesToUpload['Import Documents'] = importDocs!;
+    }
+    if (forestryBonds != null) {
+      filesToUpload['Forestry Bonds'] = forestryBonds!;
+    }
+    if (partnership != null) {
+      filesToUpload['Articles of Partnership'] = partnership!;
+    }
+    if (businessName != null) {
+      filesToUpload['Business Name'] = businessName!;
+    }
+    if (mayorsPermit != null) {
+      filesToUpload['Mayors Permit'] = mayorsPermit!;
+    }
+    if (incomeTax != null) {
+      filesToUpload['Income Tax Return'] = incomeTax!;
+    }
+    if (adequateCash != null) {
+      filesToUpload['Certification of Adequate Cash'] = adequateCash!;
+    }
+    if (permitEngage != null) {
+      filesToUpload['Permit To Engage'] = permitEngage!;
+    }
+    if (businessPlan != null) {
+      filesToUpload['Business Plan'] = businessPlan!;
+    }
+    if (log != null) {
+      filesToUpload['Pole Supply Contract'] = log!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -312,7 +368,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text('Charcoal', style: TextStyle(color: Colors.white)),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +379,22 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Duly Accomplish Application Form',
+                      'Registration To Import',
+                      'Permit To Engage',
+                      'Supply Contract',
+                      'Business Plan',
+                      'Import Documents',
+                      'Income Tax Return',
+
+                      'Forestry Bonds',
+                      'Articles of Partnership',
+
+                      'Business Name',
+
+                      'Mayors Permit',
+                      'Certification of Adequate Cash',
+                      'Pole Supply Contract',
                     ])
                     ? const Center(
                       child: Padding(
@@ -353,28 +422,100 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        if (!uploadedLabels.contains(
+                          'Duly Accomplish Application Form',
+                        ))
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
+                            '1. Letter application or duly accomplished Application Form filled-up by the applicant',
+                            dulyAccomplishForm,
+                            (file) => setState(() => dulyAccomplishForm = file),
                           ),
-                        if (!uploadedLabels.contains('Legal Possession'))
+
+                        if (!uploadedLabels.contains('Registration To Import'))
                           _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '2. Authenticated copy of Registration to import logs, lumber, veneer or commercial poles and piles',
+                            registrationImport,
+                            (file) => setState(() => registrationImport = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Supply Contract'))
+                          _buildFilePicker(
+                            '3. Approved Log / Lumber Supply Contract or Invoice Receipt (1 photocopy)',
+                            supplyContract,
+                            (file) => setState(() => supplyContract = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Import Documents'))
+                          _buildFilePicker(
+                            '4. Authenticated copies of import documents covering the imported commodities',
+                            importDocs,
+                            (file) => setState(() => importDocs = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Forestry Bonds'))
+                          _buildFilePicker(
+                            '5. Forestry Bond (Specifying permit applied for) either Cash P1000.00 or Surety Bond P1,250.00',
+                            forestryBonds,
+                            (file) => setState(() => forestryBonds = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Articles of Partnership'))
+                          _buildFilePicker(
+                            '6. Articles of Partnership or Incorporation duly registered with the SEC if application is filed by partnership, corporation or association',
+                            partnership,
+                            (file) => setState(() => partnership = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Business Name'))
+                          _buildFilePicker(
+                            '7. Certified copy or xerox copy of Business Name or Trade Name duly registered with the Department of Trade and Industry (DTI) if applicant is using a trade name',
+                            businessName,
+                            (file) => setState(() => businessName = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Mayors Permit'))
+                          _buildFilePicker(
+                            '8. Mayors permit together with a certification from the city or municipal treasurer stating that the operation of the intended business does not violate any existing ordinance of said municipality/city',
+                            mayorsPermit,
+                            (file) => setState(() => mayorsPermit = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Income Tax Return'))
+                          _buildFilePicker(
+                            '9. Copy of Annual Income Tax Return for the last two (2) years (Individual or Corporate Annual Income Tax Return), if applicable',
+                            incomeTax,
+                            (file) => setState(() => incomeTax = file),
                           ),
 
                         if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
+                          'Certification of Adequate Cash',
                         ))
                           _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
+                            '10. Certification of adequate cash capital deposit from a bank and affidavit of the applicant stating that said deposit shall be used solely for the intended business',
+                            adequateCash,
+                            (file) => setState(() => adequateCash = file),
                           ),
 
+                        if (!uploadedLabels.contains('Permit To Engage'))
+                          _buildFilePicker(
+                            '11. Permit to engage in business (if applicant is a foreigner)',
+                            permitEngage,
+                            (file) => setState(() => permitEngage = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Business Plan'))
+                          _buildFilePicker(
+                            '12. Business Plan',
+                            businessPlan,
+                            (file) => setState(() => businessPlan = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Pole Supply Contract'))
+                          _buildFilePicker(
+                            '13. Log/Lumber/Pole Supply Contract with legitimate sawmill operator/timber concessionaires',
+                            log,
+                            (file) => setState(() => log = file),
+                          ),
                         const SizedBox(height: 15),
 
                         Center(

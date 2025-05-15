@@ -10,20 +10,24 @@ import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:path/path.dart' as path;
 
-class AddLTPFlora extends StatefulWidget {
+class AddWoodCharcoal extends StatefulWidget {
   final String applicationId;
 
-  const AddLTPFlora({super.key, required this.applicationId});
+  const AddWoodCharcoal({super.key, required this.applicationId});
 
   @override
-  _AddLTPFloraState createState() => _AddLTPFloraState();
+  _AddWoodCharcoalState createState() => _AddWoodCharcoalState();
 }
 
-class _AddLTPFloraState extends State<AddLTPFlora> {
+class _AddWoodCharcoalState extends State<AddWoodCharcoal> {
   final _formKey = GlobalKey<FormState>();
-  File? intentLetter;
-  File? legalPossession;
-  File? phytosanitaryCert;
+  File? letterApplication;
+
+  File? validID;
+  File? proofofJuridicial;
+  File? certnewr;
+  File? landTenure;
+  File? woodSupply;
 
   Set<String> uploadedLabels = {};
 
@@ -125,9 +129,12 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
       DocumentSnapshot applicationSnapshot = await applicationRef.get();
 
       final Map<String, String> fileLabelMap = {
-        'Letter of Intent': 'Letter of Intent',
-        'Phytosanitary Certificate': 'Phytosanitary Certificate',
-        'Legal Possession': 'Legal Possession',
+        'Application Form': 'Application Form',
+        'Valid ID': 'Valid ID',
+        'Proof of Juridicial': 'Proof of Juridicial',
+        'Certificate of Registration': 'Certificate of Registration',
+        'Land Tenure': 'Land Tenure',
+        'Wood Contract': 'Wood Contract',
       };
 
       if (!applicationSnapshot.exists) {
@@ -153,7 +160,7 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
         });
 
         await FirebaseFirestore.instance
-            .collection('transport_permit')
+            .collection('plantation')
             .doc(documentId)
             .collection('requirements')
             .doc(label)
@@ -221,15 +228,25 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
 
   Future<void> _submitFiles() async {
     Map<String, File> filesToUpload = {};
-    if (legalPossession != null) {
-      filesToUpload['Legal Possession'] = legalPossession!;
+
+    if (letterApplication != null) {
+      filesToUpload['Application Form'] = letterApplication!;
     }
-    if (intentLetter != null) {
-      filesToUpload['Letter of Intent'] = intentLetter!;
+    if (validID != null) {
+      filesToUpload['Valid ID'] = validID!;
     }
 
-    if (phytosanitaryCert != null) {
-      filesToUpload['Phytosanitary Certificate'] = phytosanitaryCert!;
+    if (proofofJuridicial != null) {
+      filesToUpload['Proof of Juridicial'] = proofofJuridicial!;
+    }
+    if (certnewr != null) {
+      filesToUpload['Certificate of Registration'] = certnewr!;
+    }
+    if (landTenure != null) {
+      filesToUpload['Land Tenure'] = landTenure!;
+    }
+    if (woodSupply != null) {
+      filesToUpload['Wood Contract'] = woodSupply!;
     }
 
     if (filesToUpload.isEmpty) {
@@ -312,7 +329,10 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('LTP (Flora)', style: TextStyle(color: Colors.white)),
+        title: const Text(
+          'Private Tree Plantation',
+          style: TextStyle(color: Colors.white),
+        ),
         leading: BackButton(color: Colors.white),
         backgroundColor: Colors.green,
       ),
@@ -323,9 +343,12 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
             key: _formKey,
             child:
                 uploadedLabels.containsAll([
-                      'Letter of Intent',
-                      'Phytosanitary Certificate',
-                      'Legal Possession',
+                      'Application Form',
+                      'Valid ID',
+                      'Proof of Juridicial',
+                      'Certificate of Registration',
+                      'Land Tenure',
+                      'Wood Contract',
                     ])
                     ? const Center(
                       child: Padding(
@@ -353,26 +376,47 @@ class _AddLTPFloraState extends State<AddLTPFlora> {
                         ),
                         const SizedBox(height: 16),
 
-                        if (!uploadedLabels.contains('Letter of Intent'))
+                        if (!uploadedLabels.contains('Application Form'))
                           _buildFilePicker(
-                            '1. Letter of Intent Addressed to this Office;',
-                            intentLetter,
-                            (file) => setState(() => intentLetter = file),
-                          ),
-                        if (!uploadedLabels.contains('Legal Possession'))
-                          _buildFilePicker(
-                            '2. Documents supporting Legal Possession or Acquisition of Wildlife ( e.g. Wildlife Farm Permit, Certificate of Wildlife registration, Official Reciept, Deed of Donation issued by the Registered Wildlife Holder;)',
-                            legalPossession,
-                            (file) => setState(() => legalPossession = file),
+                            '1. Duly filled out application form',
+                            letterApplication,
+                            (file) => setState(() => letterApplication = file),
                           ),
 
+                        if (!uploadedLabels.contains('Valid ID'))
+                          _buildFilePicker(
+                            '2. One valid government-issued identification card, if individual',
+
+                            validID,
+                            (file) => setState(() => validID = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Proof of Juridicial'))
+                          _buildFilePicker(
+                            '3. Proof of juridical personality such as a certified copy of the Certificate of Registration and Certificate of Good Standing from either CDA, SEC and the list of current officers, if association / cooperative / corporation / partnership',
+                            proofofJuridicial,
+                            (file) => setState(() => proofofJuridicial = file),
+                          ),
                         if (!uploadedLabels.contains(
-                          'Phytosanitary Certificate',
+                          'Certificate of Registration',
                         ))
                           _buildFilePicker(
-                            '3. Phytosanitary Certificate from concerned DA Office.',
-                            phytosanitaryCert,
-                            (file) => setState(() => phytosanitaryCert = file),
+                            '4. If it is a corporation registered under SEC, certified copy of Certificate of Registration and Articles of Incorporation and By-Laws (specifying in the purpose and objectives, to include among others, the development and production of wood charcoal); and list of current officers and stockholders duly certified by the Board Secretary',
+                            certnewr,
+                            (file) => setState(() => certnewr = file),
+                          ),
+
+                        if (!uploadedLabels.contains('Land Tenure'))
+                          _buildFilePicker(
+                            '5. Copy of the approved land tenure instrument with corresponding management plans, valid permits and certificates of registration issued, as applicable',
+                            landTenure,
+                            (file) => setState(() => landTenure = file),
+                          ),
+                        if (!uploadedLabels.contains('Wood Contract'))
+                          _buildFilePicker(
+                            '6. Notarized and duly approved Wood Charcoal Supply Contract, if the applicant is not a legal source of raw materials',
+                            woodSupply,
+                            (file) => setState(() => woodSupply = file),
                           ),
 
                         const SizedBox(height: 15),
